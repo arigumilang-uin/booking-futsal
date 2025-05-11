@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Env files
+.env
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Postman files
+*.postman_collection.json
