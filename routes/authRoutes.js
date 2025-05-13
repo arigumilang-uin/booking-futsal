@@ -10,5 +10,6 @@ router.post('/login', authController.login);
 // Tambahan:
 router.get('/me', verifyToken, authController.getProfile); // user profile
 router.get('/users', verifyToken, isAdmin, authController.getAllUsers); // admin only
+router.delete('/users/:id', verifyToken, isAdmin, authController.deleteUserById); // hapus user (admin only)
 
 module.exports = router;

@@ -60,3 +60,15 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ error: 'Gagal mengambil daftar pengguna' });
   }
 };
+
+// Delete User by ID (Admin only)
+exports.deleteUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await User.deleteUserById(userId);
+    res.status(200).json({ message: 'User berhasil dihapus' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Gagal menghapus user' });
+  }
+};
