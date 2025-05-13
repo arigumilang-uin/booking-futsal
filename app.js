@@ -15,6 +15,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Route root untuk cek server aktif
+app.get('/', (req, res) => {
+  res.send('Booking Futsal API is running 🚀');
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/fields', fieldRoutes);
