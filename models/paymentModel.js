@@ -1,3 +1,4 @@
+// models/paymentModels.js
 const pool = require('../config/db');
 
 const getAllPayments = async () => {
@@ -8,6 +9,11 @@ const getAllPayments = async () => {
 const getPaymentById = async (id) => {
   const result = await pool.query('SELECT * FROM payments WHERE id = $1', [id]);
   return result.rows[0];
+};
+
+const getPaymentsByBookingId = async (booking_id) => {
+  const result = await pool.query('SELECT * FROM payments WHERE booking_id = $1', [booking_id]);
+  return result.rows;
 };
 
 const createPayment = async ({ booking_id, method, amount, status = 'unpaid', paid_at = null }) => {
@@ -34,6 +40,7 @@ const deletePayment = async (id) => {
 module.exports = {
   getAllPayments,
   getPaymentById,
+  getPaymentsByBookingId,
   createPayment,
   updatePaymentStatus,
   deletePayment,

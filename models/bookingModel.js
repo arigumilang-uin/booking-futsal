@@ -1,3 +1,4 @@
+// models/bookingModels.js
 const pool = require('../config/db');
 
 const getAllBookings = async (page = 1, limit = 10) => {
@@ -14,12 +15,26 @@ const getBookingById = async (id) => {
   return result.rows[0];
 };
 
+const getBookingsByUserId = async (user_id) => {
+  const result = await pool.query('SELECT * FROM bookings WHERE user_id = $1 ORDER BY date DESC', [user_id]);
+  return result.rows;
+};
+
 const createBooking = async ({ user_id, field_id, date, start_time, end_time, status = 'pending' }) => {
   const result = await pool.query(
     'INSERT INTO bookings (user_id, field_id, date, start_time, end_time, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
     [user_id, field_id, date, start_time, end_time, status]
   );
   return result.rows[0];
+};
+
+const checkBookingConflict = async (field_id, date, start_time, end_time) => {
+  const result = await pool.query(
+    `SELECT * FROM bookings WHERE field_id = $1 AND date = $2
+     AND (($3, $4) OVERLAPS (start_time, end_time))`,
+    [field_id, date, start_time, end_time]
+  );
+  return result.rows.length > 0;
 };
 
 const updateBookingStatus = async (id, status) => {
@@ -37,7 +52,9 @@ const deleteBooking = async (id) => {
 module.exports = {
   getAllBookings,
   getBookingById,
+  getBookingsByUserId,
   createBooking,
+  checkBookingConflict,
   updateBookingStatus,
   deleteBooking,
 };

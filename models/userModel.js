@@ -1,3 +1,4 @@
+// models/userModels.js
 const pool = require('../config/db');
 
 const getAllUsers = async () => {
@@ -27,10 +28,25 @@ const deleteUserById = async (id) => {
   await pool.query('DELETE FROM users WHERE id = $1', [id]);
 };
 
+const getUsersByRole = async (role) => {
+  const result = await pool.query('SELECT * FROM users WHERE role = $1', [role]);
+  return result.rows;
+};
+
+const updateUserProfile = async (id, { name, email }) => {
+  const result = await pool.query(
+    'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
+    [name, email, id]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   getUserByEmail,
   createUser,
-  deleteUserById
+  deleteUserById,
+  getUsersByRole,
+  updateUserProfile,
 };

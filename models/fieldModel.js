@@ -1,11 +1,9 @@
+// models/fieldModels.js
 const pool = require('../config/db');
 
 const getAllFields = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
-  const result = await pool.query(
-    'SELECT * FROM fields LIMIT $1 OFFSET $2',
-    [limit, offset]
-  );
+  const result = await pool.query('SELECT * FROM fields LIMIT $1 OFFSET $2', [limit, offset]);
   return result.rows;
 };
 
@@ -34,10 +32,16 @@ const deleteField = async (id) => {
   await pool.query('DELETE FROM fields WHERE id = $1', [id]);
 };
 
+const searchFieldsByName = async (keyword) => {
+  const result = await pool.query('SELECT * FROM fields WHERE name ILIKE $1', [`%${keyword}%`]);
+  return result.rows;
+};
+
 module.exports = {
   getAllFields,
   getFieldById,
   createField,
   updateField,
   deleteField,
+  searchFieldsByName,
 };

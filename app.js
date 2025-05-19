@@ -1,12 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const authRoutes = require('./routes/authRoutes');
-const fieldRoutes = require('./routes/fieldRoutes');
-const bookingRoutes = require('./routes/bookingRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
+
+// Import semua user routes dari folder routes/user
+const authRoutes = require('./routes/user/authRoutes');
+const fieldRoutes = require('./routes/user/fieldRoutes');
+const bookingRoutes = require('./routes/user/bookingRoutes');
+const paymentRoutes = require('./routes/user/paymentRoutes');
+const profileRoutes = require('./routes/user/profileRoutes');
+
+const bookingManagementRoutes = require('./routes/pengelola/bookingManagementRoutes');
+const fieldManagementRoutes = require('./routes/pengelola/fieldManagementRoutes');
+const paymentManagementRoutes = require('./routes/pengelola/paymentManagementRoutes');
+const userManagementRoutes = require('./routes/pengelola/userManagementRoutes');
+
 const errorMiddleware = require('./middlewares/errorMiddleware');
-// const adminBookingRoutes = require('./routes/admin/bookingRoutes'); // jika nanti ada admin khusus
 
 const app = express();
 
@@ -20,19 +28,24 @@ app.get('/', (req, res) => {
   res.send('Booking Futsal API is running 🚀');
 });
 
-// Routes
+// Routes untuk pengguna
 app.use('/api/auth', authRoutes);
 app.use('/api/fields', fieldRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
-// app.use('/api/admin/bookings', adminBookingRoutes); // contoh admin khusus
+app.use('/api/profile', profileRoutes);
+
+app.use('/api/pengelola/bookings', bookingManagementRoutes);
+app.use('/api/pengelola/fields', fieldManagementRoutes);
+app.use('/api/pengelola/payments', paymentManagementRoutes);
+app.use('/api/pengelola/users', userManagementRoutes);
 
 // Middleware 404 handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Endpoint tidak ditemukan' });
 });
 
-// Middleware untuk error global
+// Middleware error global
 app.use(errorMiddleware);
 
 module.exports = app;

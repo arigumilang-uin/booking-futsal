@@ -1,9 +1,7 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
-const { generateToken } = require('../utils/tokenUtils');
+const User = require('../../models/userModel');
+const { generateToken } = require('../../utils/tokenUtils');
 
-// Register
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -18,12 +16,10 @@ exports.register = async (req, res) => {
     const token = generateToken(newUser);
     res.status(201).json({ user: newUser, token });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Gagal registrasi pengguna' });
   }
 };
 
-// Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -36,39 +32,6 @@ exports.login = async (req, res) => {
     const token = generateToken(user);
     res.json({ user, token });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Gagal login' });
-  }
-};
-
-// Get Profile
-exports.getProfile = async (req, res) => {
-  try {
-    const user = await User.getUserById(req.user.id);
-    res.json({ user });
-  } catch (err) {
-    res.status(500).json({ error: 'Gagal mengambil data profil' });
-  }
-};
-
-// Get All Users (Admin only)
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.getAllUsers();
-    res.json({ users });
-  } catch (err) {
-    res.status(500).json({ error: 'Gagal mengambil daftar pengguna' });
-  }
-};
-
-// Delete User by ID (Admin only)
-exports.deleteUserById = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    await User.deleteUserById(userId);
-    res.status(200).json({ message: 'User berhasil dihapus' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Gagal menghapus user' });
   }
 };
