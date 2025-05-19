@@ -29,11 +29,11 @@ app.get('/', (req, res) => {
 });
 
 // Routes untuk pengguna
-app.use('/api/auth', authRoutes);
-app.use('/api/fields', fieldRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/profile', profileRoutes);
+app.use('/api/user/auth', authRoutes);
+app.use('/api/user/fields', fieldRoutes);
+app.use('/api/user/bookings', bookingRoutes);
+app.use('/api/user/payments', paymentRoutes);
+app.use('/api/user/profile', profileRoutes);
 
 app.use('/api/pengelola/bookings', bookingManagementRoutes);
 app.use('/api/pengelola/fields', fieldManagementRoutes);

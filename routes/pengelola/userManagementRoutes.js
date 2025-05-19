@@ -5,7 +5,7 @@ const userManagementController = require('../../controllers/pengelola/userManage
 const { verifyToken } = require('../../middlewares/authMiddleware');
 const isPengelola = require('../../middlewares/isPengelola');
 
-router.get('/users', verifyToken, isPengelola, userManagementController.getAllUsers);
-router.delete('/users/:id', verifyToken, isPengelola, userManagementController.deleteUserById);
+router.get('/', verifyToken, isPengelola, userManagementController.getAllUsers);
+router.delete('/:id', verifyToken, isPengelola, userManagementController.deleteUserById);
 
 module.exports = router;
