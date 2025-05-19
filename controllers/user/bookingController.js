@@ -38,8 +38,9 @@ exports.createBooking = async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: 'Gagal membuat booking' });
-  }
+  console.error('Booking Error:', err); // Tambahkan ini
+  res.status(500).json({ error: 'Gagal membuat booking' });
+}
 };
 
 exports.cancelBooking = async (req, res) => {
