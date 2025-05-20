@@ -25,8 +25,10 @@ const createUser = async ({ name, email, password, role = 'user' }) => {
 };
 
 const deleteUserById = async (id) => {
-  await pool.query('DELETE FROM users WHERE id = $1', [id]);
+  const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+  return result.rowCount > 0; 
 };
+
 
 const getUsersByRole = async (role) => {
   const result = await pool.query('SELECT * FROM users WHERE role = $1', [role]);
