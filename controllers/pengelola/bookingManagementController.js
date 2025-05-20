@@ -38,3 +38,18 @@ exports.deleteBookingById = async (req, res) => {
     res.status(500).json({ error: 'Gagal menghapus booking' });
   }
 };
+
+// Ambil semua booking (untuk pengelola)
+exports.getAllBookings = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const bookings = await Booking.getAllBookings(page, limit);
+    res.json(bookings);
+  } catch (err) {
+    console.error('Fetch All Bookings Error:', err.message);
+    res.status(500).json({ error: 'Gagal mengambil data booking' });
+  }
+};
+
