@@ -1,19 +1,18 @@
-const pool = require('../../config/db');
+// controllers/user/bookingController.js
 const Booking = require('../../models/bookingModel');
 const { isTimeOverlap } = require('../../utils/dateUtils');
 
 exports.getUserBookings = async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
+
   try {
-    const result = await pool.query(
-      'SELECT * FROM bookings WHERE user_id = $1 ORDER BY date, start_time',
-      [userId]
-    );
-    if (!result.rows.length) {
+    const bookings = await Booking.getBookingsByUserId(userId);
+    if (!bookings.length) {
       return res.status(404).json({ message: 'Tidak ada booking ditemukan' });
     }
-    res.json(result.rows);
+    res.json(bookings);
   } catch (err) {
+    console.error('Fetch Error:', err.message);
     res.status(500).json({ error: 'Gagal mengambil data booking' });
   }
 };
@@ -23,34 +22,31 @@ exports.createBooking = async (req, res) => {
   const { field_id, date, start_time, end_time, name, phone } = req.body;
 
   try {
-    const existingBookings = await pool.query(
-      'SELECT * FROM bookings WHERE field_id = $1 AND date = $2',
-      [field_id, date]
-    );
-
-    for (let booking of existingBookings.rows) {
-      if (isTimeOverlap(booking.start_time, booking.end_time, start_time, end_time)) {
-        return res.status(400).json({ error: 'Waktu sudah terpakai' });
-      }
+    // Cek konflik booking
+    const conflict = await Booking.checkBookingConflict({ field_id, date, start_time, end_time });
+    if (conflict) {
+      return res.status(400).json({ error: 'Waktu sudah terpakai' });
     }
 
-    const result = await pool.query(
-      `INSERT INTO bookings (user_id, field_id, date, start_time, end_time, name, phone) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) 
-       RETURNING *`,
-      [userId, field_id, date, start_time, end_time, name, phone]
-    );
+    const newBooking = await Booking.createBooking({
+      user_id: userId,
+      field_id,
+      date,
+      start_time,
+      end_time,
+      name,
+      phone,
+    });
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(newBooking);
   } catch (err) {
-    console.error('Booking Error:', err);
+    console.error('Create Booking Error:', err.message);
     res.status(500).json({ error: 'Gagal membuat booking' });
   }
 };
 
-
 exports.cancelBooking = async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const { id } = req.params;
 
   try {
@@ -66,6 +62,7 @@ exports.cancelBooking = async (req, res) => {
     await Booking.deleteBooking(id);
     res.json({ message: 'Booking berhasil dibatalkan' });
   } catch (err) {
+    console.error('Cancel Booking Error:', err.message);
     res.status(500).json({ error: 'Gagal membatalkan booking' });
   }
 };
