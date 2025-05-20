@@ -6,5 +6,6 @@ const { verifyToken } = require('../../middlewares/authMiddleware');
 const isPengelola = require('../../middlewares/isPengelola');
 
 router.put('/:id/status', verifyToken, isPengelola, bookingManagementController.updateBookingStatus);
+router.delete('/:id', verifyToken, isPengelola, bookingManagementController.deleteBookingById);
 
 module.exports = router;

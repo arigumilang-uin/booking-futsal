@@ -19,3 +19,20 @@ exports.updateBookingStatus = async (req, res) => {
     res.status(500).json({ error: 'Gagal mengubah status booking' });
   }
 };
+
+exports.deleteBookingById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const booking = await Booking.getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking tidak ditemukan' });
+    }
+
+    await Booking.deleteBooking(id);
+    res.status(200).json({ message: 'Booking berhasil dihapus' });
+  } catch (err) {
+    console.error('Gagal menghapus booking:', err.message);
+    res.status(500).json({ error: 'Gagal menghapus booking' });
+  }
+};
