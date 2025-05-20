@@ -20,7 +20,8 @@ exports.getUserBookings = async (req, res) => {
 
 exports.createBooking = async (req, res) => {
   const userId = req.user.id;
-  const { field_id, date, start_time, end_time } = req.body;
+  const { field_id, date, start_time, end_time, name, phone } = req.body;
+
   try {
     const existingBookings = await pool.query(
       'SELECT * FROM bookings WHERE field_id = $1 AND date = $2',
@@ -34,8 +35,10 @@ exports.createBooking = async (req, res) => {
     }
 
     const result = await pool.query(
-      'INSERT INTO bookings (user_id, field_id, date, start_time, end_time) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [userId, field_id, date, start_time, end_time]
+      `INSERT INTO bookings (user_id, field_id, date, start_time, end_time, name, phone) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING *`,
+      [userId, field_id, date, start_time, end_time, name, phone]
     );
 
     res.status(201).json(result.rows[0]);
@@ -44,6 +47,7 @@ exports.createBooking = async (req, res) => {
     res.status(500).json({ error: 'Gagal membuat booking' });
   }
 };
+
 
 exports.cancelBooking = async (req, res) => {
   const userId = req.user.id; 
