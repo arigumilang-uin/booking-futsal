@@ -20,8 +20,8 @@ const app = express();
 
 // Middleware umum
 const allowedOrigins = [
-  'http://localhost:5174',
-  'https://booking-futsal-frontend.vercel.app'
+  'http://localhost:5175', // sesuaikan port dev lokal kamu
+  'https://booking-futsal-frontend.vercel.app' // URL dari vercel
 ];
 
 app.use(cors({
@@ -29,11 +29,12 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS: ' + origin));
     }
   },
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use(morgan('dev'));
