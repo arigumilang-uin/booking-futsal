@@ -21,7 +21,6 @@ const app = express();
 
 // Middleware umum
 const allowedOrigins = [
-  'http://localhost:5173', // sesuaikan port dev lokal kamu
   'https://booking-futsal-frontend.vercel.app' // URL dari vercel
 ];
 
