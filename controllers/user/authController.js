@@ -1,3 +1,4 @@
+// controllers/user/authController.js
 const bcrypt = require('bcrypt');
 const User = require('../../models/userModel');
 const { generateToken } = require('../../utils/tokenUtils');
@@ -14,7 +15,16 @@ exports.register = async (req, res) => {
     const newUser = await User.createUser({ name, email, password: hashedPassword });
 
     const token = generateToken(newUser);
-    res.status(201).json({ user: newUser, token });
+
+    res
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // hanya aktif di HTTPS di production
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+      })
+      .status(201)
+      .json({ user: newUser });
   } catch (err) {
     res.status(500).json({ error: 'Gagal registrasi pengguna' });
   }
@@ -30,8 +40,25 @@ exports.login = async (req, res) => {
     if (!validPassword) return res.status(401).json({ error: 'Password salah' });
 
     const token = generateToken(user);
-    res.json({ user, token });
+
+    res
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({ user });
   } catch (err) {
     res.status(500).json({ error: 'Gagal login' });
   }
+};
+
+// Opsional: Tambahkan logout
+exports.logout = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  }).json({ message: 'Logout berhasil' });
 };

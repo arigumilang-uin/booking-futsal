@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser()); // <--- penting!
 
 // Import semua user routes dari folder routes/user
 const authRoutes = require('./routes/user/authRoutes');
@@ -20,7 +23,7 @@ const app = express();
 
 // Middleware umum
 const allowedOrigins = [
-  'http://localhost:5175', // sesuaikan port dev lokal kamu
+  'http://localhost:5173', // sesuaikan port dev lokal kamu
   'https://booking-futsal-frontend.vercel.app' // URL dari vercel
 ];
 
