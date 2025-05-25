@@ -16,11 +16,10 @@ exports.register = async (req, res) => {
 
     const token = generateToken(newUser);
 
-    res
-      .cookie('token', token, {
+    res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // hanya aktif di HTTPS di production
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
       })
       .status(201)
@@ -41,8 +40,7 @@ exports.login = async (req, res) => {
 
     const token = generateToken(user);
 
-    res
-      .cookie('token', token, {
+    res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
