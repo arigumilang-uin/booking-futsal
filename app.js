@@ -3,8 +3,6 @@ const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 
-app.use(cookieParser()); // <--- penting!
-
 // Import semua user routes dari folder routes/user
 const authRoutes = require('./routes/user/authRoutes');
 const fieldRoutes = require('./routes/user/fieldRoutes');
@@ -40,6 +38,7 @@ app.use(cors({
 
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 // Route root untuk cek server aktif
