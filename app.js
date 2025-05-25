@@ -47,16 +47,16 @@ app.get('/', (req, res) => {
 });
 
 // Routes untuk pengguna
-app.use('/api/user/auth', authRoutes);
-app.use('/api/user/fields', fieldRoutes);
-app.use('/api/user/bookings', bookingRoutes);
-app.use('/api/user/payments', paymentRoutes);
-app.use('/api/user/profile', profileRoutes);
+app.use('/user/auth', authRoutes);
+app.use('/user/fields', fieldRoutes);
+app.use('/user/bookings', bookingRoutes);
+app.use('/user/payments', paymentRoutes);
+app.use('/user/profile', profileRoutes);
 
-app.use('/api/pengelola/bookings', bookingManagementRoutes);
-app.use('/api/pengelola/fields', fieldManagementRoutes);
-app.use('/api/pengelola/payments', paymentManagementRoutes);
-app.use('/api/pengelola/users', userManagementRoutes);
+app.use('/pengelola/bookings', bookingManagementRoutes);
+app.use('/pengelola/fields', fieldManagementRoutes);
+app.use('/pengelola/payments', paymentManagementRoutes);
+app.use('/pengelola/users', userManagementRoutes);
 
 // Middleware 404 handler
 app.use((req, res, next) => {
