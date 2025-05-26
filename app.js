@@ -21,7 +21,8 @@ const app = express();
 
 // Middleware umum
 const allowedOrigins = [
-  'https://booking-futsal-frontend.vercel.app' // URL dari vercel
+  'http://localhost:5173', //development
+  'https://booking-futsal-frontend.vercel.app' //production
 ];
 
 app.use(cors({
