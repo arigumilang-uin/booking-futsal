@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// Opsional: Tambahkan logout
+// logout
 exports.logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
