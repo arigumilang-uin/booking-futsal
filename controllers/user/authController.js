@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // hanya aktif di HTTPS di production
+        secure: process.env.NODE_ENV === 'production', // aktif di HTTPS di production
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
       })
@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// logout
+// Opsional: Tambahkan logout
 exports.logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,

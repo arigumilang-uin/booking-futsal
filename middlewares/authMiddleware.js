@@ -4,7 +4,7 @@ require('dotenv').config();
 
 exports.verifyToken = (req, res, next) => {
   const token =
-    req.cookies?.token || // dari cookie
+    req.cookies?.token || // cookie
     (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')
       ? req.headers.authorization.split(' ')[1]
       : null);

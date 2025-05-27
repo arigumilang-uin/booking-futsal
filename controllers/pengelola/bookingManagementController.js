@@ -39,7 +39,6 @@ exports.deleteBookingById = async (req, res) => {
   }
 };
 
-// Ambil semua booking (untuk pengelola)
 exports.getAllBookings = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

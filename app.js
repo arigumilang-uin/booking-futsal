@@ -3,13 +3,14 @@ const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 
-// Import semua user routes dari folder routes/user
+// Import user routes
 const authRoutes = require('./routes/user/authRoutes');
 const fieldRoutes = require('./routes/user/fieldRoutes');
 const bookingRoutes = require('./routes/user/bookingRoutes');
 const paymentRoutes = require('./routes/user/paymentRoutes');
 const profileRoutes = require('./routes/user/profileRoutes');
 
+// Import pengelola routes
 const bookingManagementRoutes = require('./routes/pengelola/bookingManagementRoutes');
 const fieldManagementRoutes = require('./routes/pengelola/fieldManagementRoutes');
 const paymentManagementRoutes = require('./routes/pengelola/paymentManagementRoutes');
@@ -19,7 +20,7 @@ const errorMiddleware = require('./middlewares/errorMiddleware');
 
 const app = express();
 
-// Middleware umum
+// Middleware untuk CORS
 const allowedOrigins = [
   'http://localhost:5173', //development
   'https://booking-futsal-frontend.vercel.app' //production
@@ -53,6 +54,7 @@ app.use('/user/bookings', bookingRoutes);
 app.use('/user/payments', paymentRoutes);
 app.use('/user/profile', profileRoutes);
 
+// Routes untuk pengelola
 app.use('/pengelola/bookings', bookingManagementRoutes);
 app.use('/pengelola/fields', fieldManagementRoutes);
 app.use('/pengelola/payments', paymentManagementRoutes);

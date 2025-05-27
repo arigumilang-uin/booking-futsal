@@ -15,7 +15,7 @@ exports.deleteUserById = async (req, res) => {
     await User.deleteUserById(userId);
     res.status(200).json({ message: 'User berhasil dihapus' });
   } catch (err) {
-    console.error('[ERROR] Gagal menghapus user:', err.message); // 👈 Tampilkan pesan error
+    console.error('[ERROR] Gagal menghapus user:', err.message); 
     res.status(500).json({ error: 'Gagal menghapus user' });
   }
 };
