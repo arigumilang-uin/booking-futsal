@@ -18,5 +18,3 @@ Thumbs.db
 # VS Code
 .vscode/
 
-# Postman files
-*.postman_collection.json
