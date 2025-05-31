@@ -1,24 +1,25 @@
-const app = require('./app');
 const dotenv = require('dotenv');
+
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: envFile });
+
+const app = require('./app');
 const cron = require('node-cron');
 const updateCompletedBookings = require('./utils/updateCompletedBookings');
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
-// Jalankan pengecekan setiap 30 menit
 cron.schedule('*/30 * * * *', async () => {
   try {
     const updated = await updateCompletedBookings();
     if (updated.length > 0) {
-      console.log(`[CRON] ${updated.length} booking ditandai completed.`);
+      console.log(`${updated.length} booking completed`);
     }
   } catch (err) {
-    console.error('[CRON ERROR]', err);
+    console.error('Cron error:', err);
   }
 });

@@ -1,14 +1,243 @@
 const pool = require('../config/db');
+const { updateBookingStatus } = require('../models/bookingModel');
 
 const updateCompletedBookings = async () => {
-  const result = await pool.query(
-    `UPDATE bookings
-     SET status = 'completed'
-     WHERE status = 'confirmed'
-       AND (date < CURRENT_DATE OR (date = CURRENT_DATE AND end_time < CURRENT_TIME))
-     RETURNING *`
-  );
-  return result.rows;
+  try {
+    console.log('[AUTO-COMPLETION] Starting booking completion check...');
+    
+    const now = new Date();
+    const currentTime = now.toTimeString().slice(0, 8);
+    const currentDate = now.toISOString().split('T')[0];
+
+    const expiredBookingsQuery = `
+      SELECT 
+        b.id, 
+        b.uuid, 
+        b.booking_number, 
+        b.date, 
+        b.start_time, 
+        b.end_time,
+        b.status,
+        b.user_id,
+        f.name as field_name,
+        u.name as user_name
+      FROM bookings b
+      LEFT JOIN fields f ON b.field_id = f.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.status = 'confirmed'
+        AND (
+          (b.date < $1) OR 
+          (b.date = $1 AND b.end_time <= $2)
+        )
+        AND b.completed_at IS NULL
+      ORDER BY b.date ASC, b.end_time ASC
+    `;
+    
+    const expiredBookings = await pool.query(expiredBookingsQuery, [currentDate, currentTime]);
+    
+    if (expiredBookings.rows.length === 0) {
+      console.log('[AUTO-COMPLETION] No bookings to complete');
+      return [];
+    }
+    
+    console.log(`[AUTO-COMPLETION] Found ${expiredBookings.rows.length} bookings to complete`);
+    
+    const completedBookings = [];
+    
+    for (const booking of expiredBookings.rows) {
+      try {
+        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}`);
+        const gracePeriodEnd = new Date(bookingEndDateTime.getTime() + (15 * 60 * 1000));
+
+        if (now >= gracePeriodEnd) {
+          const updatedBooking = await updateBookingStatus(
+            booking.id,
+            'completed',
+            null,
+            `Auto-completed by system at ${now.toISOString()}`
+          );
+          
+          completedBookings.push({
+            id: booking.id,
+            booking_number: booking.booking_number,
+            field_name: booking.field_name,
+            user_name: booking.user_name,
+            date: booking.date,
+            end_time: booking.end_time,
+            completed_at: updatedBooking.completed_at
+          });
+          
+          console.log(`[AUTO-COMPLETION] ✅ Completed booking ${booking.booking_number} (${booking.field_name})`);
+        } else {
+          console.log(`[AUTO-COMPLETION] ⏳ Booking ${booking.booking_number} still in grace period`);
+        }
+        
+      } catch (error) {
+        console.error(`[AUTO-COMPLETION] ❌ Failed to complete booking ${booking.booking_number}:`, error.message);
+        await logAutoCompletionError(booking.id, error.message);
+      }
+    }
+    
+    if (completedBookings.length > 0) {
+      console.log(`[AUTO-COMPLETION] ✅ Successfully completed ${completedBookings.length} bookings`);
+      await logAutoCompletionSuccess(completedBookings.length);
+    }
+    
+    return completedBookings;
+    
+  } catch (error) {
+    console.error('[AUTO-COMPLETION] ❌ System error during auto-completion:', error);
+    throw error;
+  }
 };
 
-module.exports = updateCompletedBookings;
+const getEligibleBookingsForCompletion = async () => {
+  try {
+    const now = new Date();
+    const currentTime = now.toTimeString().slice(0, 8);
+    const currentDate = now.toISOString().split('T')[0];
+    
+    const query = `
+      SELECT 
+        b.id, 
+        b.uuid, 
+        b.booking_number, 
+        b.date, 
+        b.start_time, 
+        b.end_time,
+        b.status,
+        CONCAT(b.date, ' ', b.end_time)::timestamp as booking_end_datetime,
+        CONCAT(b.date, ' ', b.end_time)::timestamp + INTERVAL '15 minutes' as grace_period_end,
+        f.name as field_name,
+        u.name as user_name
+      FROM bookings b
+      LEFT JOIN fields f ON b.field_id = f.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.status = 'confirmed'
+        AND (
+          (b.date < $1) OR 
+          (b.date = $1 AND b.end_time <= $2)
+        )
+        AND b.completed_at IS NULL
+      ORDER BY b.date ASC, b.end_time ASC
+    `;
+    
+    const result = await pool.query(query, [currentDate, currentTime]);
+    return result.rows;
+    
+  } catch (error) {
+    console.error('[AUTO-COMPLETION] Error getting eligible bookings:', error);
+    throw error;
+  }
+};
+
+const triggerManualCompletion = async (bookingId, adminUserId, reason = 'Manual completion by admin') => {
+  try {
+    const booking = await pool.query('SELECT * FROM bookings WHERE id = $1', [bookingId]);
+    
+    if (booking.rows.length === 0) {
+      throw new Error('Booking not found');
+    }
+    
+    if (booking.rows[0].status !== 'confirmed') {
+      throw new Error('Booking is not in confirmed status');
+    }
+    
+    const updatedBooking = await updateBookingStatus(
+      bookingId,
+      'completed',
+      adminUserId,
+      reason
+    );
+    
+    console.log(`[MANUAL-COMPLETION] ✅ Manually completed booking ${booking.rows[0].booking_number}`);
+    
+    return updatedBooking;
+    
+  } catch (error) {
+    console.error('[MANUAL-COMPLETION] ❌ Error in manual completion:', error);
+    throw error;
+  }
+};
+
+const logAutoCompletionError = async (bookingId, errorMessage) => {
+  try {
+    const query = `
+      INSERT INTO system_logs (
+        level, category, message, metadata, created_at
+      ) VALUES (
+        'error', 'auto_completion', $1, $2, NOW()
+      )
+    `;
+    
+    const metadata = JSON.stringify({
+      booking_id: bookingId,
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
+    
+    await pool.query(query, [
+      `Auto-completion failed for booking ID ${bookingId}`,
+      metadata
+    ]);
+    
+  } catch (logError) {
+    console.error('[AUTO-COMPLETION] Failed to log error:', logError);
+  }
+};
+
+const logAutoCompletionSuccess = async (completedCount) => {
+  try {
+    const query = `
+      INSERT INTO system_logs (
+        level, category, message, metadata, created_at
+      ) VALUES (
+        'info', 'auto_completion', $1, $2, NOW()
+      )
+    `;
+    
+    const metadata = JSON.stringify({
+      completed_count: completedCount,
+      timestamp: new Date().toISOString()
+    });
+    
+    await pool.query(query, [
+      `Auto-completion successful: ${completedCount} bookings completed`,
+      metadata
+    ]);
+    
+  } catch (logError) {
+    console.error('[AUTO-COMPLETION] Failed to log success:', logError);
+  }
+};
+
+const getAutoCompletionStats = async (days = 7) => {
+  try {
+    const query = `
+      SELECT 
+        DATE(completed_at) as completion_date,
+        COUNT(*) as completed_count,
+        COUNT(CASE WHEN completed_by IS NULL THEN 1 END) as auto_completed_count,
+        COUNT(CASE WHEN completed_by IS NOT NULL THEN 1 END) as manual_completed_count
+      FROM bookings
+      WHERE status = 'completed'
+        AND completed_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY DATE(completed_at)
+      ORDER BY completion_date DESC
+    `;
+    
+    const result = await pool.query(query);
+    return result.rows;
+    
+  } catch (error) {
+    console.error('[AUTO-COMPLETION] Error getting stats:', error);
+    throw error;
+  }
+};
+
+module.exports = {
+  updateCompletedBookings,
+  getEligibleBookingsForCompletion,
+  triggerManualCompletion,
+  getAutoCompletionStats
+};

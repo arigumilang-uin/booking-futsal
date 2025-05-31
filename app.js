@@ -2,28 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
-// Import user routes
-const authRoutes = require('./routes/user/authRoutes');
-const fieldRoutes = require('./routes/user/fieldRoutes');
-const bookingRoutes = require('./routes/user/bookingRoutes');
-const paymentRoutes = require('./routes/user/paymentRoutes');
-const profileRoutes = require('./routes/user/profileRoutes');
+const {
+  helmetConfig,
+  generalRateLimit,
+  validateInput,
+  securityLogger,
+  corsSecurityCheck,
+  requestSizeLimit
+} = require('./middlewares/security/securityMiddleware');
 
-// Import pengelola routes
-const bookingManagementRoutes = require('./routes/pengelola/bookingManagementRoutes');
-const fieldManagementRoutes = require('./routes/pengelola/fieldManagementRoutes');
-const paymentManagementRoutes = require('./routes/pengelola/paymentManagementRoutes');
-const userManagementRoutes = require('./routes/pengelola/userManagementRoutes');
-
-const errorMiddleware = require('./middlewares/errorMiddleware');
+const enhancedRoutes = require('./routes/enhanced/index');
 
 const app = express();
 
-// Middleware untuk CORS
+app.use(helmetConfig);
+app.use(compression());
+app.use(requestSizeLimit('10mb'));
+app.use(securityLogger);
+app.use(corsSecurityCheck);
+app.use(generalRateLimit);
+app.use(validateInput);
+
 const allowedOrigins = [
-  'http://localhost:5173', //development
-  'https://booking-futsal-frontend.vercel.app' //production
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://booking-futsal-frontend.vercel.app'
 ];
 
 app.use(cors({
@@ -34,38 +39,44 @@ app.use(cors({
       callback(new Error('Not allowed by CORS: ' + origin));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key']
 }));
 
-
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 
-// Route root untuk cek server aktif
 app.get('/', (req, res) => {
-  res.send('Booking Futsal API is running 🚀');
+  res.json({
+    success: true,
+    message: 'Futsal Booking API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
 });
 
-// Routes untuk pengguna
-app.use('/user/auth', authRoutes);
-app.use('/user/fields', fieldRoutes);
-app.use('/user/bookings', bookingRoutes);
-app.use('/user/payments', paymentRoutes);
-app.use('/user/profile', profileRoutes);
+app.use('/api', enhancedRoutes);
 
-// Routes untuk pengelola
-app.use('/pengelola/bookings', bookingManagementRoutes);
-app.use('/pengelola/fields', fieldManagementRoutes);
-app.use('/pengelola/payments', paymentManagementRoutes);
-app.use('/pengelola/users', userManagementRoutes);
-
-// Middleware 404 handler
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Endpoint tidak ditemukan' });
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint tidak ditemukan'
+  });
 });
 
-// Middleware error global
-app.use(errorMiddleware);
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+
+  const isDev = process.env.NODE_ENV === 'development';
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Server error',
+    ...(isDev && { stack: err.stack })
+  });
+});
 
 module.exports = app;

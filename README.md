@@ -1,113 +1,304 @@
-# Booking Futsal API 🏟️
+# Enhanced Futsal Booking System - Backend
 
-Sistem backend untuk aplikasi pemesanan lapangan futsal menggunakan Node.js, Express.js, dan PostgreSQL. API ini mendukung otentikasi JWT, manajemen pengguna, lapangan, booking, dan pembayaran.
+Backend API untuk sistem pemesanan lapangan futsal dengan enhanced role-based architecture, dibangun menggunakan Node.js, Express.js, dan PostgreSQL.
 
----
+## 🏗️ Architecture Overview
 
-## 📦 Fitur
+Sistem ini menggunakan **Enhanced Role-Based Architecture** dengan 6 level roles dan clean code structure yang telah direfactor untuk production-ready deployment.
 
-### 🔐 Auth
+### Enhanced Role System (6 Roles)
 
-- `POST /auth/register` — Registrasi pengguna baru
-- `POST /auth/login` — Login dan mendapatkan token
-- `GET /auth/me` — Lihat profil pengguna (token)
-- `GET /auth/users` — Lihat semua pengguna (admin)
+1. **pengunjung** (Level 1) - Guest access, view public fields
+2. **penyewa** (Level 2) - Customer access, create bookings, manage profile
+3. **staff_kasir** (Level 3) - Payment processing, cash management
+4. **operator_lapangan** (Level 4) - Field operations, booking confirmation
+5. **manajer_futsal** (Level 5) - Business management, analytics, user management
+6. **supervisor_sistem** (Level 6) - Full system access, system administration
 
-### 🏟️ Fields (Lapangan)
+### Project Structure
 
-- `GET /fields` — Lihat semua lapangan (public)
-- `GET /fields/:id` — Lihat detail 1 lapangan
-- `POST /fields` — Tambah lapangan (admin)
-- `PUT /fields/:id` — Ubah lapangan (admin)
-- `DELETE /fields/:id` — Hapus lapangan (admin)
+```
+booking_futsal/
+├── models/              # Database models (clean, refactored)
+├── controllers/         # Role-based controllers
+│   ├── customer/       # Penyewa access
+│   ├── staff/          # Staff access (kasir, operator, manager, supervisor)
+│   ├── public/         # Guest access
+│   └── admin/          # Role management
+├── middlewares/        # Authentication & authorization
+├── routes/             # API routes structure
+├── utils/              # Helper functions
+├── config/             # Database configuration
+├── database/           # SQL scripts & documentation
+└── postman/            # API testing collection
+```
 
-### 📅 Bookings
+## 🚀 Quick Start
 
-- `GET /bookings` — Lihat semua booking milik user
-- `POST /bookings` — Buat booking
-- `PUT /bookings/:id/status` — Ubah status booking (admin)
-- `DELETE /bookings/:id` — Hapus booking (user sendiri)
+### Prerequisites
 
-### 💳 Payments
+- Node.js (v16 or higher)
+- PostgreSQL (v12 or higher)
+- npm or yarn
 
-- `POST /payments` — Buat pembayaran (user)
-- `GET /payments` — Lihat semua pembayaran (admin)
-- `GET /payments/:id` — Detail pembayaran (admin)
-- `DELETE /payments/:id` — Hapus pembayaran (admin)
+### Installation
 
----
-
-## 🚀 Menjalankan Proyek
-
-1. Clone repository:
+1. **Clone repository:**
 
    ```bash
-   git clone https://github.com/username/booking-futsal.git
-   cd booking-futsal
+   git clone <repository-url>
+   cd booking_futsal
    ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 
    ```bash
    npm install
    ```
 
-3. Buat file `.env` di root project:
+3. **Setup environment variables:**
 
-   ```
+   Create `.env.development` for local development:
+
+   ```env
+   NODE_ENV=development
    PORT=5000
-   DB_USER=postgres
-   DB_HOST=localhost
-   DB_NAME=booking_futsal
-   DB_PASSWORD=123
-   DB_PORT=5432
-   DATABASE_URL=postgres://postgres:123@localhost:5432/booking_futsal
-   JWT_SECRET=rahasia_super_aman
+   DATABASE_URL=postgresql://username:password@localhost:5432/futsal_booking_dev
+   JWT_SECRET=your-super-secret-jwt-key-for-development
    ```
 
-4. Jalankan server:
+   Create `.env.production` for production deployment:
+
+   ```env
+   NODE_ENV=production
+   PORT=5000
+   DATABASE_URL=your-production-database-url
+   JWT_SECRET=your-super-secret-jwt-key-for-production
+   ```
+
+4. **Setup database:**
+
    ```bash
-   node server.js
+   # Run database migrations (check database/ folder for SQL scripts)
+   # Import schema and initial data as needed
    ```
 
----
+5. **Start the server:**
 
-## 🧪 Testing API dengan Postman
+   ```bash
+   # Development mode
+   npm run dev
 
-1. Buka Postman.
-2. Import file koleksi: `booking-futsal-api-full.postman_collection.json`.
-3. Siapkan environment:
-   - `base_url = http://localhost:5000`
-   - `token = <isi token JWT setelah login>`
+   # Production mode
+   npm run prod
 
----
+   # Default start
+   npm start
+   ```
 
-## 🗂️ Struktur Folder
+## 🌍 Environment Configuration
+
+### Development Environment
+
+- **Database:** Local PostgreSQL
+- **Port:** 5000 (configurable)
+- **Environment:** `.env.development`
+- **Features:** Hot reload, detailed logging
+
+### Production Environment
+
+- **Database:** Railway PostgreSQL (or your production DB)
+- **Port:** Process.env.PORT or 5000
+- **Environment:** `.env.production`
+- **Features:** Optimized for performance, security headers
+
+## 📚 API Documentation
+
+### Base URL
+
+- **Development:** `http://localhost:5000/api`
+- **Production:** `https://your-domain.com/api`
+
+### Authentication
+
+All protected endpoints require JWT token in header:
 
 ```
-booking_futsal/
-├── config/
-├── controllers/
-├── middlewares/
-├── models/
-├── routes/
-├── utils/
-├── .env
-├── .gitignore
-├── app.js
-├── server.js
-└── README.md
+Authorization: Bearer <your-jwt-token>
 ```
 
----
+### API Endpoints Structure
 
-## ✅ Role Akses
+#### 🔓 Public Access (No Authentication)
 
-- **User**: Booking, pembayaran, lihat profil
-- **Admin**: Manajemen user, field, booking, dan payment
+```
+GET    /api/public/fields              # List available fields
+GET    /api/public/fields/:id          # Field details
+GET    /api/public/fields/:id/availability # Check availability
+GET    /api/public/field-types         # Available field types
+GET    /api/public/field-locations     # Available locations
+GET    /api/public/system-info         # System information
+```
 
----
+#### 🔐 Authentication
 
-## 📄 Lisensi
+```
+POST   /api/auth/register              # User registration
+POST   /api/auth/login                 # User login
+GET    /api/auth/profile               # Get user profile
+POST   /api/auth/logout                # User logout
+POST   /api/auth/refresh               # Refresh token
+```
 
-MIT License © 2025 pwebbbb_uas
+#### 👤 Customer Access (penyewa)
+
+```
+GET    /api/customer/profile           # Get customer profile
+PUT    /api/customer/profile           # Update profile
+GET    /api/customer/fields            # Browse fields
+POST   /api/customer/bookings          # Create booking
+GET    /api/customer/bookings          # Get customer bookings
+GET    /api/customer/bookings/:id      # Get booking details
+DELETE /api/customer/bookings/:id      # Cancel booking
+```
+
+#### 💰 Staff Kasir Access
+
+```
+GET    /api/staff/kasir/payments       # All payments
+GET    /api/staff/kasir/payments/:id   # Payment details
+POST   /api/staff/kasir/payments/manual # Process manual payment
+PUT    /api/staff/kasir/payments/:id/confirm # Confirm payment
+GET    /api/staff/kasir/payments/pending # Pending payments
+GET    /api/staff/kasir/reports/daily  # Daily cash report
+```
+
+#### ⚽ Staff Operator Access
+
+```
+GET    /api/staff/operator/dashboard   # Operator dashboard
+GET    /api/staff/operator/fields      # Assigned fields
+PUT    /api/staff/operator/fields/:id  # Update field status
+GET    /api/staff/operator/bookings    # Field bookings
+PUT    /api/staff/operator/bookings/:id/confirm # Confirm booking
+PUT    /api/staff/operator/bookings/:id/complete # Complete booking
+GET    /api/staff/operator/schedule/today # Today's schedule
+```
+
+#### 📊 Staff Manager Access
+
+```
+GET    /api/staff/manager/dashboard    # Manager dashboard
+GET    /api/staff/manager/users        # All users management
+PUT    /api/staff/manager/users/:id/role # Update user role
+PUT    /api/staff/manager/users/:id/status # Update user status
+GET    /api/staff/manager/fields       # All fields management
+POST   /api/staff/manager/fields       # Create new field
+PUT    /api/staff/manager/fields/:id   # Update field
+GET    /api/staff/manager/analytics    # Business analytics
+```
+
+#### 🔧 Staff Supervisor Access
+
+```
+GET    /api/staff/supervisor/dashboard # System dashboard
+GET    /api/staff/supervisor/health    # System health
+POST   /api/staff/supervisor/users     # Create staff user
+GET    /api/staff/supervisor/audit     # Audit logs
+GET    /api/staff/supervisor/backup    # Database backup
+```
+
+#### 👥 Admin Role Management
+
+```
+GET    /api/admin/role-management/users # User management
+POST   /api/admin/role-management/request-change # Request role change
+GET    /api/admin/role-management/requests # Role change requests
+PUT    /api/admin/role-management/requests/:id # Approve/reject request
+```
+
+## 🗄️ Database
+
+### Database Schema
+
+- **Users:** Enhanced with role system and employee data
+- **Fields:** Field management with operator assignment
+- **Bookings:** Auto-completion system, conflict detection
+- **Payments:** Payment gateway integration, manual processing
+- **Role Management:** Role change requests and audit trails
+
+### Key Features
+
+- **Auto-completion:** Bookings automatically completed after end time
+- **Conflict Detection:** Prevents double booking
+- **Role-based Access:** Granular permissions per role
+- **Audit Trail:** Track all role changes and important actions
+- **Payment Integration:** Ready for payment gateway integration
+
+## 🔒 Security Features
+
+- **JWT Authentication:** Secure token-based authentication
+- **Role-based Authorization:** Granular access control
+- **Rate Limiting:** API rate limiting per endpoint type
+- **Input Validation:** XSS and SQL injection protection
+- **Security Headers:** Helmet.js security headers
+- **CORS Configuration:** Configurable CORS policies
+
+## 🧪 Testing
+
+### Postman Collection
+
+Complete Postman collection available in `/postman` folder:
+
+- **Collection:** Enhanced_Futsal_Booking_System.postman_collection.json
+- **Development Environment:** Development.postman_environment.json
+- **Production Environment:** Production.postman_environment.json
+- **Testing Guide:** TESTING_GUIDE.md
+
+### Running Tests
+
+```bash
+# Import Postman collection and environments
+# Follow testing guide in postman/TESTING_GUIDE.md
+```
+
+## 📦 Deployment
+
+### Development Deployment
+
+1. Setup local PostgreSQL database
+2. Configure `.env.development`
+3. Run migrations from `database/` folder
+4. Start with `npm run dev`
+
+### Production Deployment
+
+1. Setup production database (Railway, Heroku, etc.)
+2. Configure `.env.production`
+3. Deploy to your hosting platform
+4. Run production migrations
+5. Start with `npm run prod`
+
+### Environment Variables Required
+
+```env
+NODE_ENV=development|production
+PORT=5000
+DATABASE_URL=postgresql://...
+JWT_SECRET=your-secret-key
+```
+
+## 🤝 Contributing
+
+1. Follow the established clean code style (minimal comments, professional structure)
+2. Maintain 100% functionality - no breaking changes
+3. Use role-based architecture patterns
+4. Test thoroughly before submitting
+
+## 📄 License
+
+[MIT @PWEB-UAS]
+
+## 📞 Support
+
+For support and questions, please contact [@arigumilang, @__suryaadarma, @_.rfnii]
