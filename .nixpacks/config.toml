@@ -1,8 +1,5 @@
 # Railway Nixpacks Configuration for Enhanced Futsal Booking System
-# Force custom configuration to override Railway defaults
-
-[providers]
-node = "18.20.4"
+# Valid TOML format without problematic providers section
 
 [phases.setup]
 nixPkgs = ["nodejs_18", "postgresql"]
