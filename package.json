@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "server.js",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": "18.20.4",
+    "npm": ">=9.0.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "NODE_ENV=production node server.js",
     "dev": "npx dotenv-cli -e .env.development nodemon server.js",
     "prod": "npx dotenv-cli -e .env.production node server.js",
-    "railway:start": "NODE_ENV=production node server.js"
+    "railway:start": "NODE_ENV=production node server.js",
+    "postinstall": "npm cache clean --force"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

@@ -1,5 +1,5 @@
-# Railway Nixpacks Configuration for Enhanced Futsal Booking System
-# Force custom configuration to override Railway defaults
+# Alternative Nixpacks configuration at root level
+# Railway should prioritize this over auto-detection
 
 [providers]
 node = "18.20.4"
@@ -15,7 +15,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo 'Custom Nixpacks build completed successfully'"
+  "echo 'Root-level Nixpacks configuration applied successfully'"
 ]
 
 [start]
