@@ -46,7 +46,7 @@ booking_futsal/
 1. **Clone repository:**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/arigumilang-uin/booking-futsal.git
    cd booking_futsal
    ```
 
@@ -329,20 +329,31 @@ For technical support, bug reports, or feature requests, please use one of the f
 
 ### 🐛 Issue Reporting
 
-- **GitHub Issues:** [Create an issue](https://github.com/your-repo/enhanced-futsal-booking/issues)
+- **GitHub Issues:** [Create an issue](https://github.com/arigumilang-uin/booking-futsal/issues)
 - **Bug Reports:** Please include system information, error logs, and steps to reproduce
 
 ### 💬 Community Support
 
-- **Discussions:** [GitHub Discussions](https://github.com/your-repo/enhanced-futsal-booking/discussions)
+- **Discussions:** [GitHub Discussions](https://github.com/arigumilang-uin/booking-futsal/discussions)
 - **Documentation:** Check our comprehensive documentation above
 
 ### 📧 Direct Contact
 
 For enterprise support or private inquiries:
 
-- **Email:** support@futsalbooking.com
-- **Response Time:** 24-48 hours for technical issues
+- **Technical Support:** technical@futsalbooking.com
+
+  - System issues, API problems, deployment assistance
+  - Response time: 24-48 hours
+
+- **Business Inquiries:** admin@futsalbooking.com
+
+  - Enterprise licensing, custom development, partnerships
+  - Response time: 48-72 hours
+
+- **General Support:** support@futsalbooking.com
+  - General questions, feature requests, documentation feedback
+  - Response time: 24-48 hours
 
 ### 🚀 Contributing
 
