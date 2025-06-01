@@ -5,7 +5,7 @@ dotenv.config({ path: envFile });
 
 const app = require('./app');
 const cron = require('node-cron');
-const updateCompletedBookings = require('./utils/updateCompletedBookings');
+const { updateCompletedBookings } = require('./utils/updateCompletedBookings');
 
 const PORT = process.env.PORT || 5000;
 
