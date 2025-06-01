@@ -1,22 +1,8 @@
-# Railway Nixpacks Configuration for Enhanced Futsal Booking System
-# Valid TOML format without problematic providers section
-
-[phases.setup]
-nixPkgs = ["nodejs_18", "postgresql"]
+# Railway Nixpacks Configuration - Simplified
+# Focus on production optimization
 
 [phases.install]
-cmds = [
-  "npm ci --omit=dev --no-audit --no-fund",
-  "npm cache clean --force"
-]
-
-[phases.build]
-cmds = [
-  "echo 'Custom Nixpacks build completed successfully'"
-]
+cmds = ["npm ci --omit=dev --no-audit --no-fund"]
 
 [start]
-cmd = "NODE_ENV=production PORT=$PORT node server.js"
-
-[variables]
-NODE_ENV = "production"
+cmd = "NODE_ENV=production node server.js"
