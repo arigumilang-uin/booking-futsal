@@ -237,7 +237,7 @@ const getBookingStatistics = async (startDate, endDate) => {
       COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
       COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_bookings,
       COUNT(DISTINCT user_id) as unique_customers,
-      AVG(total_price) as average_booking_value
+      AVG(total_amount) as average_booking_value
     FROM bookings
     WHERE created_at BETWEEN $1 AND $2
   `;
@@ -248,9 +248,9 @@ const getBookingStatistics = async (startDate, endDate) => {
 const getRevenueStatistics = async (startDate, endDate) => {
   const query = `
     SELECT
-      SUM(total_price) as total_revenue,
-      SUM(CASE WHEN status = 'completed' THEN total_price ELSE 0 END) as confirmed_revenue,
-      AVG(total_price) as average_revenue_per_booking,
+      SUM(total_amount) as total_revenue,
+      SUM(CASE WHEN status = 'completed' THEN total_amount ELSE 0 END) as confirmed_revenue,
+      AVG(total_amount) as average_revenue_per_booking,
       COUNT(*) as total_bookings_with_revenue
     FROM bookings
     WHERE created_at BETWEEN $1 AND $2

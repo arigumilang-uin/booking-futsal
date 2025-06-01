@@ -108,13 +108,98 @@ const createStaffUser = async (req, res) => {
   }
 };
 
-// User management and analytics functions moved to:
-// - admin/roleManagementController for user management
-// - shared/analyticsController for analytics
-// - admin/auditLogController for audit logs
+// Placeholder functions for missing imports
+const getAllUsersForSupervisor = async (req, res) => {
+  try {
+    // This would be implemented with proper user management
+    res.json({
+      success: true,
+      data: [],
+      message: 'User management moved to role management endpoints'
+    });
+  } catch (error) {
+    console.error('Get all users for supervisor error:', error);
+    res.status(500).json({
+      error: 'Failed to get users',
+      code: 'USERS_FETCH_FAILED'
+    });
+  }
+};
+
+const forceUpdateUserRole = async (req, res) => {
+  try {
+    // This would be implemented with proper role management
+    res.json({
+      success: true,
+      message: 'User role management moved to role management endpoints'
+    });
+  } catch (error) {
+    console.error('Force update user role error:', error);
+    res.status(500).json({
+      error: 'Failed to update user role',
+      code: 'USER_ROLE_UPDATE_FAILED'
+    });
+  }
+};
+
+const getSystemAnalytics = async (req, res) => {
+  try {
+    // This would be implemented with proper analytics
+    res.json({
+      success: true,
+      data: {
+        period: {
+          start_date: req.query.date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          end_date: req.query.date_to || new Date()
+        },
+        analytics: {
+          total_users: 0,
+          total_bookings: 0,
+          total_revenue: 0,
+          system_performance: 0
+        }
+      },
+      message: 'System analytics implementation in progress'
+    });
+  } catch (error) {
+    console.error('Get system analytics error:', error);
+    res.status(500).json({
+      error: 'Failed to get system analytics',
+      code: 'ANALYTICS_FETCH_FAILED'
+    });
+  }
+};
+
+const getAuditLogs = async (req, res) => {
+  try {
+    // This would be implemented with proper audit logging
+    res.json({
+      success: true,
+      data: {
+        logs: [],
+        pagination: {
+          current_page: 1,
+          per_page: 20,
+          total: 0
+        }
+      },
+      message: 'Audit logs implementation in progress'
+    });
+  } catch (error) {
+    console.error('Get audit logs error:', error);
+    res.status(500).json({
+      error: 'Failed to get audit logs',
+      code: 'AUDIT_LOGS_FETCH_FAILED'
+    });
+  }
+};
 
 module.exports = {
   getSupervisorDashboard,
   getSystemHealth,
-  createStaffUser
+  createStaffUser,
+  getAllUsersForSupervisor,
+  forceUpdateUserRole,
+  getSystemAnalytics,
+  getAuditLogs
 };

@@ -114,3 +114,31 @@ public/uploads/
 build/
 dist/
 
+# Development and testing files (not needed in production)
+jest.config.js
+coverage/
+database/
+scripts/
+postman/
+
+# Development documentation (keep only essential docs)
+docs/AUDIT_*.md
+docs/BACKEND_*.md
+docs/COMPREHENSIVE_*.md
+docs/DEPLOYMENT_TEST_*.md
+docs/END_TO_END_*.md
+docs/PRODUCTION_READINESS_*.md
+docs/PROGRESS_*.md
+docs/ROUTES_*.md
+
+# Testing files
+*.test.js
+test/
+tests/
+__tests__/
+
+# Development scripts
+scripts/
+migrations/
+seeds/
+

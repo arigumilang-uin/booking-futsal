@@ -179,7 +179,8 @@ const updateField = async (id, fieldData) => {
 
 const deleteField = async (id) => {
   const query = 'UPDATE fields SET status = $1, updated_at = NOW() WHERE id = $2';
-  await pool.query(query, ['deleted', id]);
+  const result = await pool.query(query, ['deleted', id]);
+  return result.rowCount > 0;
 };
 
 const searchFieldsByName = async (keyword) => {
@@ -366,6 +367,32 @@ const getFieldOperatingHours = async (fieldId) => {
   return result.rows[0];
 };
 
+const getFieldsByType = async (type) => {
+  const query = `
+    SELECT id, uuid, name, type, description, price, price_weekend, location,
+           address, facilities, image_url, gallery, status, rating, total_reviews,
+           capacity, operating_hours, operating_days, created_at, updated_at
+    FROM fields
+    WHERE type = $1 AND status = 'active'
+    ORDER BY rating DESC, name ASC
+  `;
+  const result = await pool.query(query, [type]);
+  return result.rows;
+};
+
+const getFieldsByLocation = async (location) => {
+  const query = `
+    SELECT id, uuid, name, type, description, price, price_weekend, location,
+           address, facilities, image_url, gallery, status, rating, total_reviews,
+           capacity, operating_hours, operating_days, created_at, updated_at
+    FROM fields
+    WHERE location ILIKE $1 AND status = 'active'
+    ORDER BY rating DESC, name ASC
+  `;
+  const result = await pool.query(query, [`%${location}%`]);
+  return result.rows;
+};
+
 module.exports = {
   getAllFields,
   getFieldById,
@@ -382,4 +409,6 @@ module.exports = {
   getFieldBookings,
   calculateAvailableSlots,
   getFieldOperatingHours,
+  getFieldsByType,
+  getFieldsByLocation,
 };

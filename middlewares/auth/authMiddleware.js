@@ -16,26 +16,25 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await getUserById(decoded.id);
+    const rawUser = await getUserByIdRaw(decoded.id);
 
-    if (!user) {
+    if (!rawUser) {
       return res.status(401).json({
         error: 'Invalid token. User not found.'
       });
     }
 
-    if (!user.is_active) {
+    if (!rawUser.is_active) {
       return res.status(401).json({
         error: 'Account is deactivated.'
       });
     }
 
-    updateLastLogin(user.id).catch(err => {
+    updateLastLogin(rawUser.id).catch(err => {
       console.error('Failed to update last login:', err);
     });
 
-    req.user = user;
-    const rawUser = await getUserByIdRaw(user.id);
+    req.user = rawUser;  // Use raw user with correct role
     req.rawUser = rawUser;
 
     next();

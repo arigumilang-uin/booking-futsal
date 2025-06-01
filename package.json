@@ -12,7 +12,8 @@
     "prod": "npx dotenv-cli -e .env.production node server.js",
     "railway:start": "NODE_ENV=production node server.js",
     "build": "echo 'Build completed - Node.js application ready for production'",
-    "postinstall": "npm cache clean --force"
+    "postinstall": "npm cache clean --force",
+    "health": "curl -f http://localhost:5000/api/test/health || exit 1"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -31,6 +32,7 @@
     "validator": "^13.12.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.10"
   }

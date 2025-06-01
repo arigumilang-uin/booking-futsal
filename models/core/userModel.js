@@ -6,6 +6,13 @@ const mapOldRoleToNew = (oldRole) => {
     'pengelola': 'operator_lapangan',
     'admin': 'supervisor_sistem'
   };
+
+  // If role is already enhanced role, return as is
+  const enhancedRoles = ['penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
+  if (enhancedRoles.includes(oldRole)) {
+    return oldRole;
+  }
+
   return roleMapping[oldRole] || 'penyewa';
 };
 
@@ -96,7 +103,7 @@ const getUserByEmail = async (email) => {
   return null;
 };
 
-const createUser = async ({ name, email, password, phone, role = 'user' }) => {
+const createUser = async ({ name, email, password, phone, role = 'penyewa' }) => {
   const enhancedRole = mapOldRoleToNew(role);
 
   const query = `
@@ -110,7 +117,7 @@ const createUser = async ({ name, email, password, phone, role = 'user' }) => {
   const user = result.rows[0];
   return {
     ...user,
-    role: mapNewRoleToOld(user.role)
+    role: user.role  // Keep the enhanced role (penyewa, not user)
   };
 };
 

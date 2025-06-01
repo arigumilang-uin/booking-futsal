@@ -24,8 +24,8 @@ const helmetConfig = helmet({
 });
 
 const generalRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
+  max: process.env.RATE_LIMIT_MAX_REQUESTS || 100,
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
@@ -37,8 +37,11 @@ const generalRateLimit = rateLimit({
     return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
   },
   skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path === '/' || req.path === '/api/public/health';
+    // Skip rate limiting for health checks and monitoring
+    return req.path === '/' ||
+           req.path === '/api/test/health' ||
+           req.path === '/health' ||
+           req.path === '/metrics';
   }
 });
 

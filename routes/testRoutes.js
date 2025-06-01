@@ -8,17 +8,60 @@ const router = express.Router();
 
 /**
  * @route   GET /api/test/health
- * @desc    Health check
+ * @desc    Enhanced health check for production monitoring
  * @access  Public
  */
-router.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Backend is working!',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+router.get('/health', async (req, res) => {
+  const startTime = Date.now();
+
+  try {
+    // Database health check
+    const pool = require('../config/db');
+    const dbResult = await pool.query('SELECT NOW() as current_time');
+    const dbLatency = Date.now() - startTime;
+
+    // Memory usage
+    const memUsage = process.memoryUsage();
+
+    // System health
+    const health = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(process.uptime()),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0',
+      database: {
+        status: 'connected',
+        latency: `${dbLatency}ms`,
+        current_time: dbResult.rows[0].current_time
+      },
+      memory: {
+        used: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+        total: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB',
+        external: Math.round(memUsage.external / 1024 / 1024) + 'MB'
+      },
+      performance: {
+        response_time: `${Date.now() - startTime}ms`,
+        cpu_usage: process.cpuUsage()
+      }
+    };
+
+    res.json({
+      success: true,
+      data: health
+    });
+
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      success: false,
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: 'Database connection failed',
+      uptime: Math.floor(process.uptime()),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
 });
 
 /**
