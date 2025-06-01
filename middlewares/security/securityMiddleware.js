@@ -31,7 +31,11 @@ const generalRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  trustProxy: 1, // Trust first proxy only (Railway)
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For header if available, fallback to req.ip
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  },
   skip: (req) => {
     // Skip rate limiting for health checks
     return req.path === '/' || req.path === '/api/public/health';
@@ -46,7 +50,10 @@ const authRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  trustProxy: 1, // Trust first proxy only (Railway)
+  keyGenerator: (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  }
 });
 
 const paymentRateLimit = rateLimit({
@@ -57,7 +64,10 @@ const paymentRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true, // Trust Railway proxy
+  trustProxy: 1, // Trust first proxy only (Railway)
+  keyGenerator: (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  }
 });
 
 const validateInput = (req, res, next) => {
