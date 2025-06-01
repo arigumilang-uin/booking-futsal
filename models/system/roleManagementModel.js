@@ -1,7 +1,7 @@
 // models/roleManagementModel.js
 // Professional Role Management Model dengan Audit Trail & Approval Workflow
 
-const pool = require('../config/db');
+const pool = require('../../config/db');
 
 // =====================================================
 // ROLE CHANGE REQUEST MANAGEMENT

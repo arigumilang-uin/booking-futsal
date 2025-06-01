@@ -4,7 +4,7 @@ const {
   updateField,
   getFieldsByOperator,
   updateFieldRating
-} = require('../../../models/fieldModel');
+} = require('../../../models/business/fieldModel');
 const {
   getAllBookings,
   getBookingById,
@@ -13,7 +13,7 @@ const {
   getTodayBookings,
   getUpcomingBookings,
   getBookingsByField
-} = require('../../../models/bookingModel');
+} = require('../../../models/business/bookingModel');
 
 const getOperatorDashboard = async (req, res) => {
   try {

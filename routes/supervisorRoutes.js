@@ -1,4 +1,4 @@
-// routes/staff/supervisor.js - Supervisor Routes untuk Supervisor Sistem Access
+// routes/supervisorRoutes.js - Supervisor Routes untuk Supervisor Sistem Access
 const express = require('express');
 const router = express.Router();
 
@@ -11,15 +11,15 @@ const {
   forceUpdateUserRole,
   getSystemAnalytics,
   getAuditLogs
-} = require('../../controllers/staff/supervisor/supervisorController');
+} = require('../controllers/staff/supervisor/supervisorController');
 
 // Middlewares
-const { authMiddleware } = require('../../middlewares/auth/authMiddleware');
-const { requireSupervisor } = require('../../middlewares/roleCheck/roleMiddleware');
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireAdmin } = require('../middlewares/authorization/roleBasedAccess');
 
 // Apply authentication dan supervisor role check untuk semua routes
-router.use(authMiddleware);
-router.use(requireSupervisor);
+router.use(requireAuth);
+router.use(requireAdmin);
 
 // =====================================================
 // SUPERVISOR ROUTES - SUPERVISOR_SISTEM ACCESS
@@ -171,7 +171,7 @@ router.post('/system-maintenance', async (req, res) => {
  */
 router.get('/database-stats', async (req, res) => {
   try {
-    const { getDatabaseStats } = require('../../config/db');
+    const { getDatabaseStats } = require('../config/db');
     const dbStats = await getDatabaseStats();
     
     res.json({

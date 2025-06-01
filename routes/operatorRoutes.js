@@ -1,4 +1,4 @@
-// routes/staff/operator.js - Operator Routes untuk Operator Lapangan Access
+// routes/operatorRoutes.js - Operator Routes untuk Operator Lapangan Access
 const express = require('express');
 const router = express.Router();
 
@@ -11,14 +11,14 @@ const {
   confirmBooking,
   completeBooking,
   getTodaySchedule
-} = require('../../controllers/staff/operator/operatorController');
+} = require('../controllers/staff/operator/operatorController');
 
 // Middlewares
-const { authMiddleware } = require('../../middlewares/auth/authMiddleware');
-const { requireOperator } = require('../../middlewares/roleCheck/roleMiddleware');
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireOperator } = require('../middlewares/authorization/roleBasedAccess');
 
 // Apply authentication dan operator role check untuk semua routes
-router.use(authMiddleware);
+router.use(requireAuth);
 router.use(requireOperator);
 
 // =====================================================

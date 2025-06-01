@@ -4,7 +4,7 @@ const {
   createUser,
   updateLastLogin,
   mapNewRoleToOld
-} = require('../../models/userModel');
+} = require('../../models/core/userModel');
 const { generateToken } = require('../../utils/tokenUtils');
 
 const register = async (req, res) => {

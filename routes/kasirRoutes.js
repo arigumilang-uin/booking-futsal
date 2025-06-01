@@ -1,4 +1,4 @@
-// routes/staff/kasir.js - Kasir Routes untuk Staff Kasir Access
+// routes/kasirRoutes.js - Kasir Routes untuk Staff Kasir Access
 const express = require('express');
 const router = express.Router();
 
@@ -11,14 +11,14 @@ const {
   getPendingPayments,
   getPaymentStatsForKasir,
   getDailyCashReport
-} = require('../../controllers/staff/kasir/kasirController');
+} = require('../controllers/staff/kasir/kasirController');
 
 // Middlewares
-const { authMiddleware } = require('../../middlewares/auth/authMiddleware');
-const { requireKasir } = require('../../middlewares/roleCheck/roleMiddleware');
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireKasir } = require('../middlewares/authorization/roleBasedAccess');
 
 // Apply authentication dan kasir role check untuk semua routes
-router.use(authMiddleware);
+router.use(requireAuth);
 router.use(requireKasir);
 
 // =====================================================

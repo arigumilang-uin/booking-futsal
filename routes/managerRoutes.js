@@ -1,4 +1,4 @@
-// routes/staff/manager.js - Manager Routes untuk Manajer Futsal Access
+// routes/managerRoutes.js - Manager Routes untuk Manajer Futsal Access
 const express = require('express');
 const router = express.Router();
 
@@ -12,15 +12,15 @@ const {
   createFieldByManager,
   updateFieldByManager,
   getBusinessAnalytics
-} = require('../../controllers/staff/manager/managerController');
+} = require('../controllers/staff/manager/managerController');
 
 // Middlewares
-const { authMiddleware } = require('../../middlewares/auth/authMiddleware');
-const { requireManager } = require('../../middlewares/roleCheck/roleMiddleware');
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireManagement } = require('../middlewares/authorization/roleBasedAccess');
 
 // Apply authentication dan manager role check untuk semua routes
-router.use(authMiddleware);
-router.use(requireManager);
+router.use(requireAuth);
+router.use(requireManagement);
 
 // =====================================================
 // MANAGER ROUTES - MANAJER_FUTSAL ACCESS

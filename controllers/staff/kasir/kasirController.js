@@ -5,12 +5,12 @@ const {
   updatePaymentStatus,
   createPayment,
   getPaymentStatistics
-} = require('../../../models/paymentModel');
+} = require('../../../models/business/paymentModel');
 const {
   getAllBookings,
   getBookingById,
   updateBookingStatus
-} = require('../../../models/bookingModel');
+} = require('../../../models/business/bookingModel');
 
 const getAllPaymentsForKasir = async (req, res) => {
   try {

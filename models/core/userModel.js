@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../../config/db');
 
 const mapOldRoleToNew = (oldRole) => {
   const roleMapping = {
@@ -36,6 +36,7 @@ const getRoleLevel = (role) => {
 const getAllUsers = async () => {
   const query = `
     SELECT id, uuid, name, email, phone, role, employee_id, department,
+           booking_count, total_spent, last_booking_date,
            is_active, is_verified, created_at
     FROM users
     WHERE is_active = true
@@ -51,6 +52,7 @@ const getAllUsers = async () => {
 const getUserById = async (id) => {
   const query = `
     SELECT id, uuid, name, email, phone, role, employee_id, department,
+           booking_count, total_spent, last_booking_date,
            is_active, is_verified, last_login_at, created_at, updated_at
     FROM users WHERE id = $1
   `;

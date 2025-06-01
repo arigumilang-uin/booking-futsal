@@ -4,13 +4,13 @@ const {
   updateUserRole,
   getRoleLevel,
   mapOldRoleToNew
-} = require('../../models/userModel');
+} = require('../../models/core/userModel');
 
 const {
   createRoleChangeRequest,
   getRoleChangeRequests,
   logRoleChange
-} = require('../../models/roleManagementModel');
+} = require('../../models/system/roleManagementModel');
 
 const getRoleManagementDashboard = async (req, res) => {
   try {

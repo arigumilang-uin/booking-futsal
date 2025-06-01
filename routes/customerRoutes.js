@@ -1,9 +1,9 @@
-// routes/customer.js - Customer Routes untuk Penyewa Access
+// routes/customerRoutes.js - Customer Routes untuk Penyewa Access
 const express = require('express');
 const router = express.Router();
 
 // Controllers
-const { 
+const {
   getCustomerProfile,
   updateCustomerProfile,
   getCustomerFields,
@@ -13,12 +13,51 @@ const {
   cancelCustomerBooking
 } = require('../controllers/customer/customerController');
 
+// Enhanced Features Controllers
+const {
+  getNotifications,
+  getUnreadNotificationsCount,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteUserNotification,
+  getNotificationStatistics
+} = require('../controllers/customer/notificationController');
+
+const {
+  getUserReviewsList,
+  createFieldReview,
+  updateFieldReview,
+  deleteFieldReview,
+  getReviewDetail,
+  checkCanReview
+} = require('../controllers/customer/reviewController');
+
+const {
+  getFavoriteFields,
+  addFieldToFavorites,
+  removeFieldFromFavorites,
+  toggleFieldFavorite,
+  checkFieldFavorite,
+  getFavoritesWithAvailabilityInfo,
+  getFavoritesStatistics,
+  getRecommendations,
+  getFavoritesCountOnly
+} = require('../controllers/customer/favoritesController');
+
+const {
+  getAvailablePromotions,
+  getPromotionDetails,
+  validatePromotionCode,
+  applyPromotionToBooking,
+  calculateDiscountPreview
+} = require('../controllers/customer/promotionController');
+
 // Middlewares
-const { authMiddleware } = require('../middlewares/auth/authMiddleware');
-const { requireCustomer } = require('../middlewares/roleCheck/roleMiddleware');
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireCustomer } = require('../middlewares/authorization/roleBasedAccess');
 
 // Apply authentication dan customer role check untuk semua routes
-router.use(authMiddleware);
+router.use(requireAuth);
 router.use(requireCustomer);
 
 // =====================================================
@@ -139,11 +178,49 @@ router.get('/dashboard', async (req, res) => {
 
   } catch (error) {
     console.error('Customer dashboard error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get dashboard data',
       code: 'DASHBOARD_FETCH_FAILED'
     });
   }
 });
+
+// =====================================================
+// ENHANCED FEATURES - CUSTOMER ACCESS
+// =====================================================
+
+// NOTIFICATION ROUTES
+router.get('/notifications', getNotifications);
+router.get('/notifications/count', getUnreadNotificationsCount);
+router.put('/notifications/:id/read', markNotificationAsRead);
+router.put('/notifications/read-all', markAllNotificationsAsRead);
+router.delete('/notifications/:id', deleteUserNotification);
+router.get('/notifications/statistics', getNotificationStatistics);
+
+// REVIEW ROUTES
+router.get('/reviews', getUserReviewsList);
+router.post('/reviews', createFieldReview);
+router.get('/reviews/:id', getReviewDetail);
+router.put('/reviews/:id', updateFieldReview);
+router.delete('/reviews/:id', deleteFieldReview);
+router.get('/bookings/:bookingId/can-review', checkCanReview);
+
+// FAVORITES ROUTES
+router.get('/favorites', getFavoriteFields);
+router.post('/favorites/:fieldId', addFieldToFavorites);
+router.delete('/favorites/:fieldId', removeFieldFromFavorites);
+router.put('/favorites/:fieldId/toggle', toggleFieldFavorite);
+router.get('/favorites/:fieldId/check', checkFieldFavorite);
+router.get('/favorites/availability', getFavoritesWithAvailabilityInfo);
+router.get('/favorites/statistics', getFavoritesStatistics);
+router.get('/favorites/count', getFavoritesCountOnly);
+router.get('/recommendations', getRecommendations);
+
+// PROMOTION ROUTES
+router.get('/promotions', getAvailablePromotions);
+router.get('/promotions/:code', getPromotionDetails);
+router.post('/promotions/validate', validatePromotionCode);
+router.post('/promotions/apply', applyPromotionToBooking);
+router.post('/promotions/calculate', calculateDiscountPreview);
 
 module.exports = router;

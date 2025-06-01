@@ -1,0 +1,421 @@
+const {
+  getAllPromotions,
+  createPromotion,
+  updatePromotion,
+  getPromotionUsageHistory
+} = require('../../models/enhanced/promotionModel');
+
+const pool = require('../../config/db');
+
+// Get all promotions (admin view)
+const getAllPromotionsAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const promotions = await getAllPromotions(page, limit);
+
+    // Add usage statistics for each promotion
+    const promotionsWithStats = await Promise.all(
+      promotions.map(async (promo) => {
+        const usageQuery = `
+          SELECT 
+            COUNT(*) as total_usage,
+            SUM(discount_amount) as total_discount_given,
+            COUNT(DISTINCT user_id) as unique_users
+          FROM promotion_usages
+          WHERE promotion_id = $1
+        `;
+        const usageResult = await pool.query(usageQuery, [promo.id]);
+        const usage = usageResult.rows[0];
+
+        return {
+          ...promo,
+          usage_stats: {
+            total_usage: parseInt(usage.total_usage),
+            total_discount_given: parseFloat(usage.total_discount_given || 0),
+            unique_users: parseInt(usage.unique_users),
+            usage_percentage: promo.usage_limit ? 
+              Math.round((promo.usage_count / promo.usage_limit) * 100) : null
+          }
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: {
+        promotions: promotionsWithStats,
+        pagination: {
+          current_page: page,
+          per_page: limit,
+          total: promotions.length
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get all promotions admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mengambil daftar promosi'
+    });
+  }
+};
+
+// Create new promotion
+const createPromotionAdmin = async (req, res) => {
+  try {
+    const {
+      code, name, description, type, value, min_amount, max_discount,
+      usage_limit, user_limit, applicable_fields, applicable_days,
+      applicable_hours, start_date, end_date
+    } = req.body;
+
+    // Validate required fields
+    if (!code || !name || !type || !value || !start_date || !end_date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kode, nama, tipe, nilai, tanggal mulai, dan tanggal berakhir diperlukan'
+      });
+    }
+
+    // Validate promotion type
+    const validTypes = ['percentage', 'fixed_amount', 'free_hours'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tipe promosi harus percentage, fixed_amount, atau free_hours'
+      });
+    }
+
+    // Validate value based on type
+    if (type === 'percentage' && (value <= 0 || value > 100)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nilai persentase harus antara 1-100'
+      });
+    }
+
+    if ((type === 'fixed_amount' || type === 'free_hours') && value <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nilai harus lebih besar dari 0'
+      });
+    }
+
+    // Validate dates
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
+    if (endDate <= startDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tanggal berakhir harus setelah tanggal mulai'
+      });
+    }
+
+    // Check if code already exists
+    const existingQuery = `SELECT id FROM promotions WHERE code = $1`;
+    const existingResult = await pool.query(existingQuery, [code]);
+    if (existingResult.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kode promosi sudah digunakan'
+      });
+    }
+
+    const promotion = await createPromotion({
+      code, name, description, type, value, min_amount, max_discount,
+      usage_limit, user_limit, applicable_fields, applicable_days,
+      applicable_hours, start_date, end_date
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Promosi berhasil dibuat',
+      data: promotion
+    });
+  } catch (error) {
+    console.error('Create promotion admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal membuat promosi'
+    });
+  }
+};
+
+// Update promotion
+const updatePromotionAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Validate promotion type if provided
+    if (updateData.type) {
+      const validTypes = ['percentage', 'fixed_amount', 'free_hours'];
+      if (!validTypes.includes(updateData.type)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipe promosi harus percentage, fixed_amount, atau free_hours'
+        });
+      }
+    }
+
+    // Validate value based on type if both provided
+    if (updateData.type && updateData.value) {
+      if (updateData.type === 'percentage' && (updateData.value <= 0 || updateData.value > 100)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nilai persentase harus antara 1-100'
+        });
+      }
+
+      if ((updateData.type === 'fixed_amount' || updateData.type === 'free_hours') && updateData.value <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nilai harus lebih besar dari 0'
+        });
+      }
+    }
+
+    // Validate dates if provided
+    if (updateData.start_date && updateData.end_date) {
+      const startDate = new Date(updateData.start_date);
+      const endDate = new Date(updateData.end_date);
+      if (endDate <= startDate) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tanggal berakhir harus setelah tanggal mulai'
+        });
+      }
+    }
+
+    const updatedPromotion = await updatePromotion(parseInt(id), updateData);
+
+    if (!updatedPromotion) {
+      return res.status(404).json({
+        success: false,
+        message: 'Promosi tidak ditemukan'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Promosi berhasil diperbarui',
+      data: updatedPromotion
+    });
+  } catch (error) {
+    console.error('Update promotion admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal memperbarui promosi'
+    });
+  }
+};
+
+// Delete promotion
+const deletePromotionAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if promotion has been used
+    const usageQuery = `SELECT COUNT(*) as usage_count FROM promotion_usages WHERE promotion_id = $1`;
+    const usageResult = await pool.query(usageQuery, [parseInt(id)]);
+    const usageCount = parseInt(usageResult.rows[0].usage_count);
+
+    if (usageCount > 0) {
+      // Don't delete, just deactivate
+      const deactivateQuery = `
+        UPDATE promotions 
+        SET is_active = false, updated_at = NOW()
+        WHERE id = $1
+        RETURNING id, code, name, is_active
+      `;
+      const result = await pool.query(deactivateQuery, [parseInt(id)]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Promosi tidak ditemukan'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Promosi telah dinonaktifkan karena sudah pernah digunakan',
+        data: result.rows[0]
+      });
+    } else {
+      // Safe to delete
+      const deleteQuery = `
+        DELETE FROM promotions
+        WHERE id = $1
+        RETURNING id, code, name
+      `;
+      const result = await pool.query(deleteQuery, [parseInt(id)]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Promosi tidak ditemukan'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Promosi berhasil dihapus',
+        data: result.rows[0]
+      });
+    }
+  } catch (error) {
+    console.error('Delete promotion admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal menghapus promosi'
+    });
+  }
+};
+
+// Get promotion usage history
+const getPromotionUsageHistoryAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const usageHistory = await getPromotionUsageHistory(parseInt(id), page, limit);
+
+    res.json({
+      success: true,
+      data: {
+        promotion_id: parseInt(id),
+        usage_history: usageHistory,
+        pagination: {
+          current_page: page,
+          per_page: limit,
+          total: usageHistory.length
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get promotion usage history error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mengambil riwayat penggunaan promosi'
+    });
+  }
+};
+
+// Get promotion analytics
+const getPromotionAnalytics = async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 30;
+
+    // Overall promotion statistics
+    const overallStatsQuery = `
+      SELECT 
+        COUNT(*) as total_promotions,
+        COUNT(CASE WHEN is_active = true THEN 1 END) as active_promotions,
+        COUNT(CASE WHEN start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE THEN 1 END) as current_promotions,
+        COUNT(CASE WHEN end_date < CURRENT_DATE THEN 1 END) as expired_promotions
+      FROM promotions
+    `;
+
+    // Usage statistics
+    const usageStatsQuery = `
+      SELECT 
+        COUNT(*) as total_usage,
+        SUM(discount_amount) as total_discount_given,
+        COUNT(DISTINCT user_id) as unique_users,
+        COUNT(DISTINCT promotion_id) as used_promotions,
+        AVG(discount_amount) as avg_discount
+      FROM promotion_usages pu
+      JOIN promotions p ON pu.promotion_id = p.id
+      WHERE pu.used_at >= CURRENT_DATE - INTERVAL '${days} days'
+    `;
+
+    // Top performing promotions
+    const topPromotionsQuery = `
+      SELECT 
+        p.id, p.code, p.name, p.type, p.value,
+        COUNT(pu.id) as usage_count,
+        SUM(pu.discount_amount) as total_discount,
+        COUNT(DISTINCT pu.user_id) as unique_users
+      FROM promotions p
+      LEFT JOIN promotion_usages pu ON p.id = pu.promotion_id
+        AND pu.used_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY p.id, p.code, p.name, p.type, p.value
+      ORDER BY usage_count DESC
+      LIMIT 10
+    `;
+
+    const [overallStats, usageStats, topPromotions] = await Promise.all([
+      pool.query(overallStatsQuery),
+      pool.query(usageStatsQuery),
+      pool.query(topPromotionsQuery)
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        period_days: days,
+        overall_stats: overallStats.rows[0],
+        usage_stats: usageStats.rows[0],
+        top_promotions: topPromotions.rows
+      }
+    });
+  } catch (error) {
+    console.error('Get promotion analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mengambil analitik promosi'
+    });
+  }
+};
+
+// Toggle promotion status
+const togglePromotionStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const toggleQuery = `
+      UPDATE promotions 
+      SET is_active = NOT is_active, updated_at = NOW()
+      WHERE id = $1
+      RETURNING id, code, name, is_active
+    `;
+
+    const result = await pool.query(toggleQuery, [parseInt(id)]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Promosi tidak ditemukan'
+      });
+    }
+
+    const promotion = result.rows[0];
+    const status = promotion.is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+    res.json({
+      success: true,
+      message: `Promosi berhasil ${status}`,
+      data: promotion
+    });
+  } catch (error) {
+    console.error('Toggle promotion status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mengubah status promosi'
+    });
+  }
+};
+
+module.exports = {
+  getAllPromotionsAdmin,
+  createPromotionAdmin,
+  updatePromotionAdmin,
+  deletePromotionAdmin,
+  getPromotionUsageHistoryAdmin,
+  getPromotionAnalytics,
+  togglePromotionStatus
+};

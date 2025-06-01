@@ -1,4 +1,4 @@
-// routes/auth.js - Enhanced Authentication Routes
+// routes/authRoutes.js - Enhanced Authentication Routes
 const express = require('express');
 const router = express.Router();
 
@@ -12,11 +12,11 @@ const {
 } = require('../controllers/auth/authController');
 
 // Middlewares
-const { 
-  authMiddleware, 
-  guestOnly, 
-  authRateLimit, 
-  clearRateLimit 
+const {
+  requireAuth,
+  guestOnly,
+  authRateLimit,
+  clearRateLimit
 } = require('../middlewares/auth/authMiddleware');
 
 // =====================================================
@@ -60,21 +60,21 @@ router.post('/logout', logout);
  * @desc    Get current user profile
  * @access  Private (Authenticated users)
  */
-router.get('/profile', authMiddleware, getProfile);
+router.get('/profile', requireAuth, getProfile);
 
 /**
  * @route   POST /api/auth/refresh
  * @desc    Refresh JWT token
  * @access  Private (Authenticated users)
  */
-router.post('/refresh', authMiddleware, refreshToken);
+router.post('/refresh', requireAuth, refreshToken);
 
 /**
  * @route   GET /api/auth/verify
  * @desc    Verify token validity
  * @access  Private (Authenticated users)
  */
-router.get('/verify', authMiddleware, (req, res) => {
+router.get('/verify', requireAuth, (req, res) => {
   res.json({
     success: true,
     message: 'Token is valid',

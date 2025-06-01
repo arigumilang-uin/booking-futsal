@@ -1,22 +1,22 @@
 const {
   getUserById,
   updateUserProfile
-} = require('../../models/userModel');
+} = require('../../models/core/userModel');
 const {
   getAvailableFields,
   getFieldById
-} = require('../../models/fieldModel');
+} = require('../../models/business/fieldModel');
 const {
   createBooking,
   getBookingsByUserId,
   getBookingById,
   updateBookingStatus,
   checkBookingConflict
-} = require('../../models/bookingModel');
+} = require('../../models/business/bookingModel');
 const {
   createPayment,
   getPaymentsByBookingId
-} = require('../../models/paymentModel');
+} = require('../../models/business/paymentModel');
 
 const getCustomerProfile = async (req, res) => {
   try {

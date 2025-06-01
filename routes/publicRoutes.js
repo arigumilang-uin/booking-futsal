@@ -1,9 +1,9 @@
-// routes/public.js - Public Routes untuk Guest Access
+// routes/publicRoutes.js - Public Routes untuk Guest Access
 const express = require('express');
 const router = express.Router();
 
 // Controllers
-const { 
+const {
   getPublicFields,
   getPublicFieldDetail,
   getPublicFieldAvailability,
@@ -12,9 +12,14 @@ const {
   getSystemInfo
 } = require('../controllers/public/publicController');
 
+// Enhanced Features Controllers
+const { getApplicationConfig } = require('../controllers/admin/systemSettingsController');
+const { getFieldReviewsList, getFieldRating } = require('../controllers/customer/reviewController');
+const { getAvailablePromotions, getFieldPromotions } = require('../controllers/customer/promotionController');
+
 // Middlewares
 const { optionalAuth } = require('../middlewares/auth/authMiddleware');
-const { allowGuest } = require('../middlewares/roleCheck/roleMiddleware');
+const { allowGuest } = require('../middlewares/authorization/roleBasedAccess');
 
 // =====================================================
 // PUBLIC ROUTES - GUEST ACCESS
@@ -189,5 +194,65 @@ router.get('/version', (req, res) => {
     }
   });
 });
+
+// =====================================================
+// ENHANCED FEATURES - PUBLIC ACCESS
+// =====================================================
+
+/**
+ * @route   GET /api/public/app-config
+ * @desc    Get application configuration
+ * @access  Public
+ */
+router.get('/app-config', getApplicationConfig);
+
+/**
+ * @route   GET /api/public/fields/:fieldId/reviews
+ * @desc    Get field reviews (public view)
+ * @access  Public
+ * @params  { fieldId: field_id }
+ * @query   { page, limit }
+ */
+router.get('/fields/:fieldId/reviews',
+  optionalAuth,
+  allowGuest,
+  getFieldReviewsList
+);
+
+/**
+ * @route   GET /api/public/fields/:fieldId/rating
+ * @desc    Get field rating summary
+ * @access  Public
+ * @params  { fieldId: field_id }
+ */
+router.get('/fields/:fieldId/rating',
+  optionalAuth,
+  allowGuest,
+  getFieldRating
+);
+
+/**
+ * @route   GET /api/public/promotions
+ * @desc    Get available promotions
+ * @access  Public
+ */
+router.get('/promotions',
+  optionalAuth,
+  allowGuest,
+  getAvailablePromotions
+);
+
+/**
+ * @route   GET /api/public/fields/:fieldId/promotions
+ * @desc    Get promotions applicable for specific field
+ * @access  Public
+ * @params  { fieldId: field_id }
+ * @query   { date, start_time }
+ */
+router.get('/fields/:fieldId/promotions',
+  optionalAuth,
+  allowGuest,
+  getFieldPromotions
+);
 
 module.exports = router;

@@ -1,5 +1,5 @@
-const { getAvailableFields, getFieldById } = require('../../models/fieldModel');
-const { getFieldAvailability } = require('../../models/bookingModel');
+const { getAvailableFields, getFieldById } = require('../../models/business/fieldModel');
+const { getFieldAvailability } = require('../../models/business/bookingModel');
 
 const getPublicFields = async (req, res) => {
   try {

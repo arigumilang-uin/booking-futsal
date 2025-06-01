@@ -13,7 +13,7 @@ const {
   requestSizeLimit
 } = require('./middlewares/security/securityMiddleware');
 
-const enhancedRoutes = require('./routes/enhanced/index');
+const apiRoutes = require('./routes/indexRoutes');
 
 const app = express();
 
@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/api', enhancedRoutes);
+app.use('/api', apiRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

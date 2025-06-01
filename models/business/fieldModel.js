@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../../config/db');
 
 const getAllFields = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
@@ -6,7 +6,8 @@ const getAllFields = async (page = 1, limit = 10) => {
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
            f.location, f.address, f.coordinates, f.price, f.price_weekend, f.price_member,
            f.operating_hours, f.operating_days, f.image_url, f.gallery, f.status,
-           f.rating, f.total_reviews, f.assigned_operator, f.created_at,
+           f.rating, f.total_reviews, f.booking_count, f.revenue_total, f.last_booking_date,
+           f.assigned_operator, f.created_at,
            u.name as operator_name, u.employee_id as operator_employee_id
     FROM fields f
     LEFT JOIN users u ON f.assigned_operator = u.id
@@ -23,7 +24,8 @@ const getFieldById = async (id) => {
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
            f.location, f.address, f.coordinates, f.price, f.price_weekend, f.price_member,
            f.operating_hours, f.operating_days, f.image_url, f.gallery, f.status,
-           f.rating, f.total_reviews, f.assigned_operator, f.created_at, f.updated_at,
+           f.rating, f.total_reviews, f.booking_count, f.revenue_total, f.last_booking_date,
+           f.assigned_operator, f.created_at, f.updated_at,
            u.name as operator_name, u.employee_id as operator_employee_id
     FROM fields f
     LEFT JOIN users u ON f.assigned_operator = u.id
@@ -228,7 +230,6 @@ const getFieldsByOperator = async (operatorId) => {
   return result.rows;
 };
 
-// Get available fields for booking
 const getAvailableFields = async () => {
   const query = `
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
@@ -245,7 +246,6 @@ const getAvailableFields = async () => {
   return result.rows;
 };
 
-// Update field rating
 const updateFieldRating = async (fieldId, newRating, totalReviews) => {
   const query = `
     UPDATE fields
@@ -257,7 +257,6 @@ const updateFieldRating = async (fieldId, newRating, totalReviews) => {
   return result.rows[0];
 };
 
-// Get field statistics
 const getFieldStatistics = async () => {
   const query = `
     SELECT
@@ -303,7 +302,6 @@ const getFieldAvailability = async (fieldId, date) => {
   }
 };
 
-// Get field bookings for a specific date
 const getFieldBookings = async (fieldId, date) => {
   const query = `
     SELECT id, start_time, end_time, status, name
@@ -332,19 +330,16 @@ const calculateAvailableSlots = async (fieldId, date, startHour, endHour, existi
   const endMinutes = timeToMinutes(endHour);
   const slotDuration = 60; // 1 hour slots
 
-  // Generate all possible slots
   for (let currentMinutes = startMinutes; currentMinutes < endMinutes; currentMinutes += slotDuration) {
     const slotStart = minutesToTime(currentMinutes);
     const slotEnd = minutesToTime(currentMinutes + slotDuration);
 
-    // Check if slot conflicts with existing bookings
     const isAvailable = !existingBookings.some(booking => {
       const bookingStart = timeToMinutes(booking.start_time);
       const bookingEnd = timeToMinutes(booking.end_time);
       const slotStartMinutes = currentMinutes;
       const slotEndMinutes = currentMinutes + slotDuration;
 
-      // Check for overlap
       return (slotStartMinutes < bookingEnd && slotEndMinutes > bookingStart);
     });
 
@@ -361,7 +356,6 @@ const calculateAvailableSlots = async (fieldId, date, startHour, endHour, existi
   return availableSlots;
 };
 
-// Get field operating hours
 const getFieldOperatingHours = async (fieldId) => {
   const query = `
     SELECT operating_hours, operating_days
