@@ -1,0 +1,14 @@
+# Railway-specific configuration
+# This file helps Railway understand our deployment requirements
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"

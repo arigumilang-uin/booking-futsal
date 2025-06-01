@@ -17,6 +17,10 @@ const enhancedRoutes = require('./routes/enhanced/index');
 
 const app = express();
 
+// Trust proxy for Railway deployment
+// Railway uses reverse proxy, so we need to trust the proxy
+app.set('trust proxy', true);
+
 app.use(helmetConfig);
 app.use(compression());
 app.use(requestSizeLimit('10mb'));

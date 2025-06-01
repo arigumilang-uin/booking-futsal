@@ -31,6 +31,11 @@ const generalRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/' || req.path === '/api/public/health';
+  }
 });
 
 const authRateLimit = rateLimit({
@@ -41,6 +46,7 @@ const authRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
 });
 
 const paymentRateLimit = rateLimit({
@@ -51,6 +57,7 @@ const paymentRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: true, // Trust Railway proxy
 });
 
 const validateInput = (req, res, next) => {

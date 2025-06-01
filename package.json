@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "engines": {
-    "node": "18.20.4",
+    "node": ">=18.20.4 <19.0.0",
     "npm": ">=9.0.0"
   },
   "scripts": {
@@ -11,6 +11,7 @@
     "dev": "npx dotenv-cli -e .env.development nodemon server.js",
     "prod": "npx dotenv-cli -e .env.production node server.js",
     "railway:start": "NODE_ENV=production node server.js",
+    "build": "npm ci --omit=dev --no-audit --no-fund && npm cache clean --force",
     "postinstall": "npm cache clean --force"
   },
   "dependencies": {
