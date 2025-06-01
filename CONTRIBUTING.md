@@ -13,7 +13,7 @@ Thank you for your interest in contributing to the Enhanced Futsal Booking Syste
 - [Architecture Guidelines](#architecture-guidelines)
 - [Testing Requirements](#testing-requirements)
 
-## 🤝 Code of Conduct
+## Code of Conduct
 
 ### Our Pledge
 
