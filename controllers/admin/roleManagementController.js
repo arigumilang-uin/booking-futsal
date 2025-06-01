@@ -16,16 +16,35 @@ const getRoleManagementDashboard = async (req, res) => {
   try {
     const adminId = req.rawUser.id;
     const adminRole = req.rawUser.role;
-    
-    const allUsers = await getAllUsers();
+
+    // Get all users with error handling
+    let allUsers = [];
+    try {
+      allUsers = await getAllUsers();
+    } catch (userError) {
+      console.error('Error getting users:', userError);
+      return res.status(500).json({
+        error: 'Failed to get users data',
+        details: userError.message
+      });
+    }
+
     const roleStats = allUsers.reduce((stats, user) => {
       const role = user.role;
       stats[role] = (stats[role] || 0) + 1;
       return stats;
     }, {});
 
-    const pendingRequests = await getRoleChangeRequests('pending');
-    
+    // Get pending requests with error handling
+    let pendingRequests = [];
+    try {
+      pendingRequests = await getRoleChangeRequests('pending');
+    } catch (requestError) {
+      console.error('Error getting role change requests:', requestError);
+      // Continue without pending requests if there's an error
+      pendingRequests = [];
+    }
+
     res.json({
       success: true,
       data: {
@@ -58,7 +77,8 @@ const getRoleManagementDashboard = async (req, res) => {
   } catch (error) {
     console.error('Get role management dashboard error:', error);
     res.status(500).json({
-      error: 'Failed to get role management dashboard'
+      error: 'Failed to get role management dashboard',
+      details: error.message
     });
   }
 };
