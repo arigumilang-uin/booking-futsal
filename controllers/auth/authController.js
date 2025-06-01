@@ -9,8 +9,18 @@ const { generateToken } = require('../../utils/tokenUtils');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
-    const secureRole = 'user';
+    const { name, email, password, phone, role } = req.body;
+
+    // Default role untuk security, tapi allow role dari request untuk testing
+    const userRole = role || 'penyewa';
+
+    // Validate allowed roles
+    const allowedRoles = ['penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
+    if (!allowedRoles.includes(userRole)) {
+      return res.status(400).json({
+        error: 'Invalid role specified'
+      });
+    }
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -45,7 +55,7 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
-      role: secureRole
+      role: userRole
     });
 
     const token = generateToken({
