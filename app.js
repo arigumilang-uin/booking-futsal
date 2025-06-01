@@ -62,6 +62,29 @@ app.get('/', (req, res) => {
   });
 });
 
+// Public health endpoint (bypass any auth)
+app.get('/health', async (req, res) => {
+  try {
+    const pool = require('./config/db');
+    const dbResult = await pool.query('SELECT NOW() as current_time');
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: 'connected',
+      uptime: Math.floor(process.uptime()),
+      version: '1.0.0'
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: 'Database connection failed',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 app.use('/api', apiRoutes);
 
 app.use((req, res) => {
