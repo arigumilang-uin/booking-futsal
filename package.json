@@ -1,16 +1,16 @@
 {
   "name": "booking_futsal",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "server.js",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "start": "node app.js",
-    "dev": "npx dotenv-cli -e .env.development nodemon app.js",
-    "prod": "npx dotenv-cli -e .env.production node app.js",
-    "railway:start": "NODE_ENV=production node app.js"
+    "start": "node server.js",
+    "dev": "npx dotenv-cli -e .env.development nodemon server.js",
+    "prod": "npx dotenv-cli -e .env.production node server.js",
+    "railway:start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
