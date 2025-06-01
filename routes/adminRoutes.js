@@ -62,6 +62,14 @@ const {
   getPerformanceMetrics
 } = require('../controllers/shared/analyticsController');
 
+const {
+  triggerAutoCompletion,
+  getEligibleBookings,
+  getCompletionStats,
+  manualCompleteBooking,
+  getAutoCompletionConfig
+} = require('../controllers/admin/autoCompletionController');
+
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 const { requireAdmin, requireManagement } = require('../middlewares/authorization/roleBasedAccess');
@@ -407,5 +415,47 @@ router.get('/analytics/system', requireAdmin, getSystemAnalytics);
  * @access  Management (manajer_futsal+)
  */
 router.get('/analytics/performance', requireManagement, getPerformanceMetrics);
+
+// =====================================================
+// AUTO-COMPLETION MANAGEMENT ROUTES - ADMIN LEVEL
+// =====================================================
+
+/**
+ * @route   POST /api/admin/auto-completion/trigger
+ * @desc    Manually trigger auto-completion process
+ * @access  Admin (supervisor_sistem only)
+ */
+router.post('/auto-completion/trigger', requireAdmin, triggerAutoCompletion);
+
+/**
+ * @route   GET /api/admin/auto-completion/eligible
+ * @desc    Get bookings eligible for auto-completion
+ * @access  Admin (supervisor_sistem only)
+ */
+router.get('/auto-completion/eligible', requireAdmin, getEligibleBookings);
+
+/**
+ * @route   GET /api/admin/auto-completion/stats
+ * @desc    Get auto-completion statistics
+ * @access  Admin (supervisor_sistem only)
+ * @query   { days }
+ */
+router.get('/auto-completion/stats', requireAdmin, getCompletionStats);
+
+/**
+ * @route   POST /api/admin/auto-completion/manual/:id
+ * @desc    Manually complete a specific booking
+ * @access  Admin (supervisor_sistem only)
+ * @params  { id: booking_id }
+ * @body    { reason }
+ */
+router.post('/auto-completion/manual/:id', requireAdmin, manualCompleteBooking);
+
+/**
+ * @route   GET /api/admin/auto-completion/config
+ * @desc    Get auto-completion configuration
+ * @access  Admin (supervisor_sistem only)
+ */
+router.get('/auto-completion/config', requireAdmin, getAutoCompletionConfig);
 
 module.exports = router;

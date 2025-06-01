@@ -92,33 +92,19 @@ const getUserByEmail = async (email) => {
     FROM users WHERE email = $1
   `;
   const result = await pool.query(query, [email]);
-
-  if (result.rows[0]) {
-    const user = result.rows[0];
-    return {
-      ...user,
-      role: mapNewRoleToOld(user.role)
-    };
-  }
-  return null;
+  return result.rows[0] || null;
 };
 
 const createUser = async ({ name, email, password, phone, role = 'penyewa' }) => {
-  const enhancedRole = mapOldRoleToNew(role);
-
+  // Database sudah menggunakan enhanced roles, tidak perlu mapping
   const query = `
     INSERT INTO users (name, email, password, phone, role)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING id, uuid, name, email, phone, role, employee_id, is_active, created_at
   `;
-  const values = [name, email, password, phone, enhancedRole];
+  const values = [name, email, password, phone, role];
   const result = await pool.query(query, values);
-
-  const user = result.rows[0];
-  return {
-    ...user,
-    role: user.role  // Keep the enhanced role (penyewa, not user)
-  };
+  return result.rows[0];
 };
 
 const deleteUserById = async (id) => {
