@@ -2,6 +2,12 @@
 
 Backend API untuk sistem pemesanan lapangan futsal dengan enhanced role-based architecture, dibangun menggunakan Node.js, Express.js, dan PostgreSQL.
 
+## 📋 Documentation
+
+- **📚 [API Documentation](docs/API_DOCUMENTATION.md)** - Complete API endpoints and examples
+- **🚀 [Deployment Guide](docs/DEPLOYMENT.md)** - Development and production deployment
+- **🤝 [Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+
 ## 🏗️ Architecture Overview
 
 Sistem ini menggunakan **Enhanced Role-Based Architecture** dengan 6 level roles dan clean code structure yang telah direfactor untuk production-ready deployment.
@@ -114,108 +120,27 @@ booking_futsal/
 
 ## 📚 API Documentation
 
-### Base URL
+Complete API documentation with all endpoints, authentication, and examples.
 
-- **Development:** `http://localhost:5000/api`
-- **Production:** `https://your-domain.com/api`
+**� [View Full API Documentation](docs/API_DOCUMENTATION.md)**
 
-### Authentication
+### Quick Reference
 
-All protected endpoints require JWT token in header:
+- **Base URL:** `http://localhost:5000/api` (development)
+- **Authentication:** JWT Bearer token required for protected endpoints
+- **Role-based Access:** 6-level hierarchical role system
+- **Response Format:** JSON with consistent error handling
 
-```
-Authorization: Bearer <your-jwt-token>
-```
+### Key Endpoint Categories
 
-### API Endpoints Structure
-
-#### 🔓 Public Access (No Authentication)
-
-```
-GET    /api/public/fields              # List available fields
-GET    /api/public/fields/:id          # Field details
-GET    /api/public/fields/:id/availability # Check availability
-GET    /api/public/field-types         # Available field types
-GET    /api/public/field-locations     # Available locations
-GET    /api/public/system-info         # System information
-```
-
-#### 🔐 Authentication
-
-```
-POST   /api/auth/register              # User registration
-POST   /api/auth/login                 # User login
-GET    /api/auth/profile               # Get user profile
-POST   /api/auth/logout                # User logout
-POST   /api/auth/refresh               # Refresh token
-```
-
-#### 👤 Customer Access (penyewa)
-
-```
-GET    /api/customer/profile           # Get customer profile
-PUT    /api/customer/profile           # Update profile
-GET    /api/customer/fields            # Browse fields
-POST   /api/customer/bookings          # Create booking
-GET    /api/customer/bookings          # Get customer bookings
-GET    /api/customer/bookings/:id      # Get booking details
-DELETE /api/customer/bookings/:id      # Cancel booking
-```
-
-#### 💰 Staff Kasir Access
-
-```
-GET    /api/staff/kasir/payments       # All payments
-GET    /api/staff/kasir/payments/:id   # Payment details
-POST   /api/staff/kasir/payments/manual # Process manual payment
-PUT    /api/staff/kasir/payments/:id/confirm # Confirm payment
-GET    /api/staff/kasir/payments/pending # Pending payments
-GET    /api/staff/kasir/reports/daily  # Daily cash report
-```
-
-#### ⚽ Staff Operator Access
-
-```
-GET    /api/staff/operator/dashboard   # Operator dashboard
-GET    /api/staff/operator/fields      # Assigned fields
-PUT    /api/staff/operator/fields/:id  # Update field status
-GET    /api/staff/operator/bookings    # Field bookings
-PUT    /api/staff/operator/bookings/:id/confirm # Confirm booking
-PUT    /api/staff/operator/bookings/:id/complete # Complete booking
-GET    /api/staff/operator/schedule/today # Today's schedule
-```
-
-#### 📊 Staff Manager Access
-
-```
-GET    /api/staff/manager/dashboard    # Manager dashboard
-GET    /api/staff/manager/users        # All users management
-PUT    /api/staff/manager/users/:id/role # Update user role
-PUT    /api/staff/manager/users/:id/status # Update user status
-GET    /api/staff/manager/fields       # All fields management
-POST   /api/staff/manager/fields       # Create new field
-PUT    /api/staff/manager/fields/:id   # Update field
-GET    /api/staff/manager/analytics    # Business analytics
-```
-
-#### 🔧 Staff Supervisor Access
-
-```
-GET    /api/staff/supervisor/dashboard # System dashboard
-GET    /api/staff/supervisor/health    # System health
-POST   /api/staff/supervisor/users     # Create staff user
-GET    /api/staff/supervisor/audit     # Audit logs
-GET    /api/staff/supervisor/backup    # Database backup
-```
-
-#### 👥 Admin Role Management
-
-```
-GET    /api/admin/role-management/users # User management
-POST   /api/admin/role-management/request-change # Request role change
-GET    /api/admin/role-management/requests # Role change requests
-PUT    /api/admin/role-management/requests/:id # Approve/reject request
-```
+- **🔓 Public Access** - Guest users, no authentication required
+- **🔐 Authentication** - Login, registration, profile management
+- **👤 Customer (penyewa)** - Booking management, field browsing
+- **💰 Staff Kasir** - Payment processing, cash management
+- **⚽ Staff Operator** - Field operations, booking confirmation
+- **📊 Staff Manager** - Business management, analytics
+- **🔧 Staff Supervisor** - System administration, audit logs
+- **👥 Admin** - Role management, user administration
 
 ## 🗄️ Database
 
@@ -264,29 +189,34 @@ Complete Postman collection available in `/postman` folder:
 
 ## 📦 Deployment
 
-### Development Deployment
+Comprehensive deployment guide for both development and production environments.
 
-1. Setup local PostgreSQL database
-2. Configure `.env.development`
-3. Run migrations from `database/` folder
-4. Start with `npm run dev`
+**🚀 [View Full Deployment Guide](docs/DEPLOYMENT.md)**
 
-### Production Deployment
+### Quick Start
 
-1. Setup production database (Railway, Heroku, etc.)
-2. Configure `.env.production`
-3. Deploy to your hosting platform
-4. Run production migrations
-5. Start with `npm run prod`
+**Development:**
 
-### Environment Variables Required
-
-```env
-NODE_ENV=development|production
-PORT=5000
-DATABASE_URL=postgresql://...
-JWT_SECRET=your-secret-key
+```bash
+# Setup environment
+cp .env.example .env.development
+# Configure database and start
+npm run dev
 ```
+
+**Production:**
+
+```bash
+# Deploy to Railway (recommended)
+railway up
+# Or deploy to your preferred platform
+```
+
+### Supported Platforms
+
+- **Railway** (Recommended) - Easy PostgreSQL integration
+- **Heroku** - Classic PaaS with PostgreSQL addon
+- **VPS/Cloud** - Full control with PM2 process management
 
 ## 🤝 Contributing
 
@@ -302,7 +232,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 Enhanced Futsal Booking System
+Copyright (c) 2025 Enhanced Futsal Booking System
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
