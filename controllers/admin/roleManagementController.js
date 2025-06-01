@@ -1,52 +1,30 @@
-// controllers/admin/roleManagementController.js
-// Professional Role Management Controller dengan Security & Audit Trail
-
-const { 
-  getUserById, 
+const {
   getUserByIdRaw,
   getAllUsers,
   updateUserRole,
-  updateUserStatus,
   getRoleLevel,
-  mapOldRoleToNew,
-  mapNewRoleToOld
+  mapOldRoleToNew
 } = require('../../models/userModel');
 
-const { 
+const {
   createRoleChangeRequest,
-  approveRoleChangeRequest,
-  rejectRoleChangeRequest,
   getRoleChangeRequests,
   logRoleChange
 } = require('../../models/roleManagementModel');
 
-// =====================================================
-// PROFESSIONAL ROLE MANAGEMENT CONTROLLER
-// =====================================================
-
-/**
- * Get role management dashboard
- * Overview of users, roles, dan pending requests
- */
 const getRoleManagementDashboard = async (req, res) => {
   try {
     const adminId = req.rawUser.id;
     const adminRole = req.rawUser.role;
     
-    // Get role statistics
     const allUsers = await getAllUsers();
     const roleStats = allUsers.reduce((stats, user) => {
       const role = user.role;
       stats[role] = (stats[role] || 0) + 1;
       return stats;
     }, {});
-    
-    // Get pending role change requests
+
     const pendingRequests = await getRoleChangeRequests('pending');
-    
-    // Get recent role changes (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
     res.json({
       success: true,
@@ -79,20 +57,14 @@ const getRoleManagementDashboard = async (req, res) => {
 
   } catch (error) {
     console.error('Get role management dashboard error:', error);
-    res.status(500).json({ 
-      error: 'Failed to get role management dashboard',
-      code: 'ROLE_DASHBOARD_FAILED'
+    res.status(500).json({
+      error: 'Failed to get role management dashboard'
     });
   }
 };
 
-/**
- * Get all users with role management perspective
- * Enhanced filtering dan pagination
- */
 const getAllUsersForRoleManagement = async (req, res) => {
   try {
-    const adminId = req.rawUser.id;
     const adminRole = req.rawUser.role;
     const adminLevel = getRoleLevel(adminRole);
     
@@ -108,29 +80,25 @@ const getAllUsersForRoleManagement = async (req, res) => {
     
     let users = await getAllUsers();
     
-    // Filter by role if specified
     if (role) {
       const targetRole = mapOldRoleToNew(role);
       users = users.filter(user => user.role === targetRole);
     }
-    
-    // Filter by status if specified
+
     if (status !== undefined) {
       const isActive = status === 'active';
       users = users.filter(user => user.is_active === isActive);
     }
-    
-    // Search filter
+
     if (search) {
       const searchLower = search.toLowerCase();
-      users = users.filter(user => 
+      users = users.filter(user =>
         user.name.toLowerCase().includes(searchLower) ||
         user.email.toLowerCase().includes(searchLower) ||
         (user.employee_id && user.employee_id.toLowerCase().includes(searchLower))
       );
     }
-    
-    // Security: Hide users with higher or equal role level (except for supervisor)
+
     if (adminRole !== 'supervisor_sistem') {
       users = users.filter(user => {
         const userLevel = getRoleLevel(user.role);
@@ -138,7 +106,6 @@ const getAllUsersForRoleManagement = async (req, res) => {
       });
     }
     
-    // Sort users
     users.sort((a, b) => {
       if (sort_order === 'desc') {
         return new Date(b[sort_by]) - new Date(a[sort_by]);
@@ -146,20 +113,18 @@ const getAllUsersForRoleManagement = async (req, res) => {
         return new Date(a[sort_by]) - new Date(b[sort_by]);
       }
     });
-    
-    // Pagination
+
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + parseInt(limit);
     const paginatedUsers = users.slice(startIndex, endIndex);
-    
-    // Add role management info to each user
+
     const usersWithRoleInfo = paginatedUsers.map(user => ({
       ...user,
       role_info: {
         current_level: getRoleLevel(user.role),
         can_be_elevated: canElevateUser(user.role, adminRole),
         can_be_demoted: canDemoteUser(user.role, adminRole),
-        available_roles: getAvailableRolesForUser(user.role, adminRole)
+        available_roles: getAvailableRolesForUser(adminRole)
       }
     }));
     
@@ -183,55 +148,43 @@ const getAllUsersForRoleManagement = async (req, res) => {
 
   } catch (error) {
     console.error('Get all users for role management error:', error);
-    res.status(500).json({ 
-      error: 'Failed to get users for role management',
-      code: 'USERS_ROLE_MANAGEMENT_FAILED'
+    res.status(500).json({
+      error: 'Failed to get users for role management'
     });
   }
 };
 
-/**
- * Request role change (for workflow approval)
- * Create role change request yang memerlukan approval
- */
 const requestRoleChange = async (req, res) => {
   try {
     const requesterId = req.rawUser.id;
     const requesterRole = req.rawUser.role;
     const { user_id, new_role, reason, priority = 'normal' } = req.body;
     
-    // Validation
     if (!user_id || !new_role || !reason) {
-      return res.status(400).json({ 
-        error: 'User ID, new role, and reason are required',
-        code: 'MISSING_REQUIRED_FIELDS'
+      return res.status(400).json({
+        error: 'User ID, new role, and reason are required'
       });
     }
-    
-    // Get target user
+
     const targetUser = await getUserByIdRaw(user_id);
     if (!targetUser) {
-      return res.status(404).json({ 
-        error: 'Target user not found',
-        code: 'TARGET_USER_NOT_FOUND'
+      return res.status(404).json({
+        error: 'Target user not found'
       });
     }
-    
-    // Security validation using database function
+
     const validationResult = await validateRoleChangeRequest(
       targetUser.role,
       new_role,
       requesterRole
     );
-    
+
     if (!validationResult.valid) {
-      return res.status(403).json({ 
-        error: validationResult.reason,
-        code: 'ROLE_CHANGE_NOT_ALLOWED'
+      return res.status(403).json({
+        error: validationResult.reason
       });
     }
-    
-    // Create role change request
+
     const request = await createRoleChangeRequest({
       requester_id: requesterId,
       target_user_id: user_id,
@@ -249,62 +202,49 @@ const requestRoleChange = async (req, res) => {
 
   } catch (error) {
     console.error('Request role change error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create role change request',
-      code: 'ROLE_CHANGE_REQUEST_FAILED'
+    res.status(500).json({
+      error: 'Failed to create role change request'
     });
   }
 };
 
-/**
- * Direct role change (for immediate changes by authorized admins)
- * Bypass approval workflow untuk emergency atau authorized changes
- */
 const changeUserRoleDirect = async (req, res) => {
   try {
     const adminId = req.rawUser.id;
     const adminRole = req.rawUser.role;
     const { user_id, new_role, reason, bypass_approval = false } = req.body;
     
-    // Validation
     if (!user_id || !new_role || !reason) {
-      return res.status(400).json({ 
-        error: 'User ID, new role, and reason are required',
-        code: 'MISSING_REQUIRED_FIELDS'
+      return res.status(400).json({
+        error: 'User ID, new role, and reason are required'
       });
     }
-    
-    // Get target user
+
     const targetUser = await getUserByIdRaw(user_id);
     if (!targetUser) {
-      return res.status(404).json({ 
-        error: 'Target user not found',
-        code: 'TARGET_USER_NOT_FOUND'
+      return res.status(404).json({
+        error: 'Target user not found'
       });
     }
-    
-    // Security validation
+
     const validationResult = validateDirectRoleChange(
-      targetUser.role, 
-      new_role, 
+      targetUser.role,
+      new_role,
       adminRole,
       bypass_approval
     );
-    
+
     if (!validationResult.valid) {
-      return res.status(403).json({ 
-        error: validationResult.reason,
-        code: 'DIRECT_ROLE_CHANGE_NOT_ALLOWED'
+      return res.status(403).json({
+        error: validationResult.reason
       });
     }
-    
-    // Perform role change
+
     const updatedUser = await updateUserRole(user_id, new_role, adminId);
-    
+
     if (!updatedUser) {
-      return res.status(500).json({ 
-        error: 'Failed to update user role',
-        code: 'ROLE_UPDATE_FAILED'
+      return res.status(500).json({
+        error: 'Failed to update user role'
       });
     }
     
@@ -335,20 +275,12 @@ const changeUserRoleDirect = async (req, res) => {
 
   } catch (error) {
     console.error('Change user role direct error:', error);
-    res.status(500).json({ 
-      error: 'Failed to change user role',
-      code: 'DIRECT_ROLE_CHANGE_FAILED'
+    res.status(500).json({
+      error: 'Failed to change user role'
     });
   }
 };
 
-// =====================================================
-// HELPER FUNCTIONS
-// =====================================================
-
-/**
- * Get admin permissions based on role
- */
 const getAdminPermissions = (role) => {
   const permissions = {
     'manajer_futsal': [
@@ -365,9 +297,6 @@ const getAdminPermissions = (role) => {
   return permissions[role] || [];
 };
 
-/**
- * Check if user can be elevated by admin
- */
 const canElevateUser = (userRole, adminRole) => {
   const userLevel = getRoleLevel(userRole);
   const adminLevel = getRoleLevel(adminRole);
@@ -376,21 +305,14 @@ const canElevateUser = (userRole, adminRole) => {
   return userLevel < adminLevel - 1;
 };
 
-/**
- * Check if user can be demoted by admin
- */
 const canDemoteUser = (userRole, adminRole) => {
   const userLevel = getRoleLevel(userRole);
   const adminLevel = getRoleLevel(adminRole);
-  
-  // Admin can demote users below their level
-  return userLevel < adminLevel && userLevel > 1; // Can't demote pengunjung
+
+  return userLevel < adminLevel && userLevel > 1;
 };
 
-/**
- * Get available roles for user based on admin permissions
- */
-const getAvailableRolesForUser = (userRole, adminRole) => {
+const getAvailableRolesForUser = (adminRole) => {
   const adminLevel = getRoleLevel(adminRole);
   const allRoles = [
     { role: 'pengunjung', level: 1 },
@@ -400,19 +322,14 @@ const getAvailableRolesForUser = (userRole, adminRole) => {
     { role: 'manajer_futsal', level: 5 },
     { role: 'supervisor_sistem', level: 6 }
   ];
-  
-  // Admin can assign roles below their level
+
   return allRoles
     .filter(r => r.level < adminLevel)
     .map(r => r.role);
 };
 
-/**
- * Validate role change request using database function
- */
 const validateRoleChangeRequest = async (currentRole, newRole, requesterRole) => {
   try {
-    // Use database function for validation
     const pool = require('../../config/db');
     const result = await pool.query(
       'SELECT validate_role_hierarchy($1, $2, $3) as is_valid',
@@ -424,14 +341,13 @@ const validateRoleChangeRequest = async (currentRole, newRole, requesterRole) =>
     if (!isValid) {
       return {
         valid: false,
-        reason: 'Insufficient permissions to request this role change (database validation)'
+        reason: 'Insufficient permissions to request this role change'
       };
     }
 
     return { valid: true };
   } catch (error) {
     console.error('Database role validation error:', error);
-    // Fallback to local validation
     const currentLevel = getRoleLevel(currentRole);
     const newLevel = getRoleLevel(mapOldRoleToNew(newRole));
     const requesterLevel = getRoleLevel(requesterRole);
@@ -447,30 +363,25 @@ const validateRoleChangeRequest = async (currentRole, newRole, requesterRole) =>
   }
 };
 
-/**
- * Validate direct role change
- */
 const validateDirectRoleChange = (currentRole, newRole, adminRole, bypassApproval) => {
   const currentLevel = getRoleLevel(currentRole);
   const newLevel = getRoleLevel(mapOldRoleToNew(newRole));
   const adminLevel = getRoleLevel(adminRole);
-  
-  // Only supervisor can bypass approval
+
   if (bypassApproval && adminRole !== 'supervisor_sistem') {
     return {
       valid: false,
       reason: 'Only system supervisor can bypass approval workflow'
     };
   }
-  
-  // Admin must have higher level than both current and new role
+
   if (adminLevel <= Math.max(currentLevel, newLevel)) {
     return {
       valid: false,
       reason: 'Insufficient permissions for this role change'
     };
   }
-  
+
   return { valid: true };
 };
 
