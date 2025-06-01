@@ -28,6 +28,71 @@ const { allowGuest } = require('../middlewares/roleCheck/roleMiddleware');
 router.get('/system-info', getSystemInfo);
 
 /**
+ * @route   GET /api/public/database-status
+ * @desc    Check database tables and migration status
+ * @access  Public
+ */
+router.get('/database-status', async (req, res) => {
+  try {
+    const pool = require('../config/db');
+
+    // Check all tables exist
+    const tablesQuery = `
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      ORDER BY table_name;
+    `;
+
+    const tablesResult = await pool.query(tablesQuery);
+    const existingTables = tablesResult.rows.map(row => row.table_name);
+
+    // Expected tables
+    const expectedTables = [
+      'users', 'fields', 'bookings', 'payments', 'role_change_requests',
+      'notifications', 'field_reviews', 'promotions', 'promotion_usages',
+      'system_settings', 'audit_logs', 'field_availability', 'user_favorites',
+      'booking_history', 'payment_logs'
+    ];
+
+    // Check which tables are missing
+    const missingTables = expectedTables.filter(table => !existingTables.includes(table));
+
+    // Count records in main tables
+    const tableCounts = {};
+    for (const table of ['users', 'fields', 'bookings', 'payments']) {
+      if (existingTables.includes(table)) {
+        try {
+          const countResult = await pool.query(`SELECT COUNT(*) as count FROM ${table}`);
+          tableCounts[table] = parseInt(countResult.rows[0].count);
+        } catch (err) {
+          tableCounts[table] = 'Error: ' + err.message;
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        database_status: 'connected',
+        total_tables: existingTables.length,
+        existing_tables: existingTables,
+        missing_tables: missingTables,
+        table_counts: tableCounts,
+        migration_status: missingTables.length === 0 ? 'complete' : 'incomplete'
+      }
+    });
+
+  } catch (error) {
+    console.error('Database status error:', error);
+    res.status(500).json({
+      error: 'Failed to check database status',
+      details: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/public/fields
  * @desc    Get available fields untuk pengunjung
  * @access  Public
