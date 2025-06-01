@@ -1,27 +1,18 @@
-// routes/authRoutes.js - Simple Authentication Routes for Testing
+// routes/authRoutes.js - Enhanced Authentication Routes
 const express = require('express');
 const router = express.Router();
 
-// Simple controller implementations for testing
-const register = (req, res) => {
-  res.json({ success: true, message: 'Register endpoint working' });
-};
+// Controllers
+const {
+  register,
+  login,
+  logout,
+  getProfile,
+  refreshToken
+} = require('../controllers/auth/authController');
 
-const login = (req, res) => {
-  res.json({ success: true, message: 'Login endpoint working' });
-};
-
-const logout = (req, res) => {
-  res.json({ success: true, message: 'Logout endpoint working' });
-};
-
-const getProfile = (req, res) => {
-  res.json({ success: true, message: 'Get profile endpoint working' });
-};
-
-const refreshToken = (req, res) => {
-  res.json({ success: true, message: 'Refresh token endpoint working' });
-};
+// Middlewares
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
 
 // =====================================================
 // AUTHENTICATION ROUTES
@@ -53,27 +44,34 @@ router.post('/logout', logout);
 /**
  * @route   GET /api/auth/profile
  * @desc    Get current user profile
- * @access  Public
+ * @access  Private (Authenticated users)
  */
-router.get('/profile', getProfile);
+router.get('/profile', requireAuth, getProfile);
 
 /**
  * @route   POST /api/auth/refresh
  * @desc    Refresh JWT token
- * @access  Public
+ * @access  Private (Authenticated users)
  */
-router.post('/refresh', refreshToken);
+router.post('/refresh', requireAuth, refreshToken);
 
 /**
  * @route   GET /api/auth/verify
  * @desc    Verify token validity
- * @access  Public
+ * @access  Private (Authenticated users)
  */
-router.get('/verify', (req, res) => {
+router.get('/verify', requireAuth, (req, res) => {
   res.json({
     success: true,
-    message: 'Token verification endpoint working',
-    data: { user: 'test_user' }
+    message: 'Token is valid',
+    data: {
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role,
+        name: req.user.name
+      }
+    }
   });
 });
 

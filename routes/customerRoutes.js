@@ -1,35 +1,64 @@
-// routes/customerRoutes.js - Simple Customer Routes for Production
+// routes/customerRoutes.js - Customer Routes untuk Penyewa Access
 const express = require('express');
 const router = express.Router();
 
-// Simple controller implementations for production
-const getCustomerProfile = (req, res) => {
-  res.json({ success: true, message: 'Customer profile endpoint working', data: {} });
-};
+// Controllers
+const {
+  getCustomerProfile,
+  updateCustomerProfile,
+  getCustomerFields,
+  createCustomerBooking,
+  getCustomerBookings,
+  getCustomerBookingDetail,
+  cancelCustomerBooking
+} = require('../controllers/customer/customerController');
 
-const updateCustomerProfile = (req, res) => {
-  res.json({ success: true, message: 'Update profile endpoint working' });
-};
+// Enhanced Features Controllers
+const {
+  getNotifications,
+  getUnreadNotificationsCount,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteUserNotification,
+  getNotificationStatistics
+} = require('../controllers/customer/notificationController');
 
-const getCustomerFields = (req, res) => {
-  res.json({ success: true, message: 'Customer fields endpoint working', data: [] });
-};
+const {
+  getUserReviewsList,
+  createFieldReview,
+  updateFieldReview,
+  deleteFieldReview,
+  getReviewDetail,
+  checkCanReview
+} = require('../controllers/customer/reviewController');
 
-const createCustomerBooking = (req, res) => {
-  res.json({ success: true, message: 'Create booking endpoint working' });
-};
+const {
+  getFavoriteFields,
+  addFieldToFavorites,
+  removeFieldFromFavorites,
+  toggleFieldFavorite,
+  checkFieldFavorite,
+  getFavoritesWithAvailabilityInfo,
+  getFavoritesStatistics,
+  getRecommendations,
+  getFavoritesCountOnly
+} = require('../controllers/customer/favoritesController');
 
-const getCustomerBookings = (req, res) => {
-  res.json({ success: true, message: 'Customer bookings endpoint working', data: [] });
-};
+const {
+  getAvailablePromotions,
+  getPromotionDetails,
+  validatePromotionCode,
+  applyPromotionToBooking,
+  calculateDiscountPreview
+} = require('../controllers/customer/promotionController');
 
-const getCustomerBookingDetail = (req, res) => {
-  res.json({ success: true, message: 'Booking detail endpoint working', data: {} });
-};
+// Middlewares
+const { requireAuth } = require('../middlewares/auth/authMiddleware');
+const { requireCustomer } = require('../middlewares/authorization/roleBasedAccess');
 
-const cancelCustomerBooking = (req, res) => {
-  res.json({ success: true, message: 'Cancel booking endpoint working' });
-};
+// Apply authentication dan customer role check untuk semua routes
+router.use(requireAuth);
+router.use(requireCustomer);
 
 // =====================================================
 // CUSTOMER ROUTES - PENYEWA ACCESS

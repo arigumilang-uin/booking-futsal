@@ -2,50 +2,20 @@
 const express = require('express');
 const router = express.Router();
 
-// Simple controller implementations for production
-const getPublicFields = (req, res) => {
-  res.json({ success: true, message: 'Public fields endpoint working', data: [] });
-};
+// Controllers
+const {
+  getPublicFields,
+  getPublicFieldDetail,
+  getPublicFieldAvailability,
+  getFieldTypes,
+  getFieldLocations,
+  getSystemInfo
+} = require('../controllers/public/publicController');
 
-const getPublicFieldDetail = (req, res) => {
-  res.json({ success: true, message: 'Field detail endpoint working', data: {} });
-};
-
-const getPublicFieldAvailability = (req, res) => {
-  res.json({ success: true, message: 'Field availability endpoint working', data: {} });
-};
-
-const getFieldTypes = (req, res) => {
-  res.json({ success: true, message: 'Field types endpoint working', data: [] });
-};
-
-const getFieldLocations = (req, res) => {
-  res.json({ success: true, message: 'Field locations endpoint working', data: [] });
-};
-
-const getSystemInfo = (req, res) => {
-  res.json({ success: true, message: 'System info endpoint working', data: {} });
-};
-
-const getApplicationConfig = (req, res) => {
-  res.json({ success: true, message: 'App config endpoint working', data: {} });
-};
-
-const getFieldReviewsList = (req, res) => {
-  res.json({ success: true, message: 'Field reviews endpoint working', data: [] });
-};
-
-const getFieldRating = (req, res) => {
-  res.json({ success: true, message: 'Field rating endpoint working', data: {} });
-};
-
-const getAvailablePromotions = (req, res) => {
-  res.json({ success: true, message: 'Promotions endpoint working', data: [] });
-};
-
-const getFieldPromotions = (req, res) => {
-  res.json({ success: true, message: 'Field promotions endpoint working', data: [] });
-};
+// Enhanced Features Controllers
+const { getApplicationConfig } = require('../controllers/admin/systemSettingsController');
+const { getFieldReviewsList, getFieldRating } = require('../controllers/customer/reviewController');
+const { getAvailablePromotions, getFieldPromotions } = require('../controllers/customer/promotionController');
 
 // Middlewares
 const { optionalAuth } = require('../middlewares/auth/authMiddleware');
