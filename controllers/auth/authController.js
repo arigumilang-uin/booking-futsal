@@ -143,7 +143,7 @@ const login = async (req, res) => {
       success: true,
       message: 'Login successful',
       user: userResponse,
-      token: process.env.NODE_ENV === 'development' ? token : undefined
+      token: token // Always return token for API testing
     });
 
   } catch (error) {
