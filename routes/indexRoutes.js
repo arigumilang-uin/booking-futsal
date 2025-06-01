@@ -2,63 +2,54 @@
 const express = require('express');
 const router = express.Router();
 
+// Import test routes
+const testRoutes = require('./testRoutes');
+
 // Import all route modules
 const authRoutes = require('./authRoutes');
 const publicRoutes = require('./publicRoutes');
 const adminRoutes = require('./adminRoutes');
 const customerRoutes = require('./customerRoutes');
-
-// Staff routes
 const kasirRoutes = require('./kasirRoutes');
 const operatorRoutes = require('./operatorRoutes');
 const managerRoutes = require('./managerRoutes');
 const supervisorRoutes = require('./supervisorRoutes');
-
-// Enhanced features
 const enhancedRoutes = require('./enhancedRoutes');
 
 // =====================================================
 // ROUTE MOUNTING - SIMPLIFIED FLAT STRUCTURE
 // =====================================================
 
-// Public routes (no authentication required)
+// Test routes
+router.use('/test', testRoutes);
+
+// All routes enabled
 router.use('/public', publicRoutes);
-
-// Authentication routes
 router.use('/auth', authRoutes);
-
-// Customer routes (penyewa access)
 router.use('/customer', customerRoutes);
-
-// Admin routes (management access)
 router.use('/admin', adminRoutes);
-
-// Staff routes (operational access)
 router.use('/staff/kasir', kasirRoutes);
 router.use('/staff/operator', operatorRoutes);
 router.use('/staff/manager', managerRoutes);
 router.use('/staff/supervisor', supervisorRoutes);
-
-// Enhanced features (documentation & API info)
 router.use('/enhanced', enhancedRoutes);
 
 // =====================================================
 // LEGACY COMPATIBILITY ROUTES
 // =====================================================
 
-// Legacy user routes (redirect to customer)
-router.use('/user', (req, res, next) => {
-  console.log('Legacy /user route accessed, redirecting to /customer');
-  req.url = req.url.replace('/user', '/customer');
-  customerRoutes(req, res, next);
-});
+// Legacy routes (commented out for testing)
+// router.use('/user', (req, res, next) => {
+//   console.log('Legacy /user route accessed, redirecting to /customer');
+//   req.url = req.url.replace('/user', '/customer');
+//   customerRoutes(req, res, next);
+// });
 
-// Legacy pengelola routes (redirect to staff/manager)
-router.use('/pengelola', (req, res, next) => {
-  console.log('Legacy /pengelola route accessed, redirecting to /staff/manager');
-  req.url = req.url.replace('/pengelola', '/staff/manager');
-  managerRoutes(req, res, next);
-});
+// router.use('/pengelola', (req, res, next) => {
+//   console.log('Legacy /pengelola route accessed, redirecting to /staff/manager');
+//   req.url = req.url.replace('/pengelola', '/staff/manager');
+//   managerRoutes(req, res, next);
+// });
 
 // =====================================================
 // HEALTH CHECK & API INFO

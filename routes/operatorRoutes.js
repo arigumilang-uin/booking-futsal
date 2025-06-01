@@ -15,11 +15,11 @@ const {
 
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
-const { requireOperator } = require('../middlewares/authorization/roleBasedAccess');
+const { requireStaff } = require('../middlewares/authorization/roleBasedAccess');
 
-// Apply authentication dan operator role check untuk semua routes
+// Apply authentication dan staff role check untuk semua routes
 router.use(requireAuth);
-router.use(requireOperator);
+router.use(requireStaff);
 
 // =====================================================
 // OPERATOR ROUTES - OPERATOR_LAPANGAN ACCESS

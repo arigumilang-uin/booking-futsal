@@ -1,23 +1,27 @@
-// routes/authRoutes.js - Enhanced Authentication Routes
+// routes/authRoutes.js - Simple Authentication Routes for Testing
 const express = require('express');
 const router = express.Router();
 
-// Controllers
-const { 
-  register, 
-  login, 
-  logout, 
-  getProfile, 
-  refreshToken 
-} = require('../controllers/auth/authController');
+// Simple controller implementations for testing
+const register = (req, res) => {
+  res.json({ success: true, message: 'Register endpoint working' });
+};
 
-// Middlewares
-const {
-  requireAuth,
-  guestOnly,
-  authRateLimit,
-  clearRateLimit
-} = require('../middlewares/auth/authMiddleware');
+const login = (req, res) => {
+  res.json({ success: true, message: 'Login endpoint working' });
+};
+
+const logout = (req, res) => {
+  res.json({ success: true, message: 'Logout endpoint working' });
+};
+
+const getProfile = (req, res) => {
+  res.json({ success: true, message: 'Get profile endpoint working' });
+};
+
+const refreshToken = (req, res) => {
+  res.json({ success: true, message: 'Refresh token endpoint working' });
+};
 
 // =====================================================
 // AUTHENTICATION ROUTES

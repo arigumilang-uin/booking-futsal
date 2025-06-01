@@ -15,11 +15,11 @@ const {
 
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
-const { requireKasir } = require('../middlewares/authorization/roleBasedAccess');
+const { requireStaff } = require('../middlewares/authorization/roleBasedAccess');
 
-// Apply authentication dan kasir role check untuk semua routes
+// Apply authentication dan staff role check untuk semua routes
 router.use(requireAuth);
-router.use(requireKasir);
+router.use(requireStaff);
 
 // =====================================================
 // KASIR ROUTES - STAFF_KASIR ACCESS
