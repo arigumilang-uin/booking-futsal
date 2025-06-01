@@ -2,10 +2,15 @@
   "name": "booking_futsal",
   "version": "1.0.0",
   "main": "app.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "npx dotenv-cli -e .env.development nodemon app.js",
-    "prod": "npx dotenv-cli -e .env.production node app.js"
+    "prod": "npx dotenv-cli -e .env.production node app.js",
+    "railway:start": "NODE_ENV=production node app.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

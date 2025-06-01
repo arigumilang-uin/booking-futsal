@@ -1,8 +1,23 @@
+# Railway Nixpacks Configuration for Enhanced Futsal Booking System
+# Optimized for Node.js/Express production deployment
+
 [phases.setup]
-nixPkgs = ["nodejs"]
+nixPkgs = ["nodejs-18_x", "postgresql"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = [
+  "npm ci --only=production",
+  "npm cache clean --force"
+]
+
+[phases.build]
+cmds = [
+  "echo 'Build phase completed - Node.js application ready'"
+]
 
 [start]
-cmd = "npm start"
+cmd = "npm run railway:start"
+
+[variables]
+NODE_ENV = "production"
+PORT = "5000"

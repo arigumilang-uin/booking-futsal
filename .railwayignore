@@ -1,0 +1,82 @@
+# Railway ignore file for Enhanced Futsal Booking System
+# Files and directories to exclude from Railway deployment
+
+# Development environment files
+.env.development
+.env.local
+.env.test
+
+# Development dependencies and tools
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development and testing files
+*.test.js
+*.spec.js
+test/
+tests/
+__tests__/
+
+# Documentation (not needed in production)
+docs/
+*.md
+!README.md
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Log files
+logs/
+*.log
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Development database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.backup
+*.bak
+
+# IDE files
+.eslintrc*
+.prettierrc*
+.editorconfig
+
+# Development scripts
+scripts/dev/
+scripts/test/
+
+# Sample and example files
+examples/
+samples/
+demo/
