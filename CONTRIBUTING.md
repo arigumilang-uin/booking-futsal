@@ -34,7 +34,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 - Publishing private information without permission
 - Any conduct that would be inappropriate in a professional setting
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -55,7 +55,7 @@ Before contributing, ensure you have:
 6. **Test thoroughly** before submitting
 7. **Submit a pull request** with clear description
 
-## 🛠️ Development Setup
+## Development Setup
 
 ### 1. Clone and Install
 
@@ -90,7 +90,7 @@ JWT_SECRET=your-development-jwt-secret
 npm run dev
 ```
 
-## 📝 Coding Standards
+## Coding Standards
 
 ### Code Style
 
@@ -148,7 +148,7 @@ const getUserBookings = async (userId) => {
 - **Routes:** API endpoint definitions
 - **Utils:** Helper functions and utilities
 
-## 🔄 Pull Request Process
+## Pull Request Process
 
 ### Before Submitting
 
@@ -202,7 +202,7 @@ Brief description of changes made.
 4. **Documentation:** Updates to documentation reviewed
 5. **Approval:** Final approval from project maintainer
 
-## 🐛 Issue Reporting
+## Issue Reporting
 
 ### Bug Reports
 
@@ -225,7 +225,7 @@ For new features, provide:
 3. **Alternatives:** Other solutions considered
 4. **Impact:** How does this affect existing functionality?
 
-## 🏗️ Architecture Guidelines
+## Architecture Guidelines
 
 ### Enhanced Role-Based System
 
@@ -251,7 +251,7 @@ Our system uses 6 hierarchical roles:
 - **Input Validation:** Sanitize and validate all inputs
 - **Error Handling:** Secure error messages without sensitive data
 
-## 🧪 Testing Requirements
+## Testing Requirements
 
 ### Manual Testing
 
