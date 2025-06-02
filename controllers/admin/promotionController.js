@@ -69,6 +69,8 @@ const createPromotionAdmin = async (req, res) => {
       applicable_hours, start_date, end_date
     } = req.body;
 
+    console.log('Create promotion request:', req.body);
+
     // Validate required fields
     if (!code || !name || !type || !value || !start_date || !end_date) {
       return res.status(400).json({
@@ -121,7 +123,7 @@ const createPromotionAdmin = async (req, res) => {
       });
     }
 
-    const promotion = await createPromotion({
+    const promotionData = {
       code,
       name,
       description,
@@ -137,7 +139,13 @@ const createPromotionAdmin = async (req, res) => {
       valid_from: start_date,
       valid_until: end_date,
       created_by: req.user.id
-    });
+    };
+
+    console.log('Calling createPromotion with:', promotionData);
+
+    const promotion = await createPromotion(promotionData);
+
+    console.log('Promotion created:', promotion);
 
     res.status(201).json({
       success: true,
@@ -146,9 +154,11 @@ const createPromotionAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Create promotion admin error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Gagal membuat promosi'
+      message: 'Gagal membuat promosi',
+      error: error.message
     });
   }
 };

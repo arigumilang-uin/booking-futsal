@@ -116,6 +116,8 @@ const createSystemSetting = async (req, res) => {
   try {
     const { key, value, description, is_public } = req.body;
 
+    console.log('Create setting request:', { key, value, description, is_public });
+
     if (!key || value === undefined) {
       return res.status(400).json({
         success: false,
@@ -125,12 +127,21 @@ const createSystemSetting = async (req, res) => {
 
     // Check if setting already exists
     const existing = await getSettingByKey(key);
+    console.log('Existing setting check:', existing);
+
     if (existing) {
       return res.status(400).json({
         success: false,
         message: 'Pengaturan dengan key ini sudah ada'
       });
     }
+
+    console.log('Calling upsertSetting with:', {
+      key,
+      value,
+      description,
+      is_public: is_public || false
+    });
 
     const setting = await upsertSetting({
       key,
@@ -139,6 +150,8 @@ const createSystemSetting = async (req, res) => {
       is_public: is_public || false
     });
 
+    console.log('Setting created:', setting);
+
     res.status(201).json({
       success: true,
       message: 'Pengaturan berhasil dibuat',
@@ -146,9 +159,11 @@ const createSystemSetting = async (req, res) => {
     });
   } catch (error) {
     console.error('Create setting error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Gagal membuat pengaturan'
+      message: 'Gagal membuat pengaturan',
+      error: error.message
     });
   }
 };
