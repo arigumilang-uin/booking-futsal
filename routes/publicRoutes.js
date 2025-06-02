@@ -297,10 +297,10 @@ router.get('/debug/test-settings', async (req, res) => {
   try {
     const pool = require('../config/db');
 
-    // Test with proper JSON format
+    // Test with simple JSON format
     const testQuery = `
       INSERT INTO system_settings (key, value, description, is_public)
-      VALUES ('debug_test', '{"value": "debug_value", "type": "string"}', 'Debug test setting', false)
+      VALUES ('debug_test', '"debug_value"', 'Debug test setting', false)
       RETURNING *
     `;
 
