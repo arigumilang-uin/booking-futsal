@@ -92,7 +92,7 @@ const checkBookingConflict = async ({ field_id, date, start_time, end_time, excl
     FROM bookings
     WHERE field_id = $1
       AND date = $2
-      AND status IN ('pending', 'confirmed')
+      AND status IN ('pending', 'confirmed', 'completed')
       AND (
         ($3 < end_time AND $4 > start_time)
       )
