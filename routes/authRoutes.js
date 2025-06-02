@@ -158,8 +158,58 @@ router.get('/health', (req, res) => {
       'GET /api/auth/profile',
       'POST /api/auth/refresh',
       'GET /api/auth/verify',
-      'GET /api/auth/roles'
+      'GET /api/auth/roles',
+      'POST /api/auth/forgot-password',
+      'GET /api/auth/reset-password/:token',
+      'POST /api/auth/reset-password',
+      'POST /api/auth/send-verification',
+      'POST /api/auth/verify-email'
     ]
+  });
+});
+
+/**
+ * @route   GET /api/auth/test-features
+ * @desc    Test new features without dependencies
+ * @access  Public
+ */
+router.get('/test-features', (req, res) => {
+  res.json({
+    success: true,
+    message: 'New features endpoints available',
+    features: {
+      email_service: {
+        configured: !!process.env.SMTP_USER,
+        endpoints: [
+          'POST /api/auth/forgot-password',
+          'POST /api/auth/send-verification'
+        ]
+      },
+      password_reset: {
+        table_required: 'password_resets',
+        endpoints: [
+          'POST /api/auth/forgot-password',
+          'GET /api/auth/reset-password/:token',
+          'POST /api/auth/reset-password'
+        ]
+      },
+      google_maps: {
+        configured: !!process.env.GOOGLE_MAPS_API_KEY,
+        endpoints: [
+          'GET /api/public/directions',
+          'GET /api/public/fields/:id/directions',
+          'GET /api/public/nearby-places'
+        ]
+      },
+      weather: {
+        configured: !!process.env.OPENWEATHER_API_KEY,
+        endpoints: [
+          'GET /api/public/weather',
+          'GET /api/public/weather/forecast',
+          'GET /api/public/fields/weather'
+        ]
+      }
+    }
   });
 });
 
