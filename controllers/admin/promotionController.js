@@ -124,9 +124,21 @@ const createPromotionAdmin = async (req, res) => {
     }
 
     const promotion = await createPromotion({
-      code, name, description, type, value, min_amount, max_discount,
-      usage_limit, user_limit, applicable_fields, applicable_days,
-      applicable_hours, start_date, end_date
+      code,
+      name,
+      description,
+      type,
+      value,
+      min_booking_amount: min_amount || 0,
+      max_discount_amount: max_discount,
+      usage_limit,
+      usage_limit_per_user: user_limit,
+      applicable_fields: applicable_fields || [],
+      applicable_days: applicable_days || [],
+      applicable_times: applicable_hours,
+      valid_from: start_date,
+      valid_until: end_date,
+      created_by: req.user.id
     });
 
     res.status(201).json({

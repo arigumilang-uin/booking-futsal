@@ -63,14 +63,29 @@ const getAllFieldsForManager = async (req, res) => {
 
 const createFieldByManager = async (req, res) => {
   try {
-    const managerId = req.rawUser.id;
+    const managerId = req.user.id;
+    const { name, type, description, hourly_rate, facilities, coordinates } = req.body;
+
+    // Validate required fields
+    if (!name || !hourly_rate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name and hourly_rate are required'
+      });
+    }
+
     const fieldData = {
-      ...req.body,
+      name,
+      type: type || 'futsal',
+      description: description || '',
+      price: hourly_rate,
+      facilities: facilities || [],
+      coordinates: coordinates || null,
       created_by: managerId
     };
-    
+
     const newField = await createField(fieldData);
-    
+
     res.status(201).json({
       success: true,
       message: 'Field created successfully',
@@ -79,7 +94,7 @@ const createFieldByManager = async (req, res) => {
 
   } catch (error) {
     console.error('Create field by manager error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to create field',
       code: 'FIELD_CREATE_FAILED'
     });
@@ -88,7 +103,7 @@ const createFieldByManager = async (req, res) => {
 
 const updateFieldByManager = async (req, res) => {
   try {
-    const managerId = req.rawUser.id;
+    const managerId = req.user.id;
     const { id } = req.params;
     const updateData = {
       ...req.body,

@@ -2,7 +2,7 @@ const {
   getAllSettings,
   getPublicSettings,
   getSettingByKey,
-  setSetting,
+  upsertSetting,
   deleteSetting,
   initializeDefaultSettings,
   getSettingsByCategory,
@@ -91,7 +91,12 @@ const updateSystemSetting = async (req, res) => {
       });
     }
 
-    const setting = await setSetting(key, value, description, is_public);
+    const setting = await upsertSetting({
+      key,
+      value,
+      description,
+      is_public
+    });
 
     res.json({
       success: true,
@@ -128,7 +133,12 @@ const createSystemSetting = async (req, res) => {
       });
     }
 
-    const setting = await setSetting(key, value, description, is_public || false);
+    const setting = await upsertSetting({
+      key,
+      value,
+      description,
+      is_public: is_public || false
+    });
 
     res.status(201).json({
       success: true,
@@ -297,7 +307,12 @@ const resetSettingToDefault = async (req, res) => {
       });
     }
 
-    const setting = await setSetting(key, defaults[key], null, true);
+    const setting = await upsertSetting({
+      key,
+      value: defaults[key],
+      description: null,
+      is_public: true
+    });
 
     res.json({
       success: true,

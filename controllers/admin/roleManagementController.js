@@ -3,7 +3,8 @@ const {
   getAllUsers,
   updateUserRole,
   getRoleLevel,
-  mapOldRoleToNew
+  mapOldRoleToNew,
+  mapNewRoleToOld
 } = require('../../models/core/userModel');
 
 const {
@@ -30,8 +31,8 @@ const getRoleManagementDashboard = async (req, res) => {
     }
 
     const roleStats = allUsers.reduce((stats, user) => {
-      const role = user.role;
-      stats[role] = (stats[role] || 0) + 1;
+      const mappedRole = mapNewRoleToOld(user.role);
+      stats[mappedRole] = (stats[mappedRole] || 0) + 1;
       return stats;
     }, {});
 
@@ -140,6 +141,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
 
     const usersWithRoleInfo = paginatedUsers.map(user => ({
       ...user,
+      role: mapNewRoleToOld(user.role), // Map role for display
       role_info: {
         current_level: getRoleLevel(user.role),
         can_be_elevated: canElevateUser(user.role, adminRole),
