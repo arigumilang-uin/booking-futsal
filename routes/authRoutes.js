@@ -203,6 +203,28 @@ router.get('/test-features', (req, res) => {
 });
 
 /**
+ * @route   GET /api/auth/test-smtp
+ * @desc    Test SMTP connection
+ * @access  Public
+ */
+router.get('/test-smtp', async (req, res) => {
+  try {
+    const emailService = require('../services/emailService');
+    const result = await emailService.verifyConnection();
+
+    res.json({
+      success: true,
+      smtp_test: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/roles
  * @desc    Get available roles in system
  * @access  Public
