@@ -9,7 +9,8 @@ const {
 const {
   getAllBookings,
   getBookingById,
-  updateBookingStatus
+  updateBookingStatus,
+  updatePaymentStatus: updateBookingPaymentStatus
 } = require('../../../models/business/bookingModel');
 
 const getAllPaymentsForKasir = async (req, res) => {
@@ -114,28 +115,20 @@ const processManualPayment = async (req, res) => {
     const payment = await createPayment({
       booking_id,
       method,
-      provider: 'manual',
       amount,
-      admin_fee: 0,
-      status: 'paid',
-      external_id: reference_number,
-      notes,
-      created_by: staffId
+      status: 'paid'
     });
 
     const updatedPayment = await updatePaymentStatus(
       payment.id,
       'paid',
-      staffId,
       {
         notes: `Manual payment processed by staff: ${req.rawUser.name}`,
-        gateway_response: {
-          processed_by: req.rawUser.name,
-          employee_id: req.rawUser.employee_id,
-          processed_at: new Date().toISOString(),
-          method: method,
-          reference_number: reference_number
-        }
+        processed_by: req.rawUser.name,
+        employee_id: req.rawUser.employee_id,
+        processed_at: new Date().toISOString(),
+        method: method,
+        reference_number: reference_number
       }
     );
 
@@ -180,14 +173,11 @@ const confirmPayment = async (req, res) => {
     const updatedPayment = await updatePaymentStatus(
       id,
       'paid',
-      staffId,
       {
         notes: notes || `Payment confirmed by staff: ${req.rawUser.name}`,
-        gateway_response: {
-          confirmed_by: req.rawUser.name,
-          employee_id: req.rawUser.employee_id,
-          confirmed_at: new Date().toISOString()
-        }
+        confirmed_by: req.rawUser.name,
+        employee_id: req.rawUser.employee_id,
+        confirmed_at: new Date().toISOString()
       }
     );
 

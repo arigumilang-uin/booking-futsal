@@ -10,18 +10,31 @@ const createFieldReview = async ({
   images = [],
   is_anonymous = false
 }) => {
-  const query = `
-    INSERT INTO field_reviews (user_id, field_id, booking_id, rating, review, images, is_anonymous)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING id, uuid, user_id, field_id, booking_id, rating, review, images,
-              is_anonymous, created_at
-  `;
-  const values = [
-    user_id, field_id, booking_id, rating, review,
-    JSON.stringify(images), is_anonymous
-  ];
-  const result = await pool.query(query, values);
-  return result.rows[0];
+  try {
+    const query = `
+      INSERT INTO field_reviews (user_id, field_id, booking_id, rating, review, images, is_anonymous)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, uuid, user_id, field_id, booking_id, rating, review, images,
+                is_anonymous, created_at
+    `;
+    const values = [
+      user_id, field_id, booking_id, rating, review,
+      JSON.stringify(images), is_anonymous
+    ];
+    const result = await pool.query(query, values);
+
+    // Update field rating in background (don't wait for it)
+    setImmediate(() => {
+      updateFieldRating(field_id).catch(err =>
+        console.error('Background field rating update failed:', err)
+      );
+    });
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Create field review error:', error);
+    throw error;
+  }
 };
 
 // Get field reviews
