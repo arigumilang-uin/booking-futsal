@@ -327,17 +327,17 @@ router.get('/debug/test-promotion', async (req, res) => {
   try {
     const pool = require('../config/db');
 
-    // Simple insert test
+    // Include all required columns including start_date_old and end_date_old
     const testQuery = `
       INSERT INTO promotions (
         name, description, code, type, value, min_booking_amount,
         valid_from, valid_until, applicable_fields, applicable_days,
-        is_active, created_by
+        is_active, created_by, start_date_old, end_date_old
       )
       VALUES (
         'Debug Test', 'Debug test promotion', 'DEBUGTEST', 'percentage', 10, 0,
         '2025-06-01', '2025-12-31', '[]', '[]',
-        true, 1
+        true, 1, '2025-06-01', '2025-12-31'
       )
       RETURNING *
     `;
