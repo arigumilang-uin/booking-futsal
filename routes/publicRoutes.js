@@ -292,4 +292,72 @@ router.get('/debug/table/:tableName', async (req, res) => {
   }
 });
 
+// Test system settings insert
+router.get('/debug/test-settings', async (req, res) => {
+  try {
+    const pool = require('../config/db');
+
+    // Simple insert test
+    const testQuery = `
+      INSERT INTO system_settings (key, value, description, is_public)
+      VALUES ('debug_test', 'debug_value', 'Debug test setting', false)
+      RETURNING *
+    `;
+
+    const result = await pool.query(testQuery);
+
+    res.json({
+      success: true,
+      message: 'System settings insert test successful',
+      data: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('System settings test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'System settings test failed',
+      error: error.message
+    });
+  }
+});
+
+// Test promotion insert
+router.get('/debug/test-promotion', async (req, res) => {
+  try {
+    const pool = require('../config/db');
+
+    // Simple insert test
+    const testQuery = `
+      INSERT INTO promotions (
+        name, description, code, type, value, min_booking_amount,
+        valid_from, valid_until, applicable_fields, applicable_days,
+        is_active, created_by
+      )
+      VALUES (
+        'Debug Test', 'Debug test promotion', 'DEBUGTEST', 'percentage', 10, 0,
+        '2025-06-01', '2025-12-31', '[]', '[]',
+        true, 1
+      )
+      RETURNING *
+    `;
+
+    const result = await pool.query(testQuery);
+
+    res.json({
+      success: true,
+      message: 'Promotion insert test successful',
+      data: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Promotion test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Promotion test failed',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
