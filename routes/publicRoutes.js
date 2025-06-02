@@ -245,4 +245,51 @@ router.get('/fields/:fieldId/promotions',
   getFieldPromotions
 );
 
+// Debug endpoint for table structure
+router.get('/debug/table/:tableName', async (req, res) => {
+  try {
+    const { tableName } = req.params;
+    const pool = require('../config/db');
+
+    // Get table structure
+    const structureQuery = `
+      SELECT
+        column_name,
+        data_type,
+        is_nullable,
+        column_default,
+        character_maximum_length
+      FROM information_schema.columns
+      WHERE table_name = $1 AND table_schema = 'public'
+      ORDER BY ordinal_position
+    `;
+
+    const structureResult = await pool.query(structureQuery, [tableName]);
+
+    // Check if table exists
+    if (structureResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `Table '${tableName}' not found`
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        table_name: tableName,
+        columns: structureResult.rows
+      }
+    });
+
+  } catch (error) {
+    console.error('Table structure error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get table structure',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
