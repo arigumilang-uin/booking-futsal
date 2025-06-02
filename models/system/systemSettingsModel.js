@@ -58,6 +58,12 @@ const upsertSetting = async ({
   data_type = 'string',
   is_public = false
 }) => {
+  // Convert value to JSON format for JSONB column
+  const jsonValue = JSON.stringify({
+    value: value,
+    type: data_type
+  });
+
   const query = `
     INSERT INTO system_settings (key, value, description, category, data_type, is_public)
     VALUES ($1, $2, $3, $4, $5, $6)
@@ -72,7 +78,7 @@ const upsertSetting = async ({
     RETURNING id, uuid, key, value, description, category, data_type,
               is_public, created_at, updated_at
   `;
-  const values = [key, value, description, category, data_type, is_public];
+  const values = [key, jsonValue, description, category, data_type, is_public];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

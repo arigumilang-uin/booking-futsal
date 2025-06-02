@@ -23,9 +23,10 @@ const createPromotion = async ({
     INSERT INTO promotions (
       name, description, code, type, value, min_booking_amount, max_discount_amount,
       usage_limit, usage_limit_per_user, valid_from, valid_until, applicable_fields,
-      applicable_days, applicable_times, is_active, created_by
+      applicable_days, applicable_times, is_active, created_by,
+      start_date_old, end_date_old
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
     RETURNING id, uuid, name, description, code, type, value, min_booking_amount,
               max_discount_amount, usage_limit, usage_limit_per_user, valid_from,
               valid_until, applicable_fields, applicable_days, applicable_times,
@@ -35,7 +36,8 @@ const createPromotion = async ({
     name, description, code, type, value, min_booking_amount, max_discount_amount,
     usage_limit, usage_limit_per_user, valid_from, valid_until,
     JSON.stringify(applicable_fields), JSON.stringify(applicable_days),
-    applicable_times ? JSON.stringify(applicable_times) : null, is_active, created_by
+    applicable_times ? JSON.stringify(applicable_times) : null, is_active, created_by,
+    valid_from, valid_until  // Fill start_date_old and end_date_old with same values
   ];
   const result = await pool.query(query, values);
   return result.rows[0];
