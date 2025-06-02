@@ -47,23 +47,30 @@ const addFieldToFavorites = async (req, res) => {
     const userId = req.user.id;
     const { fieldId } = req.params;
 
-    const favorite = await addToFavorites(userId, parseInt(fieldId));
+    const result = await addToFavorites(userId, parseInt(fieldId));
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Lapangan sudah ada di daftar favorit'
+      });
+    }
 
     res.status(201).json({
       success: true,
       message: 'Lapangan berhasil ditambahkan ke favorit',
-      data: favorite
+      data: result.favorite
     });
   } catch (error) {
     console.error('Add to favorites error:', error);
-    
+
     if (error.message.includes('already in favorites')) {
       return res.status(400).json({
         success: false,
         message: 'Lapangan sudah ada di daftar favorit'
       });
     }
-    
+
     if (error.message.includes('not found')) {
       return res.status(404).json({
         success: false,
@@ -123,7 +130,7 @@ const toggleFieldFavorite = async (req, res) => {
       message,
       data: {
         action: result.action,
-        is_favorite: result.is_favorite
+        is_favorite: result.isFavorite
       }
     });
   } catch (error) {
