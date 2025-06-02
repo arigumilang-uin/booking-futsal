@@ -3,11 +3,11 @@ const {
   addToFavorites,
   removeFromFavorites,
   isFieldFavorite,
-  getFavoritesCount,
-  getFavoritesWithAvailability,
+  getUserFavoriteCount,
+  getUserFavoritesWithBookings,
   toggleFavorite,
-  getUserFavoritesStats,
-  getRecommendedFields
+  getFavoriteStatistics,
+  getPopularFields
 } = require('../../models/enhanced/favoritesModel');
 
 // Get user's favorite fields
@@ -18,7 +18,7 @@ const getFavoriteFields = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
 
     const favorites = await getUserFavorites(userId, page, limit);
-    const totalCount = await getFavoritesCount(userId);
+    const totalCount = await getUserFavoriteCount(userId);
 
     res.json({
       success: true,
@@ -166,33 +166,24 @@ const checkFieldFavorite = async (req, res) => {
   }
 };
 
-// Get favorites with availability for specific date
+// Get favorites with booking history
 const getFavoritesWithAvailabilityInfo = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { date } = req.query;
 
-    if (!date) {
-      return res.status(400).json({
-        success: false,
-        message: 'Parameter tanggal diperlukan'
-      });
-    }
-
-    const favorites = await getFavoritesWithAvailability(userId, date);
+    const favorites = await getUserFavoritesWithBookings(userId);
 
     res.json({
       success: true,
       data: {
-        date,
         favorites
       }
     });
   } catch (error) {
-    console.error('Get favorites with availability error:', error);
+    console.error('Get favorites with booking history error:', error);
     res.status(500).json({
       success: false,
-      message: 'Gagal mengambil favorit dengan ketersediaan'
+      message: 'Gagal mengambil favorit dengan riwayat booking'
     });
   }
 };
@@ -200,8 +191,7 @@ const getFavoritesWithAvailabilityInfo = async (req, res) => {
 // Get user favorites statistics
 const getFavoritesStatistics = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const stats = await getUserFavoritesStats(userId);
+    const stats = await getFavoriteStatistics();
 
     res.json({
       success: true,
@@ -216,13 +206,12 @@ const getFavoritesStatistics = async (req, res) => {
   }
 };
 
-// Get recommended fields based on favorites
+// Get recommended fields based on popularity
 const getRecommendations = async (req, res) => {
   try {
-    const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 5;
 
-    const recommendations = await getRecommendedFields(userId, limit);
+    const recommendations = await getPopularFields(limit);
 
     res.json({
       success: true,
@@ -243,7 +232,7 @@ const getRecommendations = async (req, res) => {
 const getFavoritesCountOnly = async (req, res) => {
   try {
     const userId = req.user.id;
-    const count = await getFavoritesCount(userId);
+    const count = await getUserFavoriteCount(userId);
 
     res.json({
       success: true,

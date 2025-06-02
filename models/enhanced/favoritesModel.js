@@ -16,7 +16,7 @@ const addToFavorites = async (userId, fieldId) => {
   const query = `
     INSERT INTO user_favorites (user_id, field_id)
     VALUES ($1, $2)
-    RETURNING id, uuid, user_id, field_id, created_at
+    RETURNING id, user_id, field_id, created_at
   `;
   const result = await pool.query(query, [userId, fieldId]);
   return { success: true, favorite: result.rows[0] };
@@ -37,7 +37,7 @@ const removeFromFavorites = async (userId, fieldId) => {
 const getUserFavorites = async (userId, page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
   const query = `
-    SELECT uf.id, uf.uuid, uf.user_id, uf.field_id, uf.created_at,
+    SELECT uf.id, uf.user_id, uf.field_id, uf.created_at,
            f.name as field_name, f.type as field_type, f.description, f.location,
            f.address, f.price, f.price_weekend, f.price_member, f.image_url,
            f.rating, f.total_reviews, f.status, f.operating_hours, f.operating_days
@@ -125,7 +125,7 @@ const getFavoriteStatistics = async () => {
 // Get user's favorite fields with booking history
 const getUserFavoritesWithBookings = async (userId) => {
   const query = `
-    SELECT uf.id, uf.uuid, uf.field_id, uf.created_at as favorited_at,
+    SELECT uf.id, uf.field_id, uf.created_at as favorited_at,
            f.name as field_name, f.type as field_type, f.location, f.price,
            f.rating, f.total_reviews, f.image_url,
            COUNT(b.id) as booking_count,
@@ -135,7 +135,7 @@ const getUserFavoritesWithBookings = async (userId) => {
     JOIN fields f ON uf.field_id = f.id
     LEFT JOIN bookings b ON f.id = b.field_id AND b.user_id = uf.user_id
     WHERE uf.user_id = $1 AND f.status = 'active'
-    GROUP BY uf.id, uf.uuid, uf.field_id, uf.created_at, f.name, f.type,
+    GROUP BY uf.id, uf.field_id, uf.created_at, f.name, f.type,
              f.location, f.price, f.rating, f.total_reviews, f.image_url
     ORDER BY uf.created_at DESC
   `;
@@ -170,7 +170,7 @@ const toggleFavorite = async (userId, fieldId) => {
 // Get recently favorited fields
 const getRecentlyFavorited = async (limit = 10) => {
   const query = `
-    SELECT uf.id, uf.uuid, uf.user_id, uf.field_id, uf.created_at,
+    SELECT uf.id, uf.user_id, uf.field_id, uf.created_at,
            u.name as user_name,
            f.name as field_name, f.type as field_type, f.location, f.rating
     FROM user_favorites uf

@@ -1,11 +1,11 @@
 const {
   getFieldReviews,
   getUserReviews,
-  createReview,
-  updateReview,
-  deleteReview,
+  createFieldReview,
+  updateFieldReview,
+  deleteFieldReview,
   getReviewById,
-  canUserReview,
+  canUserReviewBooking,
   getFieldRatingSummary
 } = require('../../models/enhanced/reviewModel');
 
@@ -92,7 +92,7 @@ const createFieldReview = async (req, res) => {
     }
 
     // Check if user can review this booking
-    const canReview = await canUserReview(userId, booking_id);
+    const canReview = await canUserReviewBooking(userId, booking_id);
     if (!canReview.canReview) {
       return res.status(400).json({
         success: false,
@@ -100,7 +100,7 @@ const createFieldReview = async (req, res) => {
       });
     }
 
-    const newReview = await createReview({
+    const newReview = await createFieldReview({
       field_id,
       user_id: userId,
       booking_id,
@@ -139,7 +139,7 @@ const updateFieldReview = async (req, res) => {
       });
     }
 
-    const updatedReview = await updateReview(id, userId, {
+    const updatedReview = await updateFieldReview(id, userId, {
       rating,
       review,
       images,
@@ -173,7 +173,7 @@ const deleteFieldReview = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
 
-    const deleted = await deleteReview(id, userId);
+    const deleted = await deleteFieldReview(id, userId);
 
     if (!deleted) {
       return res.status(404).json({
@@ -227,7 +227,7 @@ const checkCanReview = async (req, res) => {
     const userId = req.user.id;
     const { bookingId } = req.params;
 
-    const canReview = await canUserReview(userId, bookingId);
+    const canReview = await canUserReviewBooking(userId, bookingId);
 
     res.json({
       success: true,
