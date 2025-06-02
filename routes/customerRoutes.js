@@ -26,8 +26,8 @@ const {
 const {
   getUserReviewsList,
   createReview,
-  updateFieldReview,
-  deleteFieldReview,
+  updateReview,
+  deleteReview,
   getReviewDetail,
   checkCanReview
 } = require('../controllers/customer/reviewController');
@@ -201,8 +201,8 @@ router.get('/notifications/statistics', getNotificationStatistics);
 router.get('/reviews', getUserReviewsList);
 router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
-router.put('/reviews/:id', updateFieldReview);
-router.delete('/reviews/:id', deleteFieldReview);
+router.put('/reviews/:id', updateReview);
+router.delete('/reviews/:id', deleteReview);
 router.get('/bookings/:bookingId/can-review', checkCanReview);
 
 // FAVORITES ROUTES

@@ -125,7 +125,7 @@ const createReview = async (req, res) => {
 };
 
 // Update review
-const updateFieldReview = async (req, res) => {
+const updateReview = async (req, res) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -168,7 +168,7 @@ const updateFieldReview = async (req, res) => {
 };
 
 // Delete review
-const deleteFieldReview = async (req, res) => {
+const deleteReview = async (req, res) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -265,8 +265,8 @@ module.exports = {
   getFieldReviewsList,
   getUserReviewsList,
   createReview,
-  updateFieldReview,
-  deleteFieldReview,
+  updateReview,
+  deleteReview,
   getReviewDetail,
   checkCanReview,
   getFieldRating
