@@ -428,6 +428,14 @@ router.get('/analytics/performance', requireManagement, getPerformanceMetrics);
 // =====================================================
 
 /**
+ * @route   GET /api/admin/bookings/statistics
+ * @desc    Get booking statistics for admin dashboard
+ * @access  Management (manajer_futsal+)
+ * @query   { period, date_from, date_to }
+ */
+router.get('/bookings/statistics', requireManagement, getBookingStatisticsAdmin);
+
+/**
  * @route   GET /api/admin/bookings
  * @desc    Get all bookings for admin management
  * @access  Management (manajer_futsal+)
@@ -451,14 +459,6 @@ router.get('/bookings/:id', requireManagement, getBookingDetailAdmin);
  * @body    { status, reason }
  */
 router.put('/bookings/:id/status', requireManagement, updateBookingStatusAdmin);
-
-/**
- * @route   GET /api/admin/bookings/statistics
- * @desc    Get booking statistics for admin dashboard
- * @access  Management (manajer_futsal+)
- * @query   { period, date_from, date_to }
- */
-router.get('/bookings/statistics', requireManagement, getBookingStatisticsAdmin);
 
 // =====================================================
 // AUTO-COMPLETION MANAGEMENT ROUTES - ADMIN LEVEL

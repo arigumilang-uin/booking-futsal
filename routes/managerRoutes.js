@@ -11,7 +11,10 @@ const {
   getAllFieldsForManager,
   createFieldByManager,
   updateFieldByManager,
-  getBusinessAnalytics
+  getBusinessAnalytics,
+  getAllBookingsForManager,
+  getBookingDetailForManager,
+  updateBookingStatusForManager
 } = require('../controllers/staff/manager/managerController');
 
 // Middlewares
@@ -82,6 +85,31 @@ router.post('/fields', createFieldByManager);
  * @body    { field_data }
  */
 router.put('/fields/:id', updateFieldByManager);
+
+/**
+ * @route   GET /api/staff/manager/bookings
+ * @desc    Get all bookings for manager
+ * @access  Private (Manager, Supervisor)
+ * @query   { page, limit, status, field_id, date_from, date_to }
+ */
+router.get('/bookings', getAllBookingsForManager);
+
+/**
+ * @route   GET /api/staff/manager/bookings/:id
+ * @desc    Get booking detail for manager
+ * @access  Private (Manager, Supervisor)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id', getBookingDetailForManager);
+
+/**
+ * @route   PUT /api/staff/manager/bookings/:id/status
+ * @desc    Update booking status
+ * @access  Private (Manager, Supervisor)
+ * @params  { id: booking_id }
+ * @body    { status, reason }
+ */
+router.put('/bookings/:id/status', updateBookingStatusForManager);
 
 /**
  * @route   GET /api/staff/manager/analytics

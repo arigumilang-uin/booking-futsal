@@ -10,7 +10,9 @@ const {
   confirmPayment,
   getPendingPayments,
   getPaymentStatsForKasir,
-  getDailyCashReport
+  getDailyCashReport,
+  getAllBookingsForKasir,
+  getBookingDetailForKasir
 } = require('../controllers/staff/kasir/kasirController');
 
 // Middlewares
@@ -80,6 +82,22 @@ router.get('/statistics', getPaymentStatsForKasir);
  * @query   { date }
  */
 router.get('/daily-report', getDailyCashReport);
+
+/**
+ * @route   GET /api/staff/kasir/bookings
+ * @desc    Get all bookings for kasir (payment related)
+ * @access  Private (Kasir, Manager, Supervisor)
+ * @query   { page, limit, payment_status, date_from, date_to }
+ */
+router.get('/bookings', getAllBookingsForKasir);
+
+/**
+ * @route   GET /api/staff/kasir/bookings/:id
+ * @desc    Get booking detail for kasir (payment related)
+ * @access  Private (Kasir, Manager, Supervisor)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id', getBookingDetailForKasir);
 
 /**
  * @route   GET /api/staff/kasir/dashboard

@@ -3,14 +3,16 @@ const express = require('express');
 const router = express.Router();
 
 // Controllers
-const { 
+const {
   getOperatorDashboard,
   getAssignedFields,
   updateFieldStatus,
   getFieldBookings,
   confirmBooking,
   completeBooking,
-  getTodaySchedule
+  getTodaySchedule,
+  getAllBookingsForOperator,
+  getBookingDetailForOperator
 } = require('../controllers/staff/operator/operatorController');
 
 // Middlewares
@@ -118,6 +120,22 @@ router.put('/bookings/:id/confirm', confirmBooking);
 router.put('/bookings/:id/complete', completeBooking);
 
 /**
+ * @route   GET /api/staff/operator/bookings
+ * @desc    Get all bookings for operator (assigned fields only)
+ * @access  Private (Operator, Manager, Supervisor)
+ * @query   { page, limit, status, field_id, date_from, date_to }
+ */
+router.get('/bookings', getAllBookingsForOperator);
+
+/**
+ * @route   GET /api/staff/operator/bookings/:id
+ * @desc    Get booking detail for operator
+ * @access  Private (Operator, Manager, Supervisor)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id', getBookingDetailForOperator);
+
+/**
  * @route   GET /api/staff/operator/bookings/pending
  * @desc    Get pending bookings yang perlu dikonfirmasi
  * @access  Private (Operator, Manager, Supervisor)
@@ -125,7 +143,7 @@ router.put('/bookings/:id/complete', completeBooking);
 router.get('/bookings/pending', async (req, res) => {
   try {
     const operatorId = req.rawUser.id;
-    
+
     // This would filter pending bookings for assigned fields
     // For now, return basic structure
     res.json({
@@ -135,7 +153,7 @@ router.get('/bookings/pending', async (req, res) => {
 
   } catch (error) {
     console.error('Get pending bookings error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get pending bookings',
       code: 'PENDING_BOOKINGS_FETCH_FAILED'
     });
