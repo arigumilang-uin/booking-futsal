@@ -191,10 +191,9 @@ const cleanupInactiveFavorites = async () => {
     WHERE field_id IN (
       SELECT id FROM fields WHERE status != 'active'
     )
-    RETURNING COUNT(*) as deleted_count
   `;
   const result = await pool.query(query);
-  return result.rows[0];
+  return { deleted_count: result.rowCount };
 };
 
 module.exports = {

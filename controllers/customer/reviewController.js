@@ -70,7 +70,7 @@ const getUserReviewsList = async (req, res) => {
 };
 
 // Create new review
-const createFieldReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     const userId = req.user.id;
     const { field_id, booking_id, rating, review, images, is_anonymous } = req.body;
@@ -264,7 +264,7 @@ const getFieldRating = async (req, res) => {
 module.exports = {
   getFieldReviewsList,
   getUserReviewsList,
-  createFieldReview,
+  createReview,
   updateFieldReview,
   deleteFieldReview,
   getReviewDetail,

@@ -25,7 +25,7 @@ const {
 
 const {
   getUserReviewsList,
-  createFieldReview,
+  createReview,
   updateFieldReview,
   deleteFieldReview,
   getReviewDetail,
@@ -199,7 +199,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
 
 // REVIEW ROUTES
 router.get('/reviews', getUserReviewsList);
-router.post('/reviews', createFieldReview);
+router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
 router.put('/reviews/:id', updateFieldReview);
 router.delete('/reviews/:id', deleteFieldReview);
