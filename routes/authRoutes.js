@@ -11,6 +11,19 @@ const {
   refreshToken
 } = require('../controllers/auth/authController');
 
+// New feature controllers
+const {
+  requestPasswordReset,
+  validateResetToken,
+  resetPassword
+} = require('../controllers/auth/passwordResetController');
+
+const {
+  sendEmailVerification,
+  verifyEmail,
+  checkVerificationStatus
+} = require('../controllers/auth/emailVerificationController');
+
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 
@@ -74,6 +87,60 @@ router.get('/verify', requireAuth, (req, res) => {
     }
   });
 });
+
+// =====================================================
+// PASSWORD RESET ROUTES
+// =====================================================
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Request password reset
+ * @access  Public
+ * @body    { email }
+ */
+router.post('/forgot-password', requestPasswordReset);
+
+/**
+ * @route   GET /api/auth/reset-password/:token
+ * @desc    Validate password reset token
+ * @access  Public
+ */
+router.get('/reset-password/:token', validateResetToken);
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password with token
+ * @access  Public
+ * @body    { token, new_password, confirm_password }
+ */
+router.post('/reset-password', resetPassword);
+
+// =====================================================
+// EMAIL VERIFICATION ROUTES
+// =====================================================
+
+/**
+ * @route   POST /api/auth/send-verification
+ * @desc    Send email verification
+ * @access  Public
+ * @body    { email }
+ */
+router.post('/send-verification', sendEmailVerification);
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verify email with token
+ * @access  Public
+ * @body    { token }
+ */
+router.post('/verify-email', verifyEmail);
+
+/**
+ * @route   GET /api/auth/verification-status/:email
+ * @desc    Check email verification status
+ * @access  Public
+ */
+router.get('/verification-status/:email', checkVerificationStatus);
 
 /**
  * @route   GET /api/auth/health

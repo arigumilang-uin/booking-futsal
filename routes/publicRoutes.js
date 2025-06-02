@@ -17,6 +17,10 @@ const { getApplicationConfig } = require('../controllers/admin/systemSettingsCon
 const { getFieldReviewsList, getFieldRating } = require('../controllers/customer/reviewController');
 const { getAvailablePromotions, getFieldPromotions } = require('../controllers/customer/promotionController');
 
+// Services
+const mapsService = require('../services/mapsService');
+const weatherService = require('../services/weatherService');
+
 // Middlewares
 const { optionalAuth } = require('../middlewares/auth/authMiddleware');
 
@@ -356,6 +360,303 @@ router.get('/debug/test-promotion', async (req, res) => {
       success: false,
       message: 'Promotion test failed',
       error: error.message
+    });
+  }
+});
+
+// =====================================================
+// GOOGLE MAPS INTEGRATION ROUTES
+// =====================================================
+
+/**
+ * @route   GET /api/public/directions
+ * @desc    Get directions between two points
+ * @access  Public
+ * @query   { origin, destination, mode }
+ */
+router.get('/directions', async (req, res) => {
+  try {
+    const { origin, destination, mode = 'driving' } = req.query;
+
+    if (!origin || !destination) {
+      return res.status(400).json({
+        success: false,
+        message: 'Origin dan destination diperlukan'
+      });
+    }
+
+    const result = await mapsService.getDirections(origin, destination, mode);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan directions',
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('Directions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan directions'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/public/fields/:fieldId/directions
+ * @desc    Get directions to specific field
+ * @access  Public
+ * @params  { fieldId: field_id }
+ * @query   { from }
+ */
+router.get('/fields/:fieldId/directions', async (req, res) => {
+  try {
+    const { fieldId } = req.params;
+    const { from } = req.query;
+
+    if (!from) {
+      return res.status(400).json({
+        success: false,
+        message: 'Parameter from diperlukan (lat,lng atau alamat)'
+      });
+    }
+
+    // Get field coordinates
+    const pool = require('../config/db');
+    const fieldQuery = `SELECT name, coordinates FROM fields WHERE id = $1`;
+    const fieldResult = await pool.query(fieldQuery, [fieldId]);
+
+    if (fieldResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field tidak ditemukan'
+      });
+    }
+
+    const field = fieldResult.rows[0];
+    if (!field.coordinates || !field.coordinates.lat || !field.coordinates.lng) {
+      return res.status(400).json({
+        success: false,
+        message: 'Koordinat field tidak tersedia'
+      });
+    }
+
+    const destination = `${field.coordinates.lat},${field.coordinates.lng}`;
+    const result = await mapsService.getDirections(from, destination);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan directions',
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        field_name: field.name,
+        field_coordinates: field.coordinates,
+        directions: result.data
+      }
+    });
+
+  } catch (error) {
+    console.error('Field directions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan directions ke field'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/public/nearby-places
+ * @desc    Get nearby places
+ * @access  Public
+ * @query   { lat, lng, type, radius }
+ */
+router.get('/nearby-places', async (req, res) => {
+  try {
+    const { lat, lng, type = 'gym', radius = 5000 } = req.query;
+
+    if (!lat || !lng) {
+      return res.status(400).json({
+        success: false,
+        message: 'Latitude dan longitude diperlukan'
+      });
+    }
+
+    const result = await mapsService.getNearbyPlaces({ lat, lng }, type, radius);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan nearby places',
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('Nearby places error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan nearby places'
+    });
+  }
+});
+
+// =====================================================
+// WEATHER INTEGRATION ROUTES
+// =====================================================
+
+/**
+ * @route   GET /api/public/weather
+ * @desc    Get current weather by city or coordinates
+ * @access  Public
+ * @query   { city, lat, lng }
+ */
+router.get('/weather', async (req, res) => {
+  try {
+    const { city, lat, lng } = req.query;
+
+    let result;
+    if (city) {
+      result = await weatherService.getCurrentWeatherByCity(city);
+    } else if (lat && lng) {
+      result = await weatherService.getCurrentWeatherByCoords(lat, lng);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'City atau koordinat (lat, lng) diperlukan'
+      });
+    }
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan data cuaca',
+        error: result.error
+      });
+    }
+
+    const recommendation = weatherService.getWeatherRecommendation(result.data);
+
+    res.json({
+      success: true,
+      data: {
+        weather: result.data,
+        recommendation: recommendation
+      }
+    });
+
+  } catch (error) {
+    console.error('Weather error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan data cuaca'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/public/weather/forecast
+ * @desc    Get weather forecast
+ * @access  Public
+ * @query   { lat, lng }
+ */
+router.get('/weather/forecast', async (req, res) => {
+  try {
+    const { lat, lng } = req.query;
+
+    if (!lat || !lng) {
+      return res.status(400).json({
+        success: false,
+        message: 'Latitude dan longitude diperlukan'
+      });
+    }
+
+    const result = await weatherService.getWeatherForecast(lat, lng);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan forecast cuaca',
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('Weather forecast error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan forecast cuaca'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/public/fields/weather
+ * @desc    Get weather for all fields
+ * @access  Public
+ */
+router.get('/fields/weather', async (req, res) => {
+  try {
+    const pool = require('../config/db');
+
+    // Get all fields with coordinates
+    const fieldsQuery = `
+      SELECT id, name, coordinates
+      FROM fields
+      WHERE status = 'active' AND coordinates IS NOT NULL
+    `;
+    const fieldsResult = await pool.query(fieldsQuery);
+
+    if (fieldsResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'Tidak ada field dengan koordinat tersedia'
+      });
+    }
+
+    const result = await weatherService.getWeatherForFields(fieldsResult.rows);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal mendapatkan data cuaca untuk fields',
+        error: result.error
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data
+    });
+
+  } catch (error) {
+    console.error('Fields weather error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal mendapatkan data cuaca untuk fields'
     });
   }
 });
