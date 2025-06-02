@@ -6,8 +6,7 @@ const {
   deleteSetting,
   initializeDefaultSettings,
   getSettingsByCategory,
-  bulkUpdateSettings,
-  getAppConfig
+  bulkUpdateSettings
 } = require('../../models/system/systemSettingsModel');
 
 // Get all system settings (admin only)
@@ -270,7 +269,11 @@ const initializeDefaults = async (req, res) => {
 // Get app configuration (public endpoint)
 const getApplicationConfig = async (req, res) => {
   try {
-    const config = await getAppConfig();
+    const config = {
+      app_name: 'Enhanced Futsal Booking System',
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'production'
+    };
 
     res.json({
       success: true,
