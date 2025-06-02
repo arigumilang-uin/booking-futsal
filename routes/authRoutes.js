@@ -180,6 +180,10 @@ router.get('/test-features', (req, res) => {
     features: {
       email_service: {
         configured: !!process.env.SMTP_USER,
+        smtp_host: process.env.SMTP_HOST || 'not set',
+        smtp_user: process.env.SMTP_USER || 'not set',
+        smtp_pass: process.env.SMTP_PASS ? 'set (hidden)' : 'not set',
+        frontend_url: process.env.FRONTEND_URL || 'not set',
         endpoints: [
           'POST /api/auth/forgot-password',
           'POST /api/auth/send-verification'
