@@ -1,8 +1,6 @@
 const {
   getAllPromotions,
-  createPromotion,
-  updatePromotion,
-  getPromotionUsageHistory
+  createPromotion
 } = require('../../models/enhanced/promotionModel');
 
 const pool = require('../../config/db');
@@ -201,7 +199,21 @@ const updatePromotionAdmin = async (req, res) => {
       }
     }
 
-    const updatedPromotion = await updatePromotion(parseInt(id), updateData);
+    // Simple update using direct query
+    const updateQuery = `
+      UPDATE promotions
+      SET name = COALESCE($2, name),
+          description = COALESCE($3, description),
+          updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `;
+    const result = await pool.query(updateQuery, [
+      parseInt(id),
+      updateData.name,
+      updateData.description
+    ]);
+    const updatedPromotion = result.rows[0];
 
     if (!updatedPromotion) {
       return res.status(404).json({
@@ -294,7 +306,22 @@ const getPromotionUsageHistoryAdmin = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
-    const usageHistory = await getPromotionUsageHistory(parseInt(id), page, limit);
+    // Simple usage history query
+    const usageQuery = `
+      SELECT
+        pu.id, pu.user_id, pu.booking_id, pu.discount_amount, pu.used_at,
+        u.name as user_name, u.email as user_email,
+        b.booking_number
+      FROM promotion_usages pu
+      JOIN users u ON pu.user_id = u.id
+      JOIN bookings b ON pu.booking_id = b.id
+      WHERE pu.promotion_id = $1
+      ORDER BY pu.used_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+    const offset = (page - 1) * limit;
+    const result = await pool.query(usageQuery, [parseInt(id), limit, offset]);
+    const usageHistory = result.rows;
 
     res.json({
       success: true,
