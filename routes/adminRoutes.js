@@ -70,6 +70,13 @@ const {
   getAutoCompletionConfig
 } = require('../controllers/admin/autoCompletionController');
 
+const {
+  getAllBookingsAdmin,
+  getBookingDetailAdmin,
+  updateBookingStatusAdmin,
+  getBookingStatisticsAdmin
+} = require('../controllers/admin/bookingController');
+
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 const { requireAdmin, requireManagement } = require('../middlewares/authorization/roleBasedAccess');
@@ -415,6 +422,43 @@ router.get('/analytics/system', requireAdmin, getSystemAnalytics);
  * @access  Management (manajer_futsal+)
  */
 router.get('/analytics/performance', requireManagement, getPerformanceMetrics);
+
+// =====================================================
+// BOOKING MANAGEMENT ROUTES - MANAGEMENT LEVEL
+// =====================================================
+
+/**
+ * @route   GET /api/admin/bookings
+ * @desc    Get all bookings for admin management
+ * @access  Management (manajer_futsal+)
+ * @query   { page, limit, status, user_id, field_id, date_from, date_to }
+ */
+router.get('/bookings', requireManagement, getAllBookingsAdmin);
+
+/**
+ * @route   GET /api/admin/bookings/:id
+ * @desc    Get booking detail for admin
+ * @access  Management (manajer_futsal+)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id', requireManagement, getBookingDetailAdmin);
+
+/**
+ * @route   PUT /api/admin/bookings/:id/status
+ * @desc    Update booking status (admin override)
+ * @access  Management (manajer_futsal+)
+ * @params  { id: booking_id }
+ * @body    { status, reason }
+ */
+router.put('/bookings/:id/status', requireManagement, updateBookingStatusAdmin);
+
+/**
+ * @route   GET /api/admin/bookings/statistics
+ * @desc    Get booking statistics for admin dashboard
+ * @access  Management (manajer_futsal+)
+ * @query   { period, date_from, date_to }
+ */
+router.get('/bookings/statistics', requireManagement, getBookingStatisticsAdmin);
 
 // =====================================================
 // AUTO-COMPLETION MANAGEMENT ROUTES - ADMIN LEVEL

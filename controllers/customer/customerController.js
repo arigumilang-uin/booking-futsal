@@ -309,6 +309,63 @@ const cancelCustomerBooking = async (req, res) => {
   }
 };
 
+// Get customer dashboard with real statistics
+const getCustomerDashboard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get all user bookings for statistics
+    const allBookings = await getBookingsByUserId(userId);
+
+    // Calculate statistics
+    const totalBookings = allBookings.length;
+    const completedBookings = allBookings.filter(b => b.status === 'completed').length;
+    const cancelledBookings = allBookings.filter(b => b.status === 'cancelled').length;
+    const totalSpent = allBookings
+      .filter(b => b.status === 'completed')
+      .reduce((sum, b) => sum + parseFloat(b.total_amount || 0), 0);
+
+    // Get recent bookings (last 5)
+    const recentBookings = allBookings
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 5);
+
+    // Get upcoming bookings (confirmed and future)
+    const today = new Date().toISOString().split('T')[0];
+    const upcomingBookings = allBookings
+      .filter(b => b.status === 'confirmed' && b.date >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 5);
+
+    res.json({
+      success: true,
+      data: {
+        user_info: {
+          name: req.user.name,
+          email: req.user.email,
+          member_since: req.user.created_at
+        },
+        statistics: {
+          total_bookings: totalBookings,
+          completed_bookings: completedBookings,
+          cancelled_bookings: cancelledBookings,
+          total_spent: totalSpent
+        },
+        recent_bookings: recentBookings,
+        upcoming_bookings: upcomingBookings,
+        favorite_fields: [] // Will be populated later if needed
+      }
+    });
+
+  } catch (error) {
+    console.error('Customer dashboard error:', error);
+    res.status(500).json({
+      error: 'Failed to get dashboard data',
+      code: 'DASHBOARD_FETCH_FAILED'
+    });
+  }
+};
+
 module.exports = {
   getCustomerProfile,
   updateCustomerProfile,
@@ -316,5 +373,6 @@ module.exports = {
   createCustomerBooking,
   getCustomerBookings,
   getCustomerBookingDetail,
-  cancelCustomerBooking
+  cancelCustomerBooking,
+  getCustomerDashboard
 };

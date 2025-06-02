@@ -10,7 +10,8 @@ const {
   createCustomerBooking,
   getCustomerBookings,
   getCustomerBookingDetail,
-  cancelCustomerBooking
+  cancelCustomerBooking,
+  getCustomerDashboard
 } = require('../controllers/customer/customerController');
 
 // Enhanced Features Controllers
@@ -104,6 +105,18 @@ router.post('/bookings', createCustomerBooking);
 router.get('/bookings', getCustomerBookings);
 
 /**
+ * @route   GET /api/customer/bookings/history
+ * @desc    Get customer booking history dengan pagination
+ * @access  Private (Customer only)
+ * @query   { page, limit, status, date_from, date_to }
+ */
+router.get('/bookings/history', (req, res) => {
+  // Redirect to bookings dengan additional filters
+  req.query.include_history = true;
+  getCustomerBookings(req, res);
+});
+
+/**
  * @route   GET /api/customer/bookings/:id
  * @desc    Get customer booking detail
  * @access  Private (Customer only)
@@ -149,41 +162,7 @@ router.get('/upcoming-bookings', (req, res) => {
  * @desc    Get customer dashboard data
  * @access  Private (Customer only)
  */
-router.get('/dashboard', async (req, res) => {
-  try {
-    // Get customer statistics
-    const userId = req.user.id;
-    
-    // This would be implemented in controller
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
-        user_info: {
-          name: req.user.name,
-          email: req.user.email,
-          member_since: req.user.created_at
-        },
-        statistics: {
-          total_bookings: 0,
-          completed_bookings: 0,
-          cancelled_bookings: 0,
-          total_spent: 0
-        },
-        recent_bookings: [],
-        upcoming_bookings: [],
-        favorite_fields: []
-      }
-    });
-
-  } catch (error) {
-    console.error('Customer dashboard error:', error);
-    res.status(500).json({
-      error: 'Failed to get dashboard data',
-      code: 'DASHBOARD_FETCH_FAILED'
-    });
-  }
-});
+router.get('/dashboard', getCustomerDashboard);
 
 // =====================================================
 // ENHANCED FEATURES - CUSTOMER ACCESS
