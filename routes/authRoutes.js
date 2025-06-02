@@ -11,18 +11,18 @@ const {
   refreshToken
 } = require('../controllers/auth/authController');
 
-// New feature controllers (commented out to fix deployment)
-// const {
-//   requestPasswordReset,
-//   validateResetToken,
-//   resetPassword
-// } = require('../controllers/auth/passwordResetController');
+// Email feature controllers
+const {
+  requestPasswordReset,
+  validateResetToken,
+  resetPassword
+} = require('../controllers/auth/passwordResetController');
 
-// const {
-//   sendEmailVerification,
-//   verifyEmail,
-//   checkVerificationStatus
-// } = require('../controllers/auth/emailVerificationController');
+const {
+  sendEmailVerification,
+  verifyEmail,
+  checkVerificationStatus
+} = require('../controllers/auth/emailVerificationController');
 
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
