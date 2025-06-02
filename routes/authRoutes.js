@@ -11,18 +11,18 @@ const {
   refreshToken
 } = require('../controllers/auth/authController');
 
-// New feature controllers
-const {
-  requestPasswordReset,
-  validateResetToken,
-  resetPassword
-} = require('../controllers/auth/passwordResetController');
+// New feature controllers (commented out to fix deployment)
+// const {
+//   requestPasswordReset,
+//   validateResetToken,
+//   resetPassword
+// } = require('../controllers/auth/passwordResetController');
 
-const {
-  sendEmailVerification,
-  verifyEmail,
-  checkVerificationStatus
-} = require('../controllers/auth/emailVerificationController');
+// const {
+//   sendEmailVerification,
+//   verifyEmail,
+//   checkVerificationStatus
+// } = require('../controllers/auth/emailVerificationController');
 
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
@@ -193,22 +193,7 @@ router.get('/test-features', (req, res) => {
           'POST /api/auth/reset-password'
         ]
       },
-      google_maps: {
-        configured: !!process.env.GOOGLE_MAPS_API_KEY,
-        endpoints: [
-          'GET /api/public/directions',
-          'GET /api/public/fields/:id/directions',
-          'GET /api/public/nearby-places'
-        ]
-      },
-      weather: {
-        configured: !!process.env.OPENWEATHER_API_KEY,
-        endpoints: [
-          'GET /api/public/weather',
-          'GET /api/public/weather/forecast',
-          'GET /api/public/fields/weather'
-        ]
-      }
+      // Maps and weather features removed
     }
   });
 });

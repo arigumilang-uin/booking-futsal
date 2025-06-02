@@ -16,7 +16,6 @@
     "health": "curl -f http://localhost:5000/api/test/health || exit 1"
   },
   "dependencies": {
-    "axios": "^1.9.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "compression": "^1.7.4",
