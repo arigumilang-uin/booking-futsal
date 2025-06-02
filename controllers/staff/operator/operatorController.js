@@ -332,6 +332,114 @@ const getTodaySchedule = async (req, res) => {
   }
 };
 
+// Get all bookings for operator (assigned fields only)
+const getAllBookingsForOperator = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      field_id,
+      date_from,
+      date_to
+    } = req.query;
+
+    const operatorId = req.rawUser.id;
+
+    // Get operator's assigned fields
+    const assignedFields = await getFieldsByOperator(operatorId);
+    const assignedFieldIds = assignedFields.map(f => f.id);
+
+    let bookings = await getAllBookings();
+
+    // Filter by assigned fields only
+    bookings = bookings.filter(booking => assignedFieldIds.includes(booking.field_id));
+
+    // Apply additional filters
+    if (status) {
+      bookings = bookings.filter(booking => booking.status === status);
+    }
+    if (field_id) {
+      bookings = bookings.filter(booking => booking.field_id === parseInt(field_id));
+    }
+    if (date_from && date_to) {
+      bookings = bookings.filter(booking => {
+        const bookingDate = new Date(booking.date);
+        return bookingDate >= new Date(date_from) && bookingDate <= new Date(date_to);
+      });
+    }
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedBookings = bookings.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: {
+        bookings: paginatedBookings,
+        assigned_fields: assignedFields,
+        pagination: {
+          current_page: parseInt(page),
+          per_page: parseInt(limit),
+          total: bookings.length,
+          total_pages: Math.ceil(bookings.length / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all bookings operator error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get bookings',
+      code: 'OPERATOR_BOOKINGS_FETCH_FAILED'
+    });
+  }
+};
+
+// Get booking detail for operator
+const getBookingDetailForOperator = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const operatorId = req.rawUser.id;
+
+    const booking = await getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found',
+        code: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    // Check if operator has access to this field
+    const assignedFields = await getFieldsByOperator(operatorId);
+    const hasAccess = assignedFields.some(f => f.id === booking.field_id);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied to this field',
+        code: 'FIELD_ACCESS_DENIED'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: booking
+    });
+
+  } catch (error) {
+    console.error('Get booking detail operator error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get booking detail',
+      code: 'OPERATOR_BOOKING_DETAIL_FAILED'
+    });
+  }
+};
+
 module.exports = {
   getOperatorDashboard,
   getAssignedFields,
@@ -339,5 +447,7 @@ module.exports = {
   getFieldBookings,
   confirmBooking,
   completeBooking,
-  getTodaySchedule
+  getTodaySchedule,
+  getAllBookingsForOperator,
+  getBookingDetailForOperator
 };

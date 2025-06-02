@@ -5,6 +5,11 @@ const {
   deleteField
 } = require('../../../models/business/fieldModel');
 const {
+  getAllBookings,
+  getBookingById,
+  updateBookingStatus
+} = require('../../../models/business/bookingModel');
+const {
   getDashboardOverview
 } = require('../../shared/analyticsController');
 
@@ -191,6 +196,147 @@ const getBusinessAnalytics = async (req, res) => {
   }
 };
 
+// Get all bookings for manager
+const getAllBookingsForManager = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      field_id,
+      date_from,
+      date_to
+    } = req.query;
+
+    let bookings = await getAllBookings();
+
+    // Apply filters
+    if (status) {
+      bookings = bookings.filter(booking => booking.status === status);
+    }
+    if (field_id) {
+      bookings = bookings.filter(booking => booking.field_id === parseInt(field_id));
+    }
+    if (date_from && date_to) {
+      bookings = bookings.filter(booking => {
+        const bookingDate = new Date(booking.date);
+        return bookingDate >= new Date(date_from) && bookingDate <= new Date(date_to);
+      });
+    }
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedBookings = bookings.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: {
+        bookings: paginatedBookings,
+        pagination: {
+          current_page: parseInt(page),
+          per_page: parseInt(limit),
+          total: bookings.length,
+          total_pages: Math.ceil(bookings.length / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all bookings manager error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get bookings',
+      code: 'MANAGER_BOOKINGS_FETCH_FAILED'
+    });
+  }
+};
+
+// Get booking detail for manager
+const getBookingDetailForManager = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found',
+        code: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: booking
+    });
+
+  } catch (error) {
+    console.error('Get booking detail manager error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get booking detail',
+      code: 'MANAGER_BOOKING_DETAIL_FAILED'
+    });
+  }
+};
+
+// Update booking status for manager
+const updateBookingStatusForManager = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, reason } = req.body;
+    const managerId = req.rawUser.id;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        error: 'Status is required',
+        code: 'MISSING_STATUS'
+      });
+    }
+
+    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid status',
+        code: 'INVALID_STATUS'
+      });
+    }
+
+    const booking = await getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found',
+        code: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    const updatedBooking = await updateBookingStatus(
+      id,
+      status,
+      managerId,
+      reason || `Status updated by manager: ${req.rawUser.name}`
+    );
+
+    res.json({
+      success: true,
+      message: 'Booking status updated successfully',
+      data: updatedBooking
+    });
+
+  } catch (error) {
+    console.error('Update booking status manager error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update booking status',
+      code: 'MANAGER_BOOKING_UPDATE_FAILED'
+    });
+  }
+};
+
 module.exports = {
   getManagerDashboard,
   getAllUsersForManager,
@@ -199,5 +345,8 @@ module.exports = {
   getAllFieldsForManager,
   createFieldByManager,
   updateFieldByManager,
-  getBusinessAnalytics
+  getBusinessAnalytics,
+  getAllBookingsForManager,
+  getBookingDetailForManager,
+  updateBookingStatusForManager
 };

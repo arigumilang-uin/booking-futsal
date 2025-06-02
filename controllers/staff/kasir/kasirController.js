@@ -291,6 +291,89 @@ const getDailyCashReport = async (req, res) => {
   }
 };
 
+// Get all bookings for kasir (payment related)
+const getAllBookingsForKasir = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      payment_status,
+      date_from,
+      date_to
+    } = req.query;
+
+    let bookings = await getAllBookings();
+
+    // Filter by payment status
+    if (payment_status) {
+      bookings = bookings.filter(booking => booking.payment_status === payment_status);
+    }
+
+    // Filter by date range
+    if (date_from && date_to) {
+      bookings = bookings.filter(booking => {
+        const bookingDate = new Date(booking.date);
+        return bookingDate >= new Date(date_from) && bookingDate <= new Date(date_to);
+      });
+    }
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedBookings = bookings.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: {
+        bookings: paginatedBookings,
+        pagination: {
+          current_page: parseInt(page),
+          per_page: parseInt(limit),
+          total: bookings.length,
+          total_pages: Math.ceil(bookings.length / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all bookings kasir error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get bookings',
+      code: 'KASIR_BOOKINGS_FETCH_FAILED'
+    });
+  }
+};
+
+// Get booking detail for kasir (payment related)
+const getBookingDetailForKasir = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found',
+        code: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: booking
+    });
+
+  } catch (error) {
+    console.error('Get booking detail kasir error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get booking detail',
+      code: 'KASIR_BOOKING_DETAIL_FAILED'
+    });
+  }
+};
+
 module.exports = {
   getAllPaymentsForKasir,
   getPaymentDetailForKasir,
@@ -298,5 +381,7 @@ module.exports = {
   confirmPayment,
   getPendingPayments,
   getPaymentStatsForKasir,
-  getDailyCashReport
+  getDailyCashReport,
+  getAllBookingsForKasir,
+  getBookingDetailForKasir
 };
