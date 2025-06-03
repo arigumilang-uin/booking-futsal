@@ -70,22 +70,38 @@ router.post('/payments/debug', async (req, res) => {
   try {
     const { booking_id } = req.body;
 
-    // Test basic payment creation
-    const { createPayment } = require('../models/business/paymentModel');
+    // Test step by step payment processing
+    const { createPayment, updatePaymentStatus } = require('../models/business/paymentModel');
+    const { getBookingById, updatePaymentStatus: updateBookingPaymentStatus } = require('../models/business/bookingModel');
 
-    const testPayment = await createPayment({
+    // Step 1: Get booking
+    const booking = await getBookingById(booking_id);
+
+    // Step 2: Create payment
+    const payment = await createPayment({
       booking_id: booking_id,
-      amount: 125000,
+      amount: booking.total_amount,
       method: 'cash',
       status: 'paid'
     });
 
+    // Step 3: Update payment status
+    const updatedPayment = await updatePaymentStatus(payment.id, 'paid', {
+      notes: 'Debug payment test',
+      processed_by: req.rawUser.name
+    });
+
+    // Step 4: Update booking payment status
+    const updatedBooking = await updateBookingPaymentStatus(booking_id, 'paid');
+
     res.json({
       success: true,
       debug_info: {
-        staff_user: req.rawUser,
-        request_body: req.body,
-        test_payment: testPayment
+        step1_booking: booking,
+        step2_payment: payment,
+        step3_updated_payment: updatedPayment,
+        step4_updated_booking: updatedBooking,
+        staff_user: req.rawUser
       }
     });
   } catch (error) {
