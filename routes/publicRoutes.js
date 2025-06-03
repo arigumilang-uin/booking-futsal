@@ -99,6 +99,68 @@ router.get('/database-status', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/public/fields:
+ *   get:
+ *     summary: Mendapatkan daftar lapangan yang tersedia
+ *     description: Endpoint publik untuk mendapatkan semua lapangan futsal dengan informasi lengkap
+ *     tags: [Public]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Kata kunci pencarian
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [futsal, mini_soccer, basketball]
+ *         description: Filter berdasarkan jenis lapangan
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan lokasi
+ *     responses:
+ *       200:
+ *         description: Daftar lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Daftar lapangan berhasil diambil"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Field'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
  * @route   GET /api/public/fields
  * @desc    Get available fields untuk pengunjung
  * @access  Public

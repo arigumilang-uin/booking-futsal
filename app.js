@@ -13,6 +13,9 @@ const {
   requestSizeLimit
 } = require('./middlewares/security/securityMiddleware');
 
+// Import Swagger configuration
+const { specs, swaggerUi, swaggerUiOptions } = require('./config/swagger');
+
 const apiRoutes = require('./routes/indexRoutes');
 
 const app = express();
@@ -57,10 +60,17 @@ app.get('/', (req, res) => {
   res.json({
     success: true,
     message: 'Futsal Booking API',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
+    version: '2.0.0',
+    timestamp: new Date().toISOString(),
+    documentation: {
+      swagger: '/api-docs',
+      description: 'API Documentation menggunakan Swagger/OpenAPI 3.0'
+    }
   });
 });
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
 // Public health endpoint (bypass any auth)
 app.get('/health', async (req, res) => {
