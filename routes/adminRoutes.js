@@ -179,12 +179,12 @@ router.put('/settings/:key/reset', requireAdmin, resetSettingToDefault);
 router.get('/audit-logs', requireAdmin, getAllAuditLogs);
 
 /**
- * @route   GET /api/admin/audit-logs/:id
- * @desc    Get audit log detail
+ * @route   GET /api/admin/audit-logs/statistics
+ * @desc    Get audit statistics
  * @access  Admin (supervisor_sistem only)
- * @params  { id: audit_log_id }
+ * @query   { days }
  */
-router.get('/audit-logs/:id', requireAdmin, getAuditLogDetail);
+router.get('/audit-logs/statistics', requireAdmin, getAuditStatisticsData);
 
 /**
  * @route   GET /api/admin/audit-logs/record/:tableName/:recordId
@@ -195,12 +195,12 @@ router.get('/audit-logs/:id', requireAdmin, getAuditLogDetail);
 router.get('/audit-logs/record/:tableName/:recordId', requireAdmin, getRecordAuditHistory);
 
 /**
- * @route   GET /api/admin/audit-logs/statistics
- * @desc    Get audit statistics
+ * @route   GET /api/admin/audit-logs/:id
+ * @desc    Get audit log detail
  * @access  Admin (supervisor_sistem only)
- * @query   { days }
+ * @params  { id: audit_log_id }
  */
-router.get('/audit-logs/statistics', requireAdmin, getAuditStatisticsData);
+router.get('/audit-logs/:id', requireAdmin, getAuditLogDetail);
 
 /**
  * @route   GET /api/admin/audit-logs/active-users
