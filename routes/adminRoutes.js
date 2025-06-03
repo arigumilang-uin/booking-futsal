@@ -378,6 +378,14 @@ router.put('/promotions/:id/toggle', requireManagement, togglePromotionStatus);
 router.get('/role-management/dashboard', requireManagement, getRoleManagementDashboard);
 
 /**
+ * @route   GET /api/admin/users
+ * @desc    Get all users for admin management
+ * @access  Management (manajer_futsal+)
+ * @query   { page, limit, role, status, search, sort_by, sort_order }
+ */
+router.get('/users', requireManagement, getAllUsersForRoleManagement);
+
+/**
  * @route   GET /api/admin/role-management/users
  * @desc    Get all users for role management
  * @access  Management (manajer_futsal+)
@@ -397,6 +405,346 @@ router.post('/role-management/request-change', requireManagement, requestRoleCha
  * @access  Management (manajer_futsal+)
  */
 router.put('/role-management/change-role', requireManagement, changeUserRoleDirect);
+
+/**
+ * @route   GET /api/admin/users/:id
+ * @desc    Get user detail
+ * @access  Management (manajer_futsal+)
+ * @params  { id: user_id }
+ */
+router.get('/users/:id', requireManagement, async (req, res) => {
+  try {
+    const { getUserByIdRaw } = require('../models/core/userModel');
+    const { id } = req.params;
+
+    const user = await getUserByIdRaw(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Get user detail error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get user detail'
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/admin/users/:id
+ * @desc    Update user
+ * @access  Management (manajer_futsal+)
+ * @params  { id: user_id }
+ * @body    { name, email, phone, role, is_active }
+ */
+router.put('/users/:id', requireManagement, async (req, res) => {
+  try {
+    const { updateUserProfile, updateUserRole, updateUserStatus } = require('../models/core/userModel');
+    const { id } = req.params;
+    const { name, email, phone, role, is_active } = req.body;
+
+    let updatedUser = null;
+
+    // Update profile fields if provided
+    if (name !== undefined || email !== undefined || phone !== undefined) {
+      updatedUser = await updateUserProfile(id, { name, email, phone });
+    }
+
+    // Update role if provided
+    if (role !== undefined) {
+      updatedUser = await updateUserRole(id, role);
+    }
+
+    // Update status if provided
+    if (is_active !== undefined) {
+      updatedUser = await updateUserStatus(id, is_active);
+    }
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found or no changes made'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user'
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/users/:id
+ * @desc    Deactivate user (soft delete)
+ * @access  Management (manajer_futsal+)
+ * @params  { id: user_id }
+ */
+router.delete('/users/:id', requireManagement, async (req, res) => {
+  try {
+    const { updateUserStatus } = require('../models/core/userModel');
+    const { id } = req.params;
+
+    const updatedUser = await updateUserStatus(id, false);
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'User deactivated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Deactivate user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to deactivate user'
+    });
+  }
+});
+
+// =====================================================
+// FIELD MANAGEMENT ROUTES - ADMIN LEVEL
+// =====================================================
+
+/**
+ * @route   GET /api/admin/fields
+ * @desc    Get all fields for admin management
+ * @access  Management (manajer_futsal+)
+ * @query   { page, limit, status, type, location, search }
+ */
+router.get('/fields', requireManagement, async (req, res) => {
+  try {
+    const { getAllFields } = require('../models/business/fieldModel');
+    const { page = 1, limit = 20, status, type, location, search } = req.query;
+
+    let fields = await getAllFields();
+
+    // Apply filters
+    if (status) {
+      fields = fields.filter(field => field.status === status);
+    }
+    if (type) {
+      fields = fields.filter(field => field.type === type);
+    }
+    if (location) {
+      fields = fields.filter(field =>
+        field.location.toLowerCase().includes(location.toLowerCase())
+      );
+    }
+    if (search) {
+      fields = fields.filter(field =>
+        field.name.toLowerCase().includes(search.toLowerCase()) ||
+        field.description.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedFields = fields.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: paginatedFields,
+      pagination: {
+        current_page: parseInt(page),
+        per_page: parseInt(limit),
+        total: fields.length,
+        total_pages: Math.ceil(fields.length / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get admin fields error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get fields'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/admin/fields/:id
+ * @desc    Get field detail
+ * @access  Management (manajer_futsal+)
+ * @params  { id: field_id }
+ */
+router.get('/fields/:id', requireManagement, async (req, res) => {
+  try {
+    const { getFieldById } = require('../models/business/fieldModel');
+    const { id } = req.params;
+
+    const field = await getFieldById(id);
+    if (!field) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: field
+    });
+  } catch (error) {
+    console.error('Get field detail error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get field detail'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/admin/fields
+ * @desc    Create new field
+ * @access  Management (manajer_futsal+)
+ * @body    { name, type, description, price, capacity, location, facilities, etc. }
+ */
+router.post('/fields', requireManagement, async (req, res) => {
+  try {
+    const { createField } = require('../models/business/fieldModel');
+    const adminId = req.rawUser.id;
+
+    const {
+      name, type, description, price, capacity, location, address,
+      facilities, coordinates, price_weekend, price_member,
+      operating_hours, operating_days, assigned_operator
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name and price are required'
+      });
+    }
+
+    const fieldData = {
+      name,
+      type: type || 'futsal',
+      description: description || '',
+      price,
+      capacity: capacity || 22,
+      location: location || '',
+      address: address || '',
+      facilities: facilities || [],
+      coordinates: coordinates || null,
+      price_weekend: price_weekend || null,
+      price_member: price_member || null,
+      operating_hours: operating_hours || { start: '09:00', end: '24:00' },
+      operating_days: operating_days || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+      assigned_operator: assigned_operator || null,
+      created_by: adminId
+    };
+
+    const newField = await createField(fieldData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Field created successfully',
+      data: newField
+    });
+  } catch (error) {
+    console.error('Create field error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create field'
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/admin/fields/:id
+ * @desc    Update field
+ * @access  Management (manajer_futsal+)
+ * @params  { id: field_id }
+ * @body    { field_data }
+ */
+router.put('/fields/:id', requireManagement, async (req, res) => {
+  try {
+    const { updateField } = require('../models/business/fieldModel');
+    const adminId = req.rawUser.id;
+    const { id } = req.params;
+
+    const updateData = {
+      ...req.body,
+      updated_by: adminId
+    };
+
+    const updatedField = await updateField(id, updateData);
+    if (!updatedField) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Field updated successfully',
+      data: updatedField
+    });
+  } catch (error) {
+    console.error('Update field error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update field'
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/admin/fields/:id
+ * @desc    Delete field (soft delete)
+ * @access  Management (manajer_futsal+)
+ * @params  { id: field_id }
+ */
+router.delete('/fields/:id', requireManagement, async (req, res) => {
+  try {
+    const { updateField } = require('../models/business/fieldModel');
+    const { id } = req.params;
+
+    const updatedField = await updateField(id, { status: 'deleted' });
+    if (!updatedField) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Field deleted successfully',
+      data: updatedField
+    });
+  } catch (error) {
+    console.error('Delete field error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete field'
+    });
+  }
+});
 
 // =====================================================
 // ANALYTICS ROUTES - MANAGEMENT LEVEL

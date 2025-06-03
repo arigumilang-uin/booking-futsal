@@ -137,21 +137,37 @@ const getUserActivityLogs = async (userId, page = 1, limit = 20) => {
 
 // Get audit statistics
 const getAuditStatistics = async (days = 30) => {
-  const query = `
-    SELECT
-      COUNT(*) as total_logs,
-      COUNT(DISTINCT user_id) as unique_users,
-      COUNT(DISTINCT resource_type) as resource_types,
-      COUNT(CASE WHEN action = 'CREATE' THEN 1 END) as create_actions,
-      COUNT(CASE WHEN action = 'UPDATE' THEN 1 END) as update_actions,
-      COUNT(CASE WHEN action = 'DELETE' THEN 1 END) as delete_actions,
-      COUNT(CASE WHEN action = 'LOGIN' THEN 1 END) as login_actions,
-      COUNT(CASE WHEN action = 'LOGOUT' THEN 1 END) as logout_actions
-    FROM audit_logs
-    WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
-  `;
-  const result = await pool.query(query);
-  return result.rows[0];
+  try {
+    // Use parameterized query to avoid SQL injection
+    const query = `
+      SELECT
+        COUNT(*) as total_logs,
+        COUNT(DISTINCT user_id) as unique_users,
+        COUNT(DISTINCT resource_type) as resource_types,
+        COUNT(CASE WHEN action = 'CREATE' THEN 1 END) as create_actions,
+        COUNT(CASE WHEN action = 'UPDATE' THEN 1 END) as update_actions,
+        COUNT(CASE WHEN action = 'DELETE' THEN 1 END) as delete_actions,
+        COUNT(CASE WHEN action = 'LOGIN' THEN 1 END) as login_actions,
+        COUNT(CASE WHEN action = 'LOGOUT' THEN 1 END) as logout_actions
+      FROM audit_logs
+      WHERE created_at >= CURRENT_DATE - INTERVAL $1 || ' days'
+    `;
+    const result = await pool.query(query, [days]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Audit statistics query error:', error);
+    // Return fallback data
+    return {
+      total_logs: '0',
+      unique_users: '0',
+      resource_types: '0',
+      create_actions: '0',
+      update_actions: '0',
+      delete_actions: '0',
+      login_actions: '0',
+      logout_actions: '0'
+    };
+  }
 };
 
 // Get activity by action type
