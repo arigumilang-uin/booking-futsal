@@ -15,6 +15,9 @@ const {
   getBookingDetailForKasir
 } = require('../controllers/staff/kasir/kasirController');
 
+// Import for debug endpoint
+const { getBookingById } = require('../models/business/bookingModel');
+
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 const { requireStaff } = require('../middlewares/authorization/roleBasedAccess');
@@ -68,7 +71,6 @@ router.post('/payments/debug', async (req, res) => {
     const { booking_id } = req.body;
 
     // Get booking details
-    const { getBookingById } = require('../../models/business/bookingModel');
     const booking = await getBookingById(booking_id);
 
     res.json({
@@ -76,7 +78,9 @@ router.post('/payments/debug', async (req, res) => {
       debug_info: {
         staff_user: req.rawUser,
         booking: booking,
-        request_body: req.body
+        request_body: req.body,
+        booking_exists: !!booking,
+        booking_payment_status: booking?.payment_status
       }
     });
   } catch (error) {
