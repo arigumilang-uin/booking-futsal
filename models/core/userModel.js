@@ -130,13 +130,37 @@ const getUsersByRole = async (role) => {
 };
 
 const updateUserProfile = async (id, { name, email, phone }) => {
+  // Build dynamic update query only for provided fields
+  const updateFields = [];
+  const values = [];
+  let paramCount = 1;
+
+  if (name !== undefined) {
+    updateFields.push(`name = $${paramCount++}`);
+    values.push(name);
+  }
+  if (email !== undefined) {
+    updateFields.push(`email = $${paramCount++}`);
+    values.push(email);
+  }
+  if (phone !== undefined) {
+    updateFields.push(`phone = $${paramCount++}`);
+    values.push(phone);
+  }
+
+  // Always update updated_at
+  updateFields.push(`updated_at = NOW()`);
+
+  // Add id parameter
+  values.push(id);
+
   const query = `
     UPDATE users
-    SET name = $1, email = $2, phone = $3, updated_at = NOW()
-    WHERE id = $4
+    SET ${updateFields.join(', ')}
+    WHERE id = $${paramCount}
     RETURNING id, uuid, name, email, phone, role, employee_id, is_active, created_at
   `;
-  const values = [name, email, phone, id];
+
   const result = await pool.query(query, values);
 
   if (result.rows[0]) {

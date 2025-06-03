@@ -49,7 +49,18 @@ const updateCustomerProfile = async (req, res) => {
     const userId = req.user.id;
     const { name, email, phone } = req.body;
 
+    console.log('Update profile request:', { userId, name, email, phone });
+
+    // Validate at least one field is provided
+    if (!name && !email && !phone) {
+      return res.status(400).json({
+        error: 'At least one field (name, email, or phone) must be provided'
+      });
+    }
+
     const updatedUser = await updateUserProfile(userId, { name, email, phone });
+    console.log('Update profile result:', updatedUser);
+
     if (!updatedUser) {
       return res.status(404).json({
         error: 'User not found'
@@ -65,7 +76,8 @@ const updateCustomerProfile = async (req, res) => {
   } catch (error) {
     console.error('Update customer profile error:', error);
     res.status(500).json({
-      error: 'Failed to update profile'
+      error: 'Failed to update profile',
+      debug: error.message
     });
   }
 };
