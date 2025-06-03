@@ -54,6 +54,13 @@ router.get('/payments/pending', getPendingPayments);
 router.get('/payments/:id', getPaymentDetailForKasir);
 
 /**
+ * @route   GET /api/staff/kasir/pending-payments
+ * @desc    Get pending payments
+ * @access  Private (Kasir, Manager, Supervisor)
+ */
+router.get('/pending-payments', getPendingPayments);
+
+/**
  * @route   POST /api/staff/kasir/payments/manual
  * @desc    Process manual payment (cash, transfer)
  * @access  Private (Kasir, Manager, Supervisor)

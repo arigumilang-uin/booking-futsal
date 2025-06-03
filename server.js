@@ -13,6 +13,7 @@ const app = require('./app');
 const cron = require('node-cron');
 const { updateCompletedBookings } = require('./utils/updateCompletedBookings');
 const { logger } = require('./utils/logger');
+const { startMetricsCollection } = require('./utils/performanceMonitor');
 
 const PORT = process.env.PORT || 5000;
 
@@ -28,10 +29,13 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Available endpoints:`);
-  console.log(`   - Health Check: http://localhost:${PORT}/api/test/health`);
-  console.log(`   - Routes List: http://localhost:${PORT}/api/test/routes`);
-  console.log(`   - Database Test: http://localhost:${PORT}/api/test/database`);
+  console.log(`   - Health Check: http://localhost:${PORT}/health`);
+  console.log(`   - Enhanced Health: http://localhost:${PORT}/health`);
   console.log(`   - API Documentation: http://localhost:${PORT}/api-docs`);
+  console.log(`   - Database Test: http://localhost:${PORT}/api/test/database`);
+
+  // Start performance monitoring
+  startMetricsCollection(60000); // Collect metrics every minute
 });
 
 // Auto-completion cron job - runs every 30 minutes

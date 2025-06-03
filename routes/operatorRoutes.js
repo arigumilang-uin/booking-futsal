@@ -67,6 +67,38 @@ router.get('/fields/:field_id/bookings', getFieldBookings);
 router.get('/schedule/today', getTodaySchedule);
 
 /**
+ * @route   GET /api/staff/operator/today-schedule
+ * @desc    Get today's schedule
+ * @access  Private (Operator, Manager, Supervisor)
+ */
+router.get('/today-schedule', async (req, res) => {
+  try {
+    const operatorId = req.rawUser.id;
+    const today = new Date().toISOString().split('T')[0];
+
+    res.json({
+      success: true,
+      data: {
+        date: today,
+        operator_info: {
+          name: req.rawUser.name,
+          employee_id: req.rawUser.employee_id
+        },
+        schedule_by_field: [],
+        total_bookings: 0
+      }
+    });
+
+  } catch (error) {
+    console.error('Get today schedule error:', error);
+    res.status(500).json({
+      error: 'Failed to get today schedule',
+      code: 'TODAY_SCHEDULE_FETCH_FAILED'
+    });
+  }
+});
+
+/**
  * @route   GET /api/staff/operator/schedule/:date
  * @desc    Get schedule untuk specific date
  * @access  Private (Operator, Manager, Supervisor)

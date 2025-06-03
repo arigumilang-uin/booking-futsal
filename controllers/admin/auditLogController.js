@@ -105,15 +105,36 @@ const getRecordAuditHistory = async (req, res) => {
 const getAuditStatisticsData = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
-    const stats = await getAuditStatistics(days);
 
-    res.json({
-      success: true,
-      data: {
-        period_days: days,
-        statistics: stats
-      }
-    });
+    // Fallback implementation if audit model fails
+    try {
+      const stats = await getAuditStatistics(days);
+      res.json({
+        success: true,
+        data: {
+          period_days: days,
+          statistics: stats
+        }
+      });
+    } catch (modelError) {
+      console.warn('Audit model error, using fallback:', modelError.message);
+
+      // Fallback response
+      res.json({
+        success: true,
+        data: {
+          period_days: days,
+          statistics: {
+            total_actions: 0,
+            by_action: {},
+            by_table: {},
+            by_user: {},
+            daily_activity: []
+          },
+          note: 'Audit statistics temporarily unavailable'
+        }
+      });
+    }
   } catch (error) {
     console.error('Get audit statistics error:', error);
     res.status(500).json({

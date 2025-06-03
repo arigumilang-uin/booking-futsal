@@ -171,6 +171,7 @@ router.get('/dashboard', getCustomerDashboard);
 // NOTIFICATION ROUTES
 router.get('/notifications', getNotifications);
 router.get('/notifications/count', getUnreadNotificationsCount);
+router.get('/notifications/unread-count', getUnreadNotificationsCount);
 router.put('/notifications/:id/read', markNotificationAsRead);
 router.put('/notifications/read-all', markAllNotificationsAsRead);
 router.delete('/notifications/:id', deleteUserNotification);
