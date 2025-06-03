@@ -70,17 +70,22 @@ router.post('/payments/debug', async (req, res) => {
   try {
     const { booking_id } = req.body;
 
-    // Get booking details
-    const booking = await getBookingById(booking_id);
+    // Test basic payment creation
+    const { createPayment } = require('../models/business/paymentModel');
+
+    const testPayment = await createPayment({
+      booking_id: booking_id,
+      amount: 125000,
+      method: 'cash',
+      status: 'paid'
+    });
 
     res.json({
       success: true,
       debug_info: {
         staff_user: req.rawUser,
-        booking: booking,
         request_body: req.body,
-        booking_exists: !!booking,
-        booking_payment_status: booking?.payment_status
+        test_payment: testPayment
       }
     });
   } catch (error) {
