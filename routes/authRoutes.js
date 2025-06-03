@@ -101,10 +101,10 @@ router.post('/change-password', requireAuth, async (req, res) => {
     }
 
     const bcrypt = require('bcryptjs');
-    const { getUserById, updateUserPassword } = require('../models/core/userModel');
+    const { getUserByEmail, updateUserPassword } = require('../models/core/userModel');
 
-    // Get current user
-    const user = await getUserById(userId);
+    // Get current user with password field
+    const user = await getUserByEmail(req.user.email);
     if (!user) {
       return res.status(404).json({
         success: false,
