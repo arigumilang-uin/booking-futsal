@@ -6,6 +6,7 @@ const {
   mapNewRoleToOld
 } = require('../../models/core/userModel');
 const { generateToken } = require('../../utils/tokenUtils');
+const emailValidationService = require('../../services/emailValidationService');
 
 const register = async (req, res) => {
   try {
@@ -28,10 +29,13 @@ const register = async (req, res) => {
       });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Hybrid email validation (Format + Domain)
+    const emailValidation = await emailValidationService.validateComplete(email);
+    if (!emailValidation.valid) {
       return res.status(400).json({
-        error: 'Invalid email format'
+        error: emailValidation.reason,
+        validation_step: emailValidation.step,
+        suggestion: emailValidation.reason.includes('Mungkin maksud Anda') ? emailValidation.reason : undefined
       });
     }
 

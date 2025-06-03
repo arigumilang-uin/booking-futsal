@@ -264,6 +264,113 @@ router.get('/hash-password/:password', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/auth/validate-email
+ * @desc    Validate email using hybrid approach
+ * @access  Public
+ * @body    { email }
+ */
+router.post('/validate-email', async (req, res) => {
+  try {
+    const emailValidationService = require('../services/emailValidationService');
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email diperlukan'
+      });
+    }
+
+    const result = await emailValidationService.validateComplete(email);
+
+    res.json({
+      success: result.valid,
+      data: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/validate-email-quick
+ * @desc    Quick email validation (format only)
+ * @access  Public
+ * @body    { email }
+ */
+router.post('/validate-email-quick', (req, res) => {
+  try {
+    const emailValidationService = require('../services/emailValidationService');
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email diperlukan'
+      });
+    }
+
+    const result = emailValidationService.validateQuick(email);
+
+    res.json({
+      success: result.valid,
+      data: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/validate-email-batch
+ * @desc    Validate multiple emails at once
+ * @access  Public
+ * @body    { emails: [] }
+ */
+router.post('/validate-email-batch', async (req, res) => {
+  try {
+    const emailValidationService = require('../services/emailValidationService');
+    const { emails } = req.body;
+
+    if (!emails || !Array.isArray(emails)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Array emails diperlukan'
+      });
+    }
+
+    if (emails.length > 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Maksimal 10 email per batch'
+      });
+    }
+
+    const results = await emailValidationService.validateBatch(emails);
+    const stats = emailValidationService.getValidationStats(results);
+
+    res.json({
+      success: true,
+      data: {
+        results,
+        statistics: stats
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/roles
  * @desc    Get available roles in system
  * @access  Public
