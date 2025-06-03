@@ -210,11 +210,23 @@ router.get('/test-features', (req, res) => {
 router.get('/test-smtp', async (req, res) => {
   try {
     const emailService = require('../services/emailService');
+
+    // Force re-initialize email service
+    emailService.initializeTransporter();
+
     const result = await emailService.verifyConnection();
 
     res.json({
       success: true,
-      smtp_test: result
+      smtp_test: result,
+      env_vars: {
+        smtp_host: process.env.SMTP_HOST || 'not set',
+        smtp_port: process.env.SMTP_PORT || 'not set',
+        smtp_user: process.env.SMTP_USER || 'not set',
+        smtp_pass: process.env.SMTP_PASS ? 'set (hidden)' : 'not set',
+        app_name: process.env.APP_NAME || 'not set',
+        frontend_url: process.env.FRONTEND_URL || 'not set'
+      }
     });
   } catch (error) {
     res.status(500).json({
