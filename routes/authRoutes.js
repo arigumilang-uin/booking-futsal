@@ -69,6 +69,80 @@ router.get('/profile', requireAuth, getProfile);
 router.post('/refresh', requireAuth, refreshToken);
 
 /**
+ * @route   POST /api/auth/change-password
+ * @desc    Change user password
+ * @access  Private (Authenticated users)
+ * @body    { current_password, new_password, confirm_password }
+ */
+router.post('/change-password', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { current_password, new_password, confirm_password } = req.body;
+
+    if (!current_password || !new_password || !confirm_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password, new password, and confirm password are required'
+      });
+    }
+
+    if (new_password !== confirm_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password and confirm password do not match'
+      });
+    }
+
+    if (new_password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
+      });
+    }
+
+    const bcrypt = require('bcryptjs');
+    const { getUserById, updateUserPassword } = require('../models/core/userModel');
+
+    // Get current user
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(new_password, saltRounds);
+
+    // Update password
+    await updateUserPassword(userId, hashedNewPassword);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to change password'
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/verify
  * @desc    Verify token validity
  * @access  Private (Authenticated users)

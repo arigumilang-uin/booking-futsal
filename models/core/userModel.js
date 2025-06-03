@@ -149,6 +149,18 @@ const updateUserProfile = async (id, { name, email, phone }) => {
   return null;
 };
 
+const updateUserPassword = async (id, hashedPassword) => {
+  const query = `
+    UPDATE users
+    SET password = $1, updated_at = NOW()
+    WHERE id = $2
+    RETURNING id, email, updated_at
+  `;
+  const values = [hashedPassword, id];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
+
 // =====================================================
 // NEW ENHANCED METHODS
 // =====================================================
@@ -268,6 +280,7 @@ module.exports = {
   deleteUserById,
   getUsersByRole,
   updateUserProfile,
+  updateUserPassword,
   getUserByIdRaw,
   hasPermission,
   updateLastLogin,
