@@ -59,6 +59,36 @@ router.get('/payments/:id', getPaymentDetailForKasir);
 router.post('/payments/manual', processManualPayment);
 
 /**
+ * @route   POST /api/staff/kasir/payments/debug
+ * @desc    Debug payment processing
+ * @access  Private (Kasir, Manager, Supervisor)
+ */
+router.post('/payments/debug', async (req, res) => {
+  try {
+    const { booking_id } = req.body;
+
+    // Get booking details
+    const { getBookingById } = require('../../models/business/bookingModel');
+    const booking = await getBookingById(booking_id);
+
+    res.json({
+      success: true,
+      debug_info: {
+        staff_user: req.rawUser,
+        booking: booking,
+        request_body: req.body
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+/**
  * @route   PUT /api/staff/kasir/payments/:id/confirm
  * @desc    Confirm pending payment
  * @access  Private (Kasir, Manager, Supervisor)
