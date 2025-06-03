@@ -86,13 +86,17 @@ router.post('/payments/debug', async (req, res) => {
     });
 
     // Step 3: Update payment status
-    const updatedPayment = await updatePaymentStatus(payment.id, 'paid', JSON.stringify({
-      notes: 'Debug payment test',
-      processed_by: req.rawUser.name
-    }));
+    const updatedPayment = await updatePaymentStatus(
+      parseInt(payment.id),
+      'paid',
+      JSON.stringify({
+        notes: 'Debug payment test',
+        processed_by: req.rawUser.name
+      })
+    );
 
     // Step 4: Update booking payment status
-    const updatedBooking = await updateBookingPaymentStatus(booking_id, 'paid');
+    const updatedBooking = await updateBookingPaymentStatus(parseInt(booking_id), 'paid');
 
     res.json({
       success: true,
