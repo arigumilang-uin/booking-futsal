@@ -141,7 +141,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
 
     const usersWithRoleInfo = paginatedUsers.map(user => ({
       ...user,
-      role: mapNewRoleToOld(user.role), // Map role for display
+      // Keep original enhanced role (no mapping)
       role_info: {
         current_level: getRoleLevel(user.role),
         can_be_elevated: canElevateUser(user.role, adminRole),
