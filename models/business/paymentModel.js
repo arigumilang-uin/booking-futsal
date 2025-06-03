@@ -52,11 +52,11 @@ const createPayment = async (paymentData) => {
 const updatePaymentStatus = async (id, status, gatewayResponse = null) => {
   const query = `
     UPDATE payments
-    SET status = $1, gateway_response = $2, paid_at = CASE WHEN $1 = 'paid' THEN NOW() ELSE paid_at END, updated_at = NOW()
+    SET status = $1, gateway_response = $2, paid_at = CASE WHEN $4 = 'paid' THEN NOW() ELSE paid_at END, updated_at = NOW()
     WHERE id = $3
     RETURNING id, uuid, payment_number, status, paid_at, updated_at
   `;
-  const result = await pool.query(query, [status, gatewayResponse, id]);
+  const result = await pool.query(query, [status, gatewayResponse, id, status]);
   return result.rows[0];
 };
 
