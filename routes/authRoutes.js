@@ -237,6 +237,33 @@ router.get('/test-smtp', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/auth/hash-password/:password
+ * @desc    Generate bcrypt hash for password (development only)
+ * @access  Public
+ */
+router.get('/hash-password/:password', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { password } = req.params;
+
+    const saltRounds = 12;
+    const hash = await bcrypt.hash(password, saltRounds);
+
+    res.json({
+      success: true,
+      password: password,
+      hash: hash,
+      message: 'Use this hash in database'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/roles
  * @desc    Get available roles in system
  * @access  Public
