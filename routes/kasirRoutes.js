@@ -85,15 +85,8 @@ router.post('/payments/debug', async (req, res) => {
       status: 'paid'
     });
 
-    // Step 3: Update payment status
-    const updatedPayment = await updatePaymentStatus(
-      parseInt(payment.id),
-      'paid',
-      JSON.stringify({
-        notes: 'Debug payment test',
-        processed_by: req.rawUser.name
-      })
-    );
+    // Step 3: Skip update payment status (has SQL issue)
+    // const updatedPayment = await updatePaymentStatus(payment.id, 'paid', null);
 
     // Step 4: Update booking payment status
     const updatedBooking = await updateBookingPaymentStatus(parseInt(booking_id), 'paid');
@@ -103,7 +96,7 @@ router.post('/payments/debug', async (req, res) => {
       debug_info: {
         step1_booking: booking,
         step2_payment: payment,
-        step3_updated_payment: updatedPayment,
+        step3_skipped: 'updatePaymentStatus has SQL issue',
         step4_updated_booking: updatedBooking,
         staff_user: req.rawUser
       }
