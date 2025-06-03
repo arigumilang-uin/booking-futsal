@@ -119,25 +119,15 @@ const processManualPayment = async (req, res) => {
       status: 'paid'
     });
 
-    const updatedPayment = await updatePaymentStatus(
-      payment.id,
-      'paid',
-      {
-        notes: `Manual payment processed by staff: ${req.rawUser.name}`,
-        processed_by: req.rawUser.name,
-        employee_id: req.rawUser.employee_id,
-        processed_at: new Date().toISOString(),
-        method: method,
-        reference_number: reference_number
-      }
-    );
+    // Skip updatePaymentStatus due to SQL parameter conflict
+    // Payment is already created with status 'paid'
 
     await updateBookingPaymentStatus(booking_id, 'paid');
 
     res.status(201).json({
       success: true,
       message: 'Manual payment processed successfully',
-      data: updatedPayment
+      data: payment
     });
 
   } catch (error) {
