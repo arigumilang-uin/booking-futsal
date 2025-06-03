@@ -50,10 +50,8 @@ const getAllUsers = async () => {
     ORDER BY created_at DESC
   `;
   const result = await pool.query(query);
-  return result.rows.map(user => ({
-    ...user,
-    role: mapNewRoleToOld(user.role)
-  }));
+  // Return users with original enhanced roles (no mapping)
+  return result.rows;
 };
 
 const getUserById = async (id) => {
