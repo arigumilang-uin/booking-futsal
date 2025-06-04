@@ -7,10 +7,9 @@
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "start": "NODE_ENV=production node server.js",
+    "start": "cross-env NODE_ENV=production node server.js",
     "dev": "npx dotenv-cli -e .env.development nodemon server.js",
     "prod": "npx dotenv-cli -e .env.production node server.js",
-    "railway:start": "NODE_ENV=production node server.js",
     "build": "echo 'Build completed - Node.js application ready for production'",
     "postinstall": "npm cache clean --force",
     "health": "curl -f http://localhost:5000/api/test/health || exit 1"
