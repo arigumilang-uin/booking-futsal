@@ -901,7 +901,9 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *
- * // REVIEW ROUTES
+ */
+
+// REVIEW ROUTES
 router.get('/reviews', getUserReviewsList);
 router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);

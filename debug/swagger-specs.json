@@ -198,6 +198,48 @@
         }
       }
     },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Logout pengguna",
+        "description": "Endpoint untuk logout pengguna dan menghapus session/token",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logout successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/api/auth/profile": {
       "get": {
         "tags": [
@@ -227,6 +269,61 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh JWT token",
+        "description": "Endpoint untuk memperbarui JWT token yang akan expired",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token berhasil di-refresh",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Token refreshed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        },
+                        "expires_in": {
+                          "type": "string",
+                          "example": "24h"
+                        }
+                      }
                     }
                   }
                 }
@@ -305,6 +402,141 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Ubah password pengguna",
+        "description": "Endpoint untuk mengubah password pengguna yang sedang login",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "current_password",
+                  "new_password",
+                  "confirm_password"
+                ],
+                "properties": {
+                  "current_password": {
+                    "type": "string",
+                    "example": "oldpassword123",
+                    "description": "Password saat ini"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "example": "newpassword123",
+                    "description": "Password baru"
+                  },
+                  "confirm_password": {
+                    "type": "string",
+                    "example": "newpassword123",
+                    "description": "Konfirmasi password baru"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password berhasil diubah",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password changed successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Request reset password",
+        "description": "Endpoint untuk meminta reset password melalui email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com",
+                    "description": "Email pengguna yang akan direset passwordnya"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email reset password berhasil dikirim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset email sent successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -712,6 +944,166 @@
         }
       }
     },
+    "/api/public/promotions": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get promosi yang tersedia",
+        "description": "Endpoint untuk mendapatkan daftar promosi yang sedang aktif",
+        "responses": {
+          "200": {
+            "description": "Daftar promosi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Diskon Weekend"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Diskon 20% untuk booking weekend"
+                          },
+                          "code": {
+                            "type": "string",
+                            "example": "WEEKEND20"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "percentage",
+                              "fixed"
+                            ],
+                            "example": "percentage"
+                          },
+                          "value": {
+                            "type": "string",
+                            "example": "20.00"
+                          },
+                          "valid_from": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "valid_until": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/fields/{fieldId}/promotions": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get promosi untuk lapangan tertentu",
+        "description": "Endpoint untuk mendapatkan promosi yang berlaku untuk lapangan tertentu",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2024-12-01"
+            },
+            "description": "Tanggal booking"
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "schema": {
+              "type": "string",
+              "example": "10:00"
+            },
+            "description": "Waktu mulai booking"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promosi lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "applicable_fields": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/customer/profile": {
       "get": {
         "tags": [
@@ -752,6 +1144,80 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Update profil customer",
+        "description": "Endpoint untuk mengupdate profil customer yang sedang login",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe Updated",
+                    "description": "Nama lengkap customer"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.updated@example.com",
+                    "description": "Email customer"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "081234567890",
+                    "description": "Nomor telepon customer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profil berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Profile updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -1435,6 +1901,109 @@
         }
       }
     },
+    "/api/customer/notifications/count": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get jumlah notifikasi belum dibaca",
+        "description": "Endpoint untuk mendapatkan jumlah notifikasi yang belum dibaca",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jumlah notifikasi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "unread_count": {
+                          "type": "integer",
+                          "example": 5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/notifications/{id}/read": {
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Tandai notifikasi sebagai dibaca",
+        "description": "Endpoint untuk menandai notifikasi tertentu sebagai sudah dibaca",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID notifikasi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifikasi berhasil ditandai sebagai dibaca",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Notification marked as read"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/customer/bookings/{bookingId}/can-review": {
       "get": {
         "tags": [
@@ -1497,6 +2066,116 @@
                           "example": "Booking completed and not yet reviewed"
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites/{fieldId}": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Tambah lapangan ke favorit",
+        "description": "Endpoint untuk menambahkan lapangan ke daftar favorit customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan yang akan ditambahkan ke favorit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lapangan berhasil ditambahkan ke favorit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Field added to favorites"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Hapus lapangan dari favorit",
+        "description": "Endpoint untuk menghapus lapangan dari daftar favorit customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan yang akan dihapus dari favorit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lapangan berhasil dihapus dari favorit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Field removed from favorites"
                     }
                   }
                 }
@@ -1629,6 +2308,96 @@
         }
       }
     },
+    "/api/staff/kasir/payments/pending": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get pembayaran pending",
+        "description": "Endpoint untuk mendapatkan daftar pembayaran yang masih pending",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar pembayaran pending berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "payment_number": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "method": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "pending"
+                          },
+                          "booking_id": {
+                            "type": "integer"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/api/staff/kasir/payments/manual": {
       "post": {
         "tags": [
@@ -1736,6 +2505,98 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/payments/{id}/confirm": {
+      "put": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Konfirmasi pembayaran",
+        "description": "Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID pembayaran yang akan dikonfirmasi"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Pembayaran cash diterima",
+                    "description": "Catatan konfirmasi pembayaran"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pembayaran berhasil dikonfirmasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Payment confirmed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "completed"
+                        },
+                        "confirmed_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -2133,6 +2994,158 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/admin/settings": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua system settings",
+        "description": "Endpoint untuk mendapatkan semua pengaturan sistem",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_public": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua users",
+        "description": "Endpoint untuk mendapatkan semua users untuk management",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pengunjung",
+                "penyewa",
+                "staff_kasir",
+                "operator_lapangan",
+                "manajer_futsal",
+                "supervisor_sistem"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search by name or email"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
