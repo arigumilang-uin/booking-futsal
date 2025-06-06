@@ -493,6 +493,86 @@ router.put('/bookings/:id/status', updateBookingStatusForManager);
 router.get('/analytics', getBusinessAnalytics);
 
 /**
+ * @swagger
+ * /api/staff/manager/reports/revenue:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get revenue report 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan laporan revenue dengan filter tanggal
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Revenue report berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total_revenue:
+ *                       type: string
+ *                       example: "15000000.00"
+ *                     period:
+ *                       type: object
+ *                       properties:
+ *                         from:
+ *                           type: string
+ *                           format: date
+ *                         to:
+ *                           type: string
+ *                           format: date
+ *                     daily_breakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                           revenue:
+ *                             type: string
+ *                           bookings_count:
+ *                             type: integer
+ *                     payment_methods:
+ *                       type: object
+ *                       properties:
+ *                         cash:
+ *                           type: string
+ *                         transfer:
+ *                           type: string
+ *                         qris:
+ *                           type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/reports/revenue
  * @desc    Get revenue report
  * @access  Private (Manager, Supervisor)
@@ -516,6 +596,85 @@ router.get('/reports/revenue', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/manager/reports/bookings:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get bookings report 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan laporan booking dengan filter tanggal
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Bookings report berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total_bookings:
+ *                       type: integer
+ *                       example: 150
+ *                     period:
+ *                       type: object
+ *                       properties:
+ *                         from:
+ *                           type: string
+ *                           format: date
+ *                         to:
+ *                           type: string
+ *                           format: date
+ *                     status_breakdown:
+ *                       type: object
+ *                       properties:
+ *                         completed:
+ *                           type: integer
+ *                         pending:
+ *                           type: integer
+ *                         cancelled:
+ *                           type: integer
+ *                     field_utilization:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           field_name:
+ *                             type: string
+ *                           bookings_count:
+ *                             type: integer
+ *                           utilization_rate:
+ *                             type: number
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/reports/bookings
  * @desc    Get booking report
  * @access  Private (Manager, Supervisor)
@@ -539,6 +698,89 @@ router.get('/reports/bookings', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/manager/staff-performance:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get staff performance 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan metrics performa staff
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Staff performance metrics berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     period:
+ *                       type: object
+ *                       properties:
+ *                         start_date:
+ *                           type: string
+ *                           format: date
+ *                         end_date:
+ *                           type: string
+ *                           format: date
+ *                     staff_performance:
+ *                       type: object
+ *                       properties:
+ *                         kasir:
+ *                           type: object
+ *                           properties:
+ *                             total_transactions:
+ *                               type: integer
+ *                               example: 150
+ *                             total_amount:
+ *                               type: string
+ *                               example: "15000000.00"
+ *                             average_processing_time:
+ *                               type: number
+ *                               example: 2.5
+ *                         operator:
+ *                           type: object
+ *                           properties:
+ *                             total_bookings_handled:
+ *                               type: integer
+ *                               example: 200
+ *                             completion_rate:
+ *                               type: number
+ *                               example: 95.5
+ *                             customer_satisfaction:
+ *                               type: number
+ *                               example: 4.8
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/staff-performance
  * @desc    Get staff performance metrics
  * @access  Private (Manager, Supervisor)
