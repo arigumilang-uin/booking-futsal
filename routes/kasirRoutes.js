@@ -173,6 +173,68 @@ router.get('/payments', getAllPaymentsForKasir);
 router.get('/payments/pending', getPendingPayments);
 
 /**
+ * @swagger
+ * /api/staff/kasir/payments/{id}:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get detail pembayaran
+ *     description: Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID pembayaran
+ *     responses:
+ *       200:
+ *         description: Detail pembayaran berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     payment_number:
+ *                       type: string
+ *                     booking_id:
+ *                       type: integer
+ *                     amount:
+ *                       type: string
+ *                     method:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     customer_name:
+ *                       type: string
+ *                     field_name:
+ *                       type: string
+ *                     booking_date:
+ *                       type: string
+ *                       format: date
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     confirmed_at:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/staff/kasir/payments/:id
  * @desc    Get payment detail untuk kasir
  * @access  Private (Kasir, Manager, Supervisor)
@@ -382,6 +444,78 @@ router.post('/payments/debug', async (req, res) => {
 router.put('/payments/:id/confirm', confirmPayment);
 
 /**
+ * @swagger
+ * /api/staff/kasir/statistics:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get statistik pembayaran
+ *     description: Endpoint untuk mendapatkan statistik pembayaran untuk kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Statistik pembayaran berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total_payments:
+ *                       type: integer
+ *                       example: 150
+ *                     total_amount:
+ *                       type: string
+ *                       example: "15000000.00"
+ *                     completed_payments:
+ *                       type: integer
+ *                       example: 140
+ *                     pending_payments:
+ *                       type: integer
+ *                       example: 10
+ *                     payment_methods:
+ *                       type: object
+ *                       properties:
+ *                         cash:
+ *                           type: integer
+ *                         transfer:
+ *                           type: integer
+ *                         ewallet:
+ *                           type: integer
+ *                     daily_revenue:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                           amount:
+ *                             type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/statistics
  * @desc    Get payment statistics untuk kasir
  * @access  Private (Kasir, Manager, Supervisor)

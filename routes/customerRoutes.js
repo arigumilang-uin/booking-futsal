@@ -903,7 +903,133 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *
  */
 
-// REVIEW ROUTES
+/**
+ * @swagger
+ * /api/customer/reviews/{id}:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get detail review
+ *     description: Endpoint untuk mendapatkan detail review berdasarkan ID
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID review
+ *     responses:
+ *       200:
+ *         description: Detail review berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     field_name:
+ *                       type: string
+ *                     rating:
+ *                       type: integer
+ *                     comment:
+ *                       type: string
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *   put:
+ *     tags: [Customer]
+ *     summary: Update review
+ *     description: Endpoint untuk mengupdate review yang sudah dibuat
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID review
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
+ *               comment:
+ *                 type: string
+ *                 example: "Lapangan bagus, updated review"
+ *     responses:
+ *       200:
+ *         description: Review berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Review updated successfully"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *   delete:
+ *     tags: [Customer]
+ *     summary: Hapus review
+ *     description: Endpoint untuk menghapus review yang sudah dibuat
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID review
+ *     responses:
+ *       200:
+ *         description: Review berhasil dihapus
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Review deleted successfully"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ * // REVIEW ROUTES
 router.get('/reviews', getUserReviewsList);
 router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
@@ -1032,7 +1158,238 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  *
  */
 
-// FAVORITES ROUTES
+/**
+ * @swagger
+ * /api/customer/favorites/{fieldId}/toggle:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Toggle status favorit lapangan
+ *     description: Endpoint untuk toggle status favorit lapangan (add/remove)
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *     responses:
+ *       200:
+ *         description: Status favorit berhasil di-toggle
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field favorite status toggled"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_favorite:
+ *                       type: boolean
+ *                       example: true
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/favorites/{fieldId}/check:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Cek status favorit lapangan
+ *     description: Endpoint untuk mengecek apakah lapangan sudah difavoritkan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *     responses:
+ *       200:
+ *         description: Status favorit berhasil dicek
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_favorite:
+ *                       type: boolean
+ *                       example: true
+ *                     field_id:
+ *                       type: integer
+ *                       example: 1
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/favorites/availability:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get favorit dengan info ketersediaan
+ *     description: Endpoint untuk mendapatkan lapangan favorit dengan informasi ketersediaan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2024-12-01'
+ *         description: Tanggal untuk cek ketersediaan
+ *     responses:
+ *       200:
+ *         description: Favorit dengan ketersediaan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field_id:
+ *                         type: integer
+ *                       field_name:
+ *                         type: string
+ *                       availability:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/favorites/statistics:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get statistik favorit
+ *     description: Endpoint untuk mendapatkan statistik lapangan favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Statistik favorit berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     total_favorites:
+ *                       type: integer
+ *                       example: 5
+ *                     most_booked_favorite:
+ *                       type: object
+ *                     average_rating:
+ *                       type: number
+ *                       example: 4.5
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/favorites/count:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get jumlah favorit
+ *     description: Endpoint untuk mendapatkan jumlah lapangan favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Jumlah favorit berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     count:
+ *                       type: integer
+ *                       example: 5
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/recommendations:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get rekomendasi lapangan
+ *     description: Endpoint untuk mendapatkan rekomendasi lapangan berdasarkan preferensi customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Jumlah rekomendasi yang diinginkan
+ *     responses:
+ *       200:
+ *         description: Rekomendasi lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field_id:
+ *                         type: integer
+ *                       field_name:
+ *                         type: string
+ *                       rating:
+ *                         type: number
+ *                       recommendation_score:
+ *                         type: number
+ *                       reason:
+ *                         type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * // FAVORITES ROUTES
 router.get('/favorites', getFavoriteFields);
 router.post('/favorites/:fieldId', addFieldToFavorites);
 router.delete('/favorites/:fieldId', removeFieldFromFavorites);
@@ -1042,6 +1399,158 @@ router.get('/favorites/availability', getFavoritesWithAvailabilityInfo);
 router.get('/favorites/statistics', getFavoritesStatistics);
 router.get('/favorites/count', getFavoritesCountOnly);
 router.get('/recommendations', getRecommendations);
+
+/**
+ * @swagger
+ * /api/customer/promotions:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get promosi yang tersedia untuk customer
+ *     description: Endpoint untuk mendapatkan daftar promosi yang dapat digunakan customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Daftar promosi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       code:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ *                       valid_until:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/promotions/{code}:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get detail promosi berdasarkan kode
+ *     description: Endpoint untuk mendapatkan detail promosi berdasarkan kode promosi
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Kode promosi
+ *     responses:
+ *       200:
+ *         description: Detail promosi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                     value:
+ *                       type: string
+ *                     min_booking_amount:
+ *                       type: string
+ *                     valid_from:
+ *                       type: string
+ *                       format: date-time
+ *                     valid_until:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ * @swagger
+ * /api/customer/promotions/validate:
+ *   post:
+ *     tags: [Customer]
+ *     summary: Validasi kode promosi
+ *     description: Endpoint untuk memvalidasi kode promosi sebelum digunakan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [code]
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 example: "WEEKEND20"
+ *               booking_amount:
+ *                 type: number
+ *                 example: 100000
+ *               field_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Validasi promosi berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_valid:
+ *                       type: boolean
+ *                       example: true
+ *                     discount_amount:
+ *                       type: number
+ *                       example: 20000
+ *                     final_amount:
+ *                       type: number
+ *                       example: 80000
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
 
 // PROMOTION ROUTES
 router.get('/promotions', getAvailablePromotions);

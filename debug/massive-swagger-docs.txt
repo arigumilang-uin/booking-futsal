@@ -1,0 +1,1444 @@
+
+// 1. GET /api/admin/audit-logs
+/**
+ * @swagger
+ * /api/admin/audit-logs:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua audit logs
+ *     description: Endpoint untuk mendapatkan semua log audit sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 2. GET /api/admin/audit-logs/statistics
+/**
+ * @swagger
+ * /api/admin/audit-logs/statistics:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get statistik audit logs
+ *     description: Endpoint untuk mendapatkan statistik audit logs
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 3. GET /api/admin/audit-logs/:id
+/**
+ * @swagger
+ * /api/admin/audit-logs/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail audit log
+ *     description: Endpoint untuk mendapatkan detail audit log berdasarkan ID
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 4. DELETE /api/admin/audit-logs/cleanup
+/**
+ * @swagger
+ * /api/admin/audit-logs/cleanup:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Cleanup audit logs lama
+ *     description: Endpoint untuk membersihkan audit logs yang sudah lama
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 5. POST /api/admin/notifications/broadcast
+/**
+ * @swagger
+ * /api/admin/notifications/broadcast:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Broadcast notifikasi
+ *     description: Endpoint untuk broadcast notifikasi ke multiple users
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               title:
+                 type: string
+               message:
+                 type: string
+               user_ids:
+                 type: array
+ *     responses:
+ *       201:
+ *         description: Created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 6. GET /api/admin/notifications/statistics
+/**
+ * @swagger
+ * /api/admin/notifications/statistics:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get statistik notifikasi
+ *     description: Endpoint untuk mendapatkan statistik notifikasi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 7. DELETE /api/admin/notifications/:id
+/**
+ * @swagger
+ * /api/admin/notifications/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Hapus notifikasi
+ *     description: Endpoint untuk menghapus notifikasi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 8. PUT /api/admin/promotions/:id
+/**
+ * @swagger
+ * /api/admin/promotions/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update promosi
+ *     description: Endpoint untuk mengupdate promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               value:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 9. DELETE /api/admin/promotions/:id
+/**
+ * @swagger
+ * /api/admin/promotions/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Hapus promosi
+ *     description: Endpoint untuk menghapus promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 10. GET /api/admin/promotions/:id/usage
+/**
+ * @swagger
+ * /api/admin/promotions/{id}/usage:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get usage promosi
+ *     description: Endpoint untuk mendapatkan history penggunaan promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 11. GET /api/admin/promotions/analytics
+/**
+ * @swagger
+ * /api/admin/promotions/analytics:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get analytics promosi
+ *     description: Endpoint untuk mendapatkan analytics promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 12. GET /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail user
+ *     description: Endpoint untuk mendapatkan detail user berdasarkan ID
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 13. PUT /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update user
+ *     description: Endpoint untuk mengupdate data user
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               email:
+                 type: string
+               role:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 14. DELETE /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Deactivate user
+ *     description: Endpoint untuk menonaktifkan user (soft delete)
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 15. GET /api/admin/analytics/business
+/**
+ * @swagger
+ * /api/admin/analytics/business:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get business analytics
+ *     description: Endpoint untuk mendapatkan analytics bisnis
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 16. GET /api/admin/analytics/system
+/**
+ * @swagger
+ * /api/admin/analytics/system:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get system analytics
+ *     description: Endpoint untuk mendapatkan analytics sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 17. GET /api/admin/analytics/performance
+/**
+ * @swagger
+ * /api/admin/analytics/performance:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get performance metrics
+ *     description: Endpoint untuk mendapatkan metrics performa sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 18. GET /api/staff/kasir/payments/:id
+/**
+ * @swagger
+ * /api/staff/kasir/payments/{id}:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get detail pembayaran
+ *     description: Endpoint untuk mendapatkan detail pembayaran berdasarkan ID
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 19. GET /api/staff/kasir/statistics
+/**
+ * @swagger
+ * /api/staff/kasir/statistics:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get statistik pembayaran
+ *     description: Endpoint untuk mendapatkan statistik pembayaran kasir
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 20. GET /api/staff/kasir/daily-report
+/**
+ * @swagger
+ * /api/staff/kasir/daily-report:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get laporan harian
+ *     description: Endpoint untuk mendapatkan laporan harian kasir
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 21. GET /api/staff/kasir/bookings
+/**
+ * @swagger
+ * /api/staff/kasir/bookings:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get booking untuk kasir
+ *     description: Endpoint untuk mendapatkan daftar booking untuk kasir
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 22. GET /api/staff/kasir/bookings/:id
+/**
+ * @swagger
+ * /api/staff/kasir/bookings/{id}:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get detail booking kasir
+ *     description: Endpoint untuk mendapatkan detail booking untuk kasir
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 23. GET /api/staff/operator/bookings/:id
+/**
+ * @swagger
+ * /api/staff/operator/bookings/{id}:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get detail booking operator
+ *     description: Endpoint untuk mendapatkan detail booking untuk operator
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 24. PUT /api/staff/operator/bookings/:id/complete
+/**
+ * @swagger
+ * /api/staff/operator/bookings/{id}/complete:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Complete booking
+ *     description: Endpoint untuk menyelesaikan booking
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 25. GET /api/staff/operator/bookings/pending
+/**
+ * @swagger
+ * /api/staff/operator/bookings/pending:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get booking pending
+ *     description: Endpoint untuk mendapatkan booking yang pending
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 26. GET /api/staff/operator/fields/:field_id/bookings
+/**
+ * @swagger
+ * /api/staff/operator/fields/{field_id}/bookings:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get booking per lapangan
+ *     description: Endpoint untuk mendapatkan booking berdasarkan lapangan
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: field_id
+         required: true
+         schema:
+           type: integer
+         description: field_id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 27. PUT /api/staff/operator/fields/:id/status
+/**
+ * @swagger
+ * /api/staff/operator/fields/{id}/status:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Update status lapangan
+ *     description: Endpoint untuk mengupdate status lapangan
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 28. GET /api/staff/operator/schedule/today
+/**
+ * @swagger
+ * /api/staff/operator/schedule/today:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get jadwal hari ini
+ *     description: Endpoint untuk mendapatkan jadwal operator hari ini
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 29. GET /api/staff/operator/schedule/:date
+/**
+ * @swagger
+ * /api/staff/operator/schedule/{date}:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get jadwal berdasarkan tanggal
+ *     description: Endpoint untuk mendapatkan jadwal operator berdasarkan tanggal
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: date
+         required: true
+         schema:
+           type: integer
+         description: date parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 30. GET /api/staff/operator/statistics
+/**
+ * @swagger
+ * /api/staff/operator/statistics:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get statistik operator
+ *     description: Endpoint untuk mendapatkan statistik operator
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 31. GET /api/customer/booking-history
+/**
+ * @swagger
+ * /api/customer/booking-history:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get riwayat booking lengkap
+ *     description: Endpoint untuk mendapatkan riwayat booking lengkap customer
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 32. GET /api/customer/upcoming-bookings
+/**
+ * @swagger
+ * /api/customer/upcoming-bookings:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get booking mendatang
+ *     description: Endpoint untuk mendapatkan booking yang akan datang
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 33. GET /api/customer/fields
+/**
+ * @swagger
+ * /api/customer/fields:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get lapangan untuk customer
+ *     description: Endpoint untuk mendapatkan daftar lapangan untuk customer
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 34. PUT /api/customer/notifications/read-all
+/**
+ * @swagger
+ * /api/customer/notifications/read-all:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Tandai semua notifikasi dibaca
+ *     description: Endpoint untuk menandai semua notifikasi sebagai dibaca
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 35. DELETE /api/customer/notifications/:id
+/**
+ * @swagger
+ * /api/customer/notifications/{id}:
+ *   delete:
+ *     tags: [Customer]
+ *     summary: Hapus notifikasi
+ *     description: Endpoint untuk menghapus notifikasi customer
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 36. GET /api/customer/notifications/statistics
+/**
+ * @swagger
+ * /api/customer/notifications/statistics:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get statistik notifikasi
+ *     description: Endpoint untuk mendapatkan statistik notifikasi customer
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 37. GET /api/public/system-info
+/**
+ * @swagger
+ * /api/public/system-info:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get informasi sistem
+ *     description: Endpoint untuk mendapatkan informasi sistem publik
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */
+
+// 38. GET /api/public/database-status
+/**
+ * @swagger
+ * /api/public/database-status:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get status database
+ *     description: Endpoint untuk mengecek status database
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */
+
+// 39. GET /api/public/health
+/**
+ * @swagger
+ * /api/public/health:
+ *   get:
+ *     tags: [Public]
+ *     summary: Health check
+ *     description: Endpoint untuk health check sistem
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */
+
+// 40. GET /api/public/version
+/**
+ * @swagger
+ * /api/public/version:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get versi aplikasi
+ *     description: Endpoint untuk mendapatkan versi aplikasi
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */
+
+// 41. GET /api/public/field-types
+/**
+ * @swagger
+ * /api/public/field-types:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get tipe lapangan
+ *     description: Endpoint untuk mendapatkan daftar tipe lapangan
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */
+
+// 42. GET /api/public/field-locations
+/**
+ * @swagger
+ * /api/public/field-locations:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get lokasi lapangan
+ *     description: Endpoint untuk mendapatkan daftar lokasi lapangan
+
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+
+ */

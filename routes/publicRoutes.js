@@ -27,6 +27,60 @@ const { optionalAuth } = require('../middlewares/auth/authMiddleware');
 // =====================================================
 
 /**
+ * @swagger
+ * /api/public/system-info:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get informasi sistem
+ *     description: Endpoint untuk mendapatkan informasi sistem publik
+ *     responses:
+ *       200:
+ *         description: Informasi sistem berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     app_name:
+ *                       type: string
+ *                       example: "Enhanced Futsal Booking System"
+ *                     version:
+ *                       type: string
+ *                       example: "2.0.0"
+ *                     environment:
+ *                       type: string
+ *                       example: "production"
+ *                     server_time:
+ *                       type: string
+ *                       format: date-time
+ *                     timezone:
+ *                       type: string
+ *                       example: "Asia/Jakarta"
+ *                     features:
+ *                       type: object
+ *                       properties:
+ *                         role_based_access:
+ *                           type: boolean
+ *                           example: true
+ *                         auto_completion:
+ *                           type: boolean
+ *                           example: true
+ *                         notifications:
+ *                           type: boolean
+ *                           example: true
+ *                         reviews:
+ *                           type: boolean
+ *                           example: true
+ *                         promotions:
+ *                           type: boolean
+ *                           example: true
+ *
  * @route   GET /api/public/system-info
  * @desc    Get system information
  * @access  Public
@@ -34,6 +88,60 @@ const { optionalAuth } = require('../middlewares/auth/authMiddleware');
 router.get('/system-info', getSystemInfo);
 
 /**
+ * @swagger
+ * /api/public/database-status:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get status database
+ *     description: Endpoint untuk mengecek status database dan tabel
+ *     responses:
+ *       200:
+ *         description: Status database berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     database_connected:
+ *                       type: boolean
+ *                       example: true
+ *                     total_tables:
+ *                       type: integer
+ *                       example: 15
+ *                     missing_tables:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     existing_tables:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     migration_status:
+ *                       type: string
+ *                       example: "completed"
+ *                     last_check:
+ *                       type: string
+ *                       format: date-time
+ *       500:
+ *         description: Database connection error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Database connection failed"
+ *
  * @route   GET /api/public/database-status
  * @desc    Check database tables and migration status
  * @access  Public

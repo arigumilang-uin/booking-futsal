@@ -98,6 +98,48 @@ router.use(requireStaff);
 router.get('/dashboard', getOperatorDashboard);
 
 /**
+ * @swagger
+ * /api/staff/operator/fields:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get lapangan yang ditugaskan
+ *     description: Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Daftar lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                       current_bookings:
+ *                         type: integer
+ *                       today_revenue:
+ *                         type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/operator/fields
  * @desc    Get assigned fields untuk operator
  * @access  Private (Operator, Manager, Supervisor)
@@ -278,6 +320,91 @@ router.put('/bookings/:id/confirm', confirmBooking);
 router.put('/bookings/:id/complete', completeBooking);
 
 /**
+ * @swagger
+ * /api/staff/operator/bookings:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get semua booking untuk operator
+ *     description: Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status booking
+ *       - in: query
+ *         name: field_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan lapangan
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Daftar booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       booking_number:
+ *                         type: string
+ *                       field_name:
+ *                         type: string
+ *                       customer_name:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date
+ *                       start_time:
+ *                         type: string
+ *                       end_time:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                       total_amount:
+ *                         type: string
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/operator/bookings
  * @desc    Get all bookings for operator (assigned fields only)
  * @access  Private (Operator, Manager, Supervisor)

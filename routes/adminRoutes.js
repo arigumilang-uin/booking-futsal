@@ -209,6 +209,93 @@ router.put('/settings/:key/reset', requireAdmin, resetSettingToDefault);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/audit-logs:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua audit logs
+ *     description: Endpoint untuk mendapatkan semua log audit sistem
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan user ID
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan action (CREATE, UPDATE, DELETE)
+ *       - in: query
+ *         name: table_name
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama tabel
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Daftar audit logs berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       user_id:
+ *                         type: integer
+ *                       action:
+ *                         type: string
+ *                       table_name:
+ *                         type: string
+ *                       record_id:
+ *                         type: integer
+ *                       old_values:
+ *                         type: object
+ *                       new_values:
+ *                         type: object
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/audit-logs
  * @desc    Get all audit logs
  * @access  Admin (supervisor_sistem only)
@@ -287,6 +374,130 @@ router.get('/audit-logs/export', requireAdmin, exportAuditLogs);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/notifications:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua notifikasi
+ *     description: Endpoint untuk mendapatkan semua notifikasi sistem
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan user ID
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan tipe notifikasi
+ *     responses:
+ *       200:
+ *         description: Daftar notifikasi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       priority:
+ *                         type: string
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat notifikasi sistem
+ *     description: Endpoint untuk membuat notifikasi sistem baru
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, message]
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Maintenance Scheduled"
+ *               message:
+ *                 type: string
+ *                 example: "System maintenance will be performed tonight"
+ *               user_id:
+ *                 type: integer
+ *                 example: 123
+ *               type:
+ *                 type: string
+ *                 example: "system"
+ *               priority:
+ *                 type: string
+ *                 enum: [low, medium, high, urgent]
+ *                 example: "high"
+ *     responses:
+ *       201:
+ *         description: Notifikasi berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Notification created successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     title:
+ *                       type: string
+ *                     message:
+ *                       type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/notifications
  * @desc    Get all notifications
  * @access  Management (manajer_futsal+)
@@ -347,6 +558,147 @@ router.get('/notifications/user/:userId', requireManagement, getUserNotification
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/promotions:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua promosi
+ *     description: Endpoint untuk mendapatkan semua promosi untuk management
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, all]
+ *         description: Filter berdasarkan status promosi
+ *     responses:
+ *       200:
+ *         description: Daftar promosi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       code:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ *                       is_active:
+ *                         type: boolean
+ *                       usage_count:
+ *                         type: integer
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat promosi baru
+ *     description: Endpoint untuk membuat promosi baru
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, code, type, value]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Weekend Discount"
+ *               code:
+ *                 type: string
+ *                 example: "WEEKEND20"
+ *               description:
+ *                 type: string
+ *                 example: "20% discount for weekend bookings"
+ *               type:
+ *                 type: string
+ *                 enum: [percentage, fixed]
+ *                 example: "percentage"
+ *               value:
+ *                 type: string
+ *                 example: "20.00"
+ *               min_booking_amount:
+ *                 type: string
+ *                 example: "50000.00"
+ *               usage_limit:
+ *                 type: integer
+ *                 example: 100
+ *               valid_from:
+ *                 type: string
+ *                 format: date-time
+ *               valid_until:
+ *                 type: string
+ *                 format: date-time
+ *               applicable_fields:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2, 3]
+ *     responses:
+ *       201:
+ *         description: Promosi berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Promotion created successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/promotions
  * @desc    Get all promotions
  * @access  Management (manajer_futsal+)
