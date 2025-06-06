@@ -111,6 +111,69 @@ router.use(requireManagement);
 router.get('/dashboard', getManagerDashboard);
 
 /**
+ * @swagger
+ * /api/staff/manager/users:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get semua users untuk manager
+ *     description: Endpoint untuk mendapatkan daftar semua users dengan filter
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [pengunjung, penyewa, staff_kasir, operator_lapangan, manajer_futsal, supervisor_sistem]
+ *         description: Filter berdasarkan role
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nama atau email
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter berdasarkan status aktif
+ *     responses:
+ *       200:
+ *         description: Daftar users berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/users
  * @desc    Get all users untuk management
  * @access  Private (Manager, Supervisor)
@@ -137,6 +200,60 @@ router.put('/users/:id/role', updateUserRoleByManager);
 router.put('/users/:id/status', updateUserStatusByManager);
 
 /**
+ * @swagger
+ * /api/staff/manager/fields:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get semua lapangan untuk manager
+ *     description: Endpoint untuk mendapatkan daftar semua lapangan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Daftar lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Lapangan A"
+ *                       type:
+ *                         type: string
+ *                         example: "Futsal Indoor"
+ *                       capacity:
+ *                         type: integer
+ *                         example: 10
+ *                       price_per_hour:
+ *                         type: string
+ *                         example: "100000.00"
+ *                       is_active:
+ *                         type: boolean
+ *                         example: true
+ *                       rating:
+ *                         type: number
+ *                         example: 4.5
+ *                       total_bookings:
+ *                         type: integer
+ *                         example: 150
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/fields
  * @desc    Get all fields untuk management
  * @access  Private (Manager, Supervisor)

@@ -953,6 +953,144 @@
         }
       }
     },
+    "/api/public/field-types": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get tipe lapangan",
+        "description": "Endpoint untuk mendapatkan daftar tipe lapangan yang tersedia",
+        "responses": {
+          "200": {
+            "description": "Daftar tipe lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Futsal Indoor"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Lapangan futsal indoor dengan rumput sintetis"
+                          },
+                          "price_per_hour": {
+                            "type": "string",
+                            "example": "100000.00"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/health": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Health check",
+        "description": "Endpoint untuk health check sistem",
+        "responses": {
+          "200": {
+            "description": "Sistem berjalan dengan baik",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API is running"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "uptime": {
+                      "type": "number",
+                      "example": 3600.5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/version": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get versi aplikasi",
+        "description": "Endpoint untuk mendapatkan versi aplikasi dan informasi build",
+        "responses": {
+          "200": {
+            "description": "Informasi versi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string",
+                          "example": "2.0.0"
+                        },
+                        "build": {
+                          "type": "string",
+                          "example": "20241206"
+                        },
+                        "environment": {
+                          "type": "string",
+                          "example": "production"
+                        },
+                        "node_version": {
+                          "type": "string",
+                          "example": "18.17.0"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/public/fields/{fieldId}/reviews": {
       "get": {
         "tags": [
@@ -5411,6 +5549,165 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get detail user",
+        "description": "Endpoint untuk mendapatkan detail user berdasarkan ID",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail user berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update user",
+        "description": "Endpoint untuk mengupdate data user",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe Updated"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.updated@example.com"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "081234567890"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "pengunjung",
+                      "penyewa",
+                      "staff_kasir",
+                      "operator_lapangan",
+                      "manajer_futsal",
+                      "supervisor_sistem"
+                    ],
+                    "example": "penyewa"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
