@@ -245,7 +245,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Get profil pengguna",
+        "summary": "Get profil pengguna 🔵 AUTHENTICATED",
         "description": "Endpoint untuk mendapatkan profil pengguna yang sedang login",
         "security": [
           {
@@ -286,7 +286,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Refresh JWT token",
+        "summary": "Refresh JWT token 🔵 AUTHENTICATED",
         "description": "Endpoint untuk memperbarui JWT token yang akan expired",
         "security": [
           {
@@ -364,7 +364,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Mendapatkan daftar role sistem",
+        "summary": "Mendapatkan daftar role sistem ⚪ PUBLIC",
         "description": "Endpoint untuk mendapatkan semua role yang tersedia dalam sistem enhanced 6-level hierarchy",
         "responses": {
           "200": {
@@ -434,7 +434,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Ubah password pengguna",
+        "summary": "Ubah password pengguna 🔵 AUTHENTICATED",
         "description": "Endpoint untuk mengubah password pengguna yang sedang login",
         "security": [
           {
@@ -511,7 +511,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Request reset password",
+        "summary": "Request reset password ⚪ PUBLIC",
         "description": "Endpoint untuk meminta reset password melalui email",
         "requestBody": {
           "required": true,
@@ -723,7 +723,7 @@
     },
     "/api/public/fields": {
       "get": {
-        "summary": "Mendapatkan daftar lapangan yang tersedia",
+        "summary": "Mendapatkan daftar lapangan yang tersedia ⚪ PUBLIC",
         "description": "Endpoint publik untuk mendapatkan semua lapangan futsal dengan informasi lengkap",
         "tags": [
           "Public"
@@ -825,7 +825,7 @@
         "tags": [
           "Public"
         ],
-        "summary": "Get detail lapangan",
+        "summary": "Get detail lapangan ⚪ PUBLIC",
         "description": "Endpoint untuk mendapatkan detail lengkap lapangan berdasarkan ID",
         "parameters": [
           {
@@ -869,7 +869,7 @@
         "tags": [
           "Public"
         ],
-        "summary": "Cek ketersediaan lapangan",
+        "summary": "Cek ketersediaan lapangan ⚪ PUBLIC",
         "description": "Endpoint untuk mengecek ketersediaan lapangan pada tanggal tertentu",
         "parameters": [
           {
@@ -1673,7 +1673,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Get daftar booking customer",
+        "summary": "Get daftar booking customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan semua booking milik customer yang sedang login",
         "security": [
           {
@@ -1754,7 +1754,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Get riwayat booking customer",
+        "summary": "Get riwayat booking customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan riwayat booking customer dengan pagination dan filter",
         "security": [
           {
@@ -1853,7 +1853,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Get detail booking customer",
+        "summary": "Get detail booking customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan detail booking berdasarkan ID",
         "security": [
           {
@@ -3609,7 +3609,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get pembayaran pending",
+        "summary": "Get pembayaran pending 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar pembayaran yang masih pending",
         "security": [
           {
@@ -3699,7 +3699,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get detail pembayaran",
+        "summary": "Get detail pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir",
         "security": [
           {
@@ -6737,6 +6737,101 @@
             "$ref": "#/components/responses/NotFound"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete lapangan 🟡 MANAGEMENT",
+        "description": "Endpoint untuk menghapus lapangan (soft delete)\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan yang akan dihapus"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lapangan berhasil dihapus (soft delete)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Field deleted successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Lapangan A"
+                        },
+                        "is_active": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "deleted_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Management yang dapat menghapus lapangan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Management level required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
       }
     },
     "/api/admin/bookings": {
@@ -6928,7 +7023,7 @@
         "tags": [
           "Enhanced Features"
         ],
-        "summary": "Get enhanced features overview",
+        "summary": "Get enhanced features overview ⚪ PUBLIC",
         "description": "Endpoint untuk mendapatkan overview fitur-fitur enhanced sistem",
         "responses": {
           "200": {
@@ -6988,7 +7083,7 @@
         "tags": [
           "Enhanced Features"
         ],
-        "summary": "Get detailed enhanced features",
+        "summary": "Get detailed enhanced features ⚪ PUBLIC",
         "description": "Endpoint untuk mendapatkan daftar detail fitur-fitur enhanced",
         "responses": {
           "200": {

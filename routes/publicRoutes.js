@@ -397,7 +397,7 @@ router.get('/fields/:id/availability',
  * /api/public/field-types:
  *   get:
  *     tags: [Public]
- *     summary: Get tipe lapangan
+ *     summary: Get tipe lapangan ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan daftar tipe lapangan yang tersedia
  *     responses:
  *       200:
@@ -452,7 +452,7 @@ router.get('/field-locations',
  * /api/public/health:
  *   get:
  *     tags: [Public]
- *     summary: Health check
+ *     summary: Health check ⚪ PUBLIC
  *     description: Endpoint untuk health check sistem
  *     responses:
  *       200:
@@ -494,7 +494,7 @@ router.get('/health', (req, res) => {
  * /api/public/version:
  *   get:
  *     tags: [Public]
- *     summary: Get versi aplikasi
+ *     summary: Get versi aplikasi ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan versi aplikasi dan informasi build
  *     responses:
  *       200:
@@ -562,7 +562,7 @@ router.get('/app-config', getApplicationConfig);
  * /api/public/fields/{fieldId}/reviews:
  *   get:
  *     tags: [Public]
- *     summary: Get review lapangan
+ *     summary: Get review lapangan ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan daftar review lapangan dari customer
  *     parameters:
  *       - in: path

@@ -508,6 +508,84 @@ router.get('/analytics', getSystemAnalytics);
 router.get('/audit-logs', getAuditLogs);
 
 /**
+ * @swagger
+ * /api/staff/supervisor/system-config:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get system configuration 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan konfigurasi sistem
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: System configuration berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     app_name:
+ *                       type: string
+ *                       example: "Enhanced Futsal Booking System"
+ *                     version:
+ *                       type: string
+ *                       example: "2.0.0"
+ *                     environment:
+ *                       type: string
+ *                       example: "production"
+ *                     database:
+ *                       type: object
+ *                       properties:
+ *                         host:
+ *                           type: string
+ *                         port:
+ *                           type: integer
+ *                         name:
+ *                           type: string
+ *                     features:
+ *                       type: object
+ *                       properties:
+ *                         auto_completion:
+ *                           type: boolean
+ *                         notifications:
+ *                           type: boolean
+ *                         audit_logs:
+ *                           type: boolean
+ *                     limits:
+ *                       type: object
+ *                       properties:
+ *                         max_bookings_per_day:
+ *                           type: integer
+ *                         max_concurrent_users:
+ *                           type: integer
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/system-config
  * @desc    Get system configuration
  * @access  Private (Supervisor only)
