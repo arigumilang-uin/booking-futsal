@@ -34,7 +34,7 @@ router.use(requireStaff);
  * @swagger
  * /api/staff/kasir/payments:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get daftar pembayaran untuk kasir 🟢 STAFF
  *     description: Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir
  *     security:
@@ -112,7 +112,7 @@ router.get('/payments', getAllPaymentsForKasir);
  * @swagger
  * /api/staff/kasir/payments/pending:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get pembayaran pending 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar pembayaran yang masih pending
  *     security:
@@ -176,7 +176,7 @@ router.get('/payments/pending', getPendingPayments);
  * @swagger
  * /api/staff/kasir/payments/{id}:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get detail pembayaran 🟢 STAFF
  *     description: Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir
  *     security:
@@ -253,7 +253,7 @@ router.get('/pending-payments', getPendingPayments);
  * @swagger
  * /api/staff/kasir/payments/manual:
  *   post:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Proses pembayaran manual 🟢 STAFF
  *     description: Endpoint untuk memproses pembayaran manual (cash, transfer)
  *     security:
@@ -379,7 +379,7 @@ router.post('/payments/debug', async (req, res) => {
  * @swagger
  * /api/staff/kasir/payments/{id}/confirm:
  *   put:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Konfirmasi pembayaran 🟢 STAFF
  *     description: Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima
  *     security:
@@ -447,7 +447,7 @@ router.put('/payments/:id/confirm', confirmPayment);
  * @swagger
  * /api/staff/kasir/statistics:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get statistik pembayaran 🟢 STAFF
  *     description: Endpoint untuk mendapatkan statistik pembayaran untuk kasir
  *     security:
@@ -527,7 +527,7 @@ router.get('/statistics', getPaymentStatsForKasir);
  * @swagger
  * /api/staff/kasir/daily-report:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get daily cash report 🟢 STAFF
  *     description: Endpoint untuk mendapatkan laporan kas harian untuk kasir
  *     security:
@@ -618,7 +618,7 @@ router.get('/bookings/:id', getBookingDetailForKasir);
  * @swagger
  * /api/staff/kasir/dashboard:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get dashboard kasir 🟢 STAFF
  *     description: Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran
  *     security:
@@ -737,7 +737,7 @@ router.get('/dashboard', async (req, res) => {
  * @swagger
  * /api/staff/kasir/payment-methods:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Kasir]
  *     summary: Get metode pembayaran yang tersedia 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir
  *     security:

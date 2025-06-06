@@ -29,7 +29,7 @@ router.use(requireAdmin);
  * @swagger
  * /api/staff/supervisor/dashboard:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get dashboard supervisor 🔴 SUPERVISOR ONLY
  *     description: Endpoint untuk mendapatkan dashboard supervisor dengan system overview
  *     security:
@@ -114,7 +114,7 @@ router.get('/dashboard', getSupervisorDashboard);
  * @swagger
  * /api/staff/supervisor/system-health:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get system health 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan status kesehatan sistem dan monitoring
@@ -192,7 +192,7 @@ router.get('/system-health', getSystemHealth);
  * @swagger
  * /api/staff/supervisor/staff:
  *   post:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Create staff user 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk membuat user staff baru
@@ -278,7 +278,7 @@ router.post('/staff', createStaffUser);
  * @swagger
  * /api/staff/supervisor/users:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get semua users 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan daftar semua users dengan full access
@@ -396,7 +396,7 @@ router.get('/analytics', getSystemAnalytics);
  * @swagger
  * /api/staff/supervisor/audit-logs:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get audit logs 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan audit logs sistem
@@ -511,7 +511,7 @@ router.get('/audit-logs', getAuditLogs);
  * @swagger
  * /api/staff/supervisor/system-config:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get system configuration 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan konfigurasi sistem
@@ -628,7 +628,7 @@ router.get('/system-config', async (req, res) => {
  * @swagger
  * /api/staff/supervisor/system-maintenance:
  *   post:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Trigger system maintenance 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk memicu tugas maintenance sistem
@@ -751,7 +751,7 @@ router.post('/system-maintenance', async (req, res) => {
  * @swagger
  * /api/staff/supervisor/database-stats:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get database statistics 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan statistik database yang detail
@@ -848,7 +848,7 @@ router.get('/database-stats', async (req, res) => {
  * @swagger
  * /api/staff/supervisor/error-logs:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Supervisor]
  *     summary: Get system error logs 🔴 SUPERVISOR ONLY
  *     description: |
  *       Endpoint untuk mendapatkan log error sistem

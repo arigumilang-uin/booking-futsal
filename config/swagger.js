@@ -293,12 +293,24 @@ const swaggerOptions = {
         description: 'Endpoint untuk customer (penyewa) - Level 2'
       },
       {
-        name: 'Staff',
-        description: 'Endpoint untuk staff (kasir, operator, manager) - Level 3-5'
+        name: 'Staff Kasir',
+        description: 'Endpoint untuk staff kasir - Level 3'
+      },
+      {
+        name: 'Staff Operator',
+        description: 'Endpoint untuk staff operator lapangan - Level 4'
+      },
+      {
+        name: 'Staff Manager',
+        description: 'Endpoint untuk staff manager futsal - Level 5'
+      },
+      {
+        name: 'Staff Supervisor',
+        description: 'Endpoint untuk staff supervisor sistem - Level 6'
       },
       {
         name: 'Admin',
-        description: 'Endpoint untuk administrator sistem - Level 6'
+        description: 'Endpoint untuk administrator sistem - Mixed Levels (Management + Supervisor)'
       },
       {
         name: 'Enhanced Features',

@@ -31,7 +31,7 @@ router.use(requireStaff);
  * @swagger
  * /api/staff/operator/dashboard:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Get dashboard operator lapangan 🟢 STAFF
  *     description: Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola
  *     security:
@@ -101,7 +101,7 @@ router.get('/dashboard', getOperatorDashboard);
  * @swagger
  * /api/staff/operator/fields:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Get lapangan yang ditugaskan 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator
  *     security:
@@ -242,7 +242,7 @@ router.get('/schedule/:date', async (req, res) => {
  * @swagger
  * /api/staff/operator/bookings/{id}/confirm:
  *   put:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Konfirmasi booking 🟢 STAFF
  *     description: Endpoint untuk mengkonfirmasi booking yang pending
  *     security:
@@ -314,7 +314,7 @@ router.put('/bookings/:id/confirm', confirmBooking);
  * @swagger
  * /api/staff/operator/bookings/{id}/complete:
  *   put:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Complete booking 🟢 STAFF
  *     description: Endpoint untuk menyelesaikan booking setelah selesai dimainkan
  *     security:
@@ -388,7 +388,7 @@ router.put('/bookings/:id/complete', completeBooking);
  * @swagger
  * /api/staff/operator/bookings:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Get semua booking untuk operator 🟢 STAFF
  *     description: Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)
  *     security:
@@ -489,7 +489,7 @@ router.get('/bookings/:id', getBookingDetailForOperator);
  * @swagger
  * /api/staff/operator/bookings/pending:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Operator]
  *     summary: Get pending bookings 🟢 STAFF
  *     description: Endpoint untuk mendapatkan booking yang pending untuk operator
  *     security:

@@ -33,7 +33,7 @@ router.use(requireManagement);
  * @swagger
  * /api/staff/manager/dashboard:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get dashboard manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan dashboard manager dengan business metrics
  *     security:
@@ -114,7 +114,7 @@ router.get('/dashboard', getManagerDashboard);
  * @swagger
  * /api/staff/manager/users:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get semua users untuk manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan daftar semua users dengan filter
  *     security:
@@ -203,7 +203,7 @@ router.put('/users/:id/status', updateUserStatusByManager);
  * @swagger
  * /api/staff/manager/fields:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get semua lapangan untuk manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan daftar semua lapangan
  *     security:
@@ -281,7 +281,7 @@ router.put('/fields/:id', updateFieldByManager);
  * @swagger
  * /api/staff/manager/bookings:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get semua booking untuk manager 🟡 MANAGEMENT
  *     description: |
  *       Endpoint untuk mendapatkan daftar semua booking dengan filter
@@ -391,7 +391,7 @@ router.put('/bookings/:id/status', updateBookingStatusForManager);
  * @swagger
  * /api/staff/manager/analytics:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get business analytics 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan business analytics untuk manager
  *     security:
@@ -496,7 +496,7 @@ router.get('/analytics', getBusinessAnalytics);
  * @swagger
  * /api/staff/manager/reports/revenue:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get revenue report 🟡 MANAGEMENT
  *     description: |
  *       Endpoint untuk mendapatkan laporan revenue dengan filter tanggal
@@ -599,7 +599,7 @@ router.get('/reports/revenue', async (req, res) => {
  * @swagger
  * /api/staff/manager/reports/bookings:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get bookings report 🟡 MANAGEMENT
  *     description: |
  *       Endpoint untuk mendapatkan laporan booking dengan filter tanggal
@@ -701,7 +701,7 @@ router.get('/reports/bookings', async (req, res) => {
  * @swagger
  * /api/staff/manager/staff-performance:
  *   get:
- *     tags: [Staff]
+ *     tags: [Staff Manager]
  *     summary: Get staff performance 🟡 MANAGEMENT
  *     description: |
  *       Endpoint untuk mendapatkan metrics performa staff

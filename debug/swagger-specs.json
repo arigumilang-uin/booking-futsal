@@ -7003,7 +7003,7 @@
           "Admin"
         ],
         "summary": "Get semua users 🟡 MANAGEMENT",
-        "description": "Endpoint untuk mendapatkan semua users untuk management",
+        "description": "Endpoint untuk mendapatkan semua users untuk management\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) - Dapat melihat SEMUA users\n- ✅ **Manager Futsal** (manajer_futsal) - Hanya dapat melihat users dengan role di BAWAH mereka\n- ❌ Staff lainnya tidak dapat mengakses\n\n**🛡️ ROLE HIERARCHY PROTECTION:**\n- Manager TIDAK dapat melihat/mengelola Supervisor\n- Setiap role hanya dapat mengelola role di bawah level mereka\n",
         "security": [
           {
             "bearerAuth": []
@@ -7094,7 +7094,7 @@
           "Admin"
         ],
         "summary": "Get detail user 🟡 MANAGEMENT",
-        "description": "Endpoint untuk mendapatkan detail user berdasarkan ID",
+        "description": "Endpoint untuk mendapatkan detail user berdasarkan ID\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) - Dapat melihat SEMUA users\n- ✅ **Manager Futsal** (manajer_futsal) - Hanya dapat melihat users dengan role di BAWAH mereka\n- ❌ Staff lainnya tidak dapat mengakses\n\n**🛡️ ROLE HIERARCHY PROTECTION:**\n- Manager TIDAK dapat melihat detail Supervisor\n- Error 403 jika mencoba akses user dengan role lebih tinggi\n",
         "security": [
           {
             "bearerAuth": []
