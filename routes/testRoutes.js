@@ -1,6 +1,7 @@
 // routes/testRoutes.js - Minimal Routes for Testing
 const express = require('express');
 const router = express.Router();
+const { getTimezoneDebugInfo, getSafeTimezoneConfig, formatTimeForLogging } = require('../utils/timezoneUtils');
 
 // =====================================================
 // MINIMAL TEST ROUTES
@@ -229,7 +230,7 @@ router.get('/environment', (req, res) => {
  */
 router.get('/memory', (req, res) => {
   const memoryUsage = process.memoryUsage();
-  
+
   res.json({
     success: true,
     data: {
@@ -243,6 +244,47 @@ router.get('/memory', (req, res) => {
       pid: process.pid
     }
   });
+});
+
+/**
+ * @route   GET /api/test/timezone
+ * @desc    Test timezone configuration and cron job compatibility
+ * @access  Public
+ */
+router.get('/timezone', (req, res) => {
+  try {
+    const debugInfo = getTimezoneDebugInfo();
+    const config = getSafeTimezoneConfig();
+
+    res.json({
+      success: true,
+      message: 'Timezone configuration test',
+      data: {
+        current_config: config,
+        debug_info: debugInfo,
+        formatted_time: formatTimeForLogging(new Date(), { includeTimezone: true }),
+        cron_compatibility: {
+          timezone: config.timezone,
+          is_safe_for_production: config.isProduction ? config.timezone === 'UTC' : true,
+          recommendation: config.isProduction
+            ? 'Using UTC timezone for production safety'
+            : 'Development environment - any timezone acceptable'
+        },
+        test_timestamps: {
+          utc_now: new Date().toISOString(),
+          local_now: new Date().toString(),
+          timestamp: Date.now(),
+          timezone_offset_minutes: new Date().getTimezoneOffset()
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Timezone test failed',
+      error: error.message
+    });
+  }
 });
 
 module.exports = router;

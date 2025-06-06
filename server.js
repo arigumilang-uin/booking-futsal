@@ -14,6 +14,7 @@ const cron = require('node-cron');
 const { updateCompletedBookings } = require('./utils/updateCompletedBookings');
 const { logger } = require('./utils/logger');
 const { startMetricsCollection } = require('./utils/performanceMonitor');
+const { getSafeTimezoneConfig, formatTimeForLogging, getTimezoneDebugInfo } = require('./utils/timezoneUtils');
 
 const PORT = process.env.PORT || 5000;
 
@@ -50,46 +51,91 @@ const server = app.listen(PORT, () => {
 const cronSchedule = process.env.AUTO_COMPLETION_SCHEDULE || '*/30 * * * *';
 const enableAutoCron = process.env.ENABLE_AUTO_COMPLETION !== 'false';
 
+// Get safe timezone configuration using utility
+const timezoneConfig = getSafeTimezoneConfig();
+
+// Log timezone debug info for troubleshooting
+if (process.env.NODE_ENV === 'production') {
+  const debugInfo = getTimezoneDebugInfo();
+  logger.info('Timezone configuration for production', debugInfo);
+}
+
 if (enableAutoCron) {
   logger.info('Auto-completion cron job scheduled', {
     schedule: cronSchedule,
-    timezone: process.env.TZ || 'Asia/Jakarta'
+    timezone: timezoneConfig.timezone,
+    displayTimezone: timezoneConfig.displayTimezone,
+    offset: timezoneConfig.offset,
+    environment: process.env.NODE_ENV || 'development',
+    isProduction: timezoneConfig.isProduction
   });
-  console.log(`🕒 Auto-completion cron job scheduled: ${cronSchedule}`);
+  console.log(`🕒 Auto-completion cron job scheduled: ${cronSchedule} (${timezoneConfig.timezone})`);
 
-  cron.schedule(cronSchedule, async () => {
-    const startTime = Date.now();
-    try {
-      logger.info('Starting auto-completion check');
-      const updated = await updateCompletedBookings();
-      const duration = Date.now() - startTime;
+  if (timezoneConfig.isProduction) {
+    console.log(`📍 Display timezone: ${timezoneConfig.displayTimezone} (${timezoneConfig.offset})`);
+  }
 
-      if (updated.length > 0) {
-        logger.business('Auto-completion completed', {
-          bookingsCompleted: updated.length,
+  try {
+    cron.schedule(cronSchedule, async () => {
+      const startTime = Date.now();
+      try {
+        logger.info('Starting auto-completion check', {
+          timestamp: formatTimeForLogging(new Date(), { includeTimezone: true }),
+          timezone: timezoneConfig.timezone,
+          displayTimezone: timezoneConfig.displayTimezone
+        });
+
+        const updated = await updateCompletedBookings();
+        const duration = Date.now() - startTime;
+
+        if (updated.length > 0) {
+          logger.business('Auto-completion completed', {
+            bookingsCompleted: updated.length,
+            duration,
+            bookingIds: updated.map(b => b.id),
+            timestamp: new Date().toISOString()
+          });
+          console.log(`[CRON] ✅ ${updated.length} booking(s) auto-completed successfully`);
+        } else {
+          logger.info('Auto-completion check completed - no bookings to complete', {
+            duration,
+            timestamp: new Date().toISOString()
+          });
+          console.log('[CRON] ℹ️ No bookings to complete at this time');
+        }
+      } catch (err) {
+        const duration = Date.now() - startTime;
+        logger.error('Auto-completion error', {
+          error: err.message,
+          stack: err.stack,
           duration,
-          bookingIds: updated.map(b => b.id)
+          timestamp: new Date().toISOString()
         });
-        console.log(`[CRON] ✅ ${updated.length} booking(s) auto-completed successfully`);
-      } else {
-        logger.info('Auto-completion check completed - no bookings to complete', {
-          duration
-        });
-        console.log('[CRON] ℹ️ No bookings to complete at this time');
+        console.error('[CRON] ❌ Auto-completion error:', err);
       }
-    } catch (err) {
-      const duration = Date.now() - startTime;
-      logger.error('Auto-completion error', {
-        error: err.message,
-        stack: err.stack,
-        duration
-      });
-      console.error('[CRON] ❌ Auto-completion error:', err);
-    }
-  }, {
-    scheduled: true,
-    timezone: process.env.TZ || 'Asia/Jakarta'
-  });
+    }, {
+      scheduled: true,
+      timezone: timezoneConfig.timezone
+    });
+
+    logger.info('Cron job initialized successfully', {
+      schedule: cronSchedule,
+      timezone: timezoneConfig.timezone
+    });
+
+  } catch (cronError) {
+    logger.error('Failed to initialize cron job', {
+      error: cronError.message,
+      stack: cronError.stack,
+      schedule: cronSchedule,
+      timezone: timezoneConfig.timezone
+    });
+    console.error('❌ Failed to initialize cron job:', cronError.message);
+
+    // Fallback: disable auto-completion if cron fails
+    logger.warn('Auto-completion disabled due to cron initialization failure');
+    console.log('⚠️ Auto-completion disabled due to cron initialization failure');
+  }
 } else {
   logger.warn('Auto-completion cron job disabled via environment variable');
   console.log('⏸️ Auto-completion cron job disabled via environment variable');

@@ -94,8 +94,21 @@ const REQUIRED_ENV_VARS = {
   TZ: {
     required: false,
     type: 'string',
-    default: 'Asia/Jakarta',
-    description: 'Timezone aplikasi'
+    default: 'UTC',
+    description: 'Timezone aplikasi (UTC untuk production, Asia/Jakarta untuk development)',
+    validator: (value) => {
+      // Allow any timezone in development, but warn about potential issues
+      if (process.env.NODE_ENV !== 'production') {
+        return true;
+      }
+
+      // In production, recommend UTC to avoid timezone parsing issues
+      if (value !== 'UTC' && value !== 'GMT') {
+        console.warn(`⚠️ Warning: Timezone '${value}' might cause issues in production. Consider using 'UTC'.`);
+      }
+
+      return true;
+    }
   }
 };
 
