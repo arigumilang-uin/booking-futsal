@@ -208,7 +208,8 @@ const refreshToken = async (req, res) => {
     const user = await getUserByEmail(req.user.email);
     if (!user || !user.is_active) {
       return res.status(401).json({
-        error: 'User not found or inactive'
+        success: false,
+        message: 'User not found or inactive'
       });
     }
 
@@ -218,23 +219,37 @@ const refreshToken = async (req, res) => {
       role: user.role
     });
 
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    };
 
+    res.cookie('token', token, cookieOptions);
+
+    // Return consistent response with token data
     res.json({
       success: true,
       message: 'Token refreshed successfully',
-      token: process.env.NODE_ENV === 'development' ? token : undefined
+      data: {
+        token: token, // Always return token for frontend usage
+        expires_in: '7d',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      }
     });
 
   } catch (error) {
     console.error('Refresh token error:', error);
     res.status(500).json({
-      error: 'Failed to refresh token'
+      success: false,
+      message: 'Failed to refresh token',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };
