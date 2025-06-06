@@ -1120,9 +1120,160 @@ router.get('/notifications/statistics', getNotificationStatistics);
 
 // REVIEW ROUTES
 router.get('/reviews', getUserReviewsList);
+
+/**
+ * @swagger
+ * /api/customer/reviews:
+ *   post:
+ *     tags: [Customer]
+ *     summary: Buat review baru 🔵 CUSTOMER
+ *     description: Endpoint untuk membuat review lapangan setelah booking selesai
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [field_id, booking_id, rating, comment]
+ *             properties:
+ *               field_id:
+ *                 type: integer
+ *                 example: 1
+ *               booking_id:
+ *                 type: integer
+ *                 example: 123
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *               comment:
+ *                 type: string
+ *                 example: "Lapangan sangat bagus dan bersih"
+ *     responses:
+ *       201:
+ *         description: Review berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Review created successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Review'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
 router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
+
+/**
+ * @swagger
+ * /api/customer/reviews/{id}:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Update review 🔵 CUSTOMER
+ *     description: Endpoint untuk mengupdate review yang sudah dibuat
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID review yang akan diupdate
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
+ *               comment:
+ *                 type: string
+ *                 example: "Update: Lapangan bagus tapi agak ramai"
+ *     responses:
+ *       200:
+ *         description: Review berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Review updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Review'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
 router.put('/reviews/:id', updateReview);
+
+/**
+ * @swagger
+ * /api/customer/reviews/{id}:
+ *   delete:
+ *     tags: [Customer]
+ *     summary: Hapus review 🔵 CUSTOMER
+ *     description: Endpoint untuk menghapus review yang sudah dibuat
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID review yang akan dihapus
+ *     responses:
+ *       200:
+ *         description: Review berhasil dihapus
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Review deleted successfully"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
 router.delete('/reviews/:id', deleteReview);
 /**
  * @swagger
@@ -1483,6 +1634,43 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
 // FAVORITES ROUTES
 router.get('/favorites', getFavoriteFields);
 router.post('/favorites/:fieldId', addFieldToFavorites);
+
+/**
+ * @swagger
+ * /api/customer/favorites/{fieldId}:
+ *   delete:
+ *     tags: [Customer]
+ *     summary: Hapus lapangan dari favorit 🔵 CUSTOMER
+ *     description: Endpoint untuk menghapus lapangan dari daftar favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan dihapus dari favorit
+ *     responses:
+ *       200:
+ *         description: Lapangan berhasil dihapus dari favorit
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field removed from favorites successfully"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
 router.delete('/favorites/:fieldId', removeFieldFromFavorites);
 router.put('/favorites/:fieldId/toggle', toggleFieldFavorite);
 router.get('/favorites/:fieldId/check', checkFieldFavorite);

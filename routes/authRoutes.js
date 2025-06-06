@@ -496,6 +496,34 @@ router.post('/change-password', requireAuth, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/auth/verify:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Verify authentication status 🔵 AUTHENTICATED
+ *     description: Endpoint untuk memverifikasi status autentikasi pengguna
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Authentication status berhasil diverifikasi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User authenticated"
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/auth/verify
  * @desc    Verify token validity
  * @access  Private (Authenticated users)
@@ -585,6 +613,43 @@ router.post('/reset-password', resetPassword);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/auth/send-verification:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Send email verification ⚪ PUBLIC
+ *     description: Endpoint untuk mengirim email verifikasi ke pengguna
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Email verifikasi berhasil dikirim
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Verification email sent successfully"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   POST /api/auth/send-verification
  * @desc    Send email verification
  * @access  Public

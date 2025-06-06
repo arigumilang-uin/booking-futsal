@@ -3633,7 +3633,7 @@
     "/api/staff/kasir/payments": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get daftar pembayaran untuk kasir 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir",
@@ -3750,7 +3750,7 @@
     "/api/staff/kasir/payments/pending": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get pembayaran pending 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar pembayaran yang masih pending",
@@ -3840,7 +3840,7 @@
     "/api/staff/kasir/payments/{id}": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get detail pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir",
@@ -3936,7 +3936,7 @@
     "/api/staff/kasir/payments/manual": {
       "post": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Proses pembayaran manual 🟢 STAFF",
         "description": "Endpoint untuk memproses pembayaran manual (cash, transfer)",
@@ -4047,7 +4047,7 @@
     "/api/staff/kasir/payments/{id}/confirm": {
       "put": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Konfirmasi pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima",
@@ -4139,7 +4139,7 @@
     "/api/staff/kasir/statistics": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get statistik pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan statistik pembayaran untuk kasir",
@@ -4250,7 +4250,7 @@
     "/api/staff/kasir/daily-report": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get daily cash report 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan laporan kas harian untuk kasir",
@@ -4355,7 +4355,7 @@
     "/api/staff/kasir/dashboard": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get dashboard kasir 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran",
@@ -4463,7 +4463,7 @@
     "/api/staff/kasir/payment-methods": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Kasir"
         ],
         "summary": "Get metode pembayaran yang tersedia 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir",
@@ -4557,7 +4557,7 @@
     "/api/staff/operator/dashboard": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Get dashboard operator lapangan 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola",
@@ -4654,7 +4654,7 @@
     "/api/staff/operator/fields": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Get lapangan yang ditugaskan 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator",
@@ -4721,7 +4721,7 @@
     "/api/staff/operator/bookings/{id}/confirm": {
       "put": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Konfirmasi booking 🟢 STAFF",
         "description": "Endpoint untuk mengkonfirmasi booking yang pending",
@@ -4819,7 +4819,7 @@
     "/api/staff/operator/bookings/{id}/complete": {
       "put": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Complete booking 🟢 STAFF",
         "description": "Endpoint untuk menyelesaikan booking setelah selesai dimainkan",
@@ -4919,7 +4919,7 @@
     "/api/staff/operator/bookings": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Get semua booking untuk operator 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)",
@@ -5057,7 +5057,7 @@
     "/api/staff/operator/bookings/pending": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Operator"
         ],
         "summary": "Get pending bookings 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan booking yang pending untuk operator",
@@ -5138,7 +5138,7 @@
     "/api/staff/supervisor/dashboard": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get dashboard supervisor 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan dashboard supervisor dengan system overview",
@@ -5258,7 +5258,7 @@
     "/api/staff/supervisor/system-health": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get system health 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan status kesehatan sistem dan monitoring\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -5358,7 +5358,7 @@
     "/api/staff/supervisor/staff": {
       "post": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Create staff user 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk membuat user staff baru\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -5477,7 +5477,7 @@
     "/api/staff/supervisor/users": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get semua users 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan daftar semua users dengan full access\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -5623,7 +5623,7 @@
     "/api/staff/supervisor/audit-logs": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get audit logs 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan audit logs sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -5782,7 +5782,7 @@
     "/api/staff/supervisor/system-config": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get system configuration 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan konfigurasi sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -5896,7 +5896,7 @@
     "/api/staff/supervisor/system-maintenance": {
       "post": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Trigger system maintenance 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk memicu tugas maintenance sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -6015,7 +6015,7 @@
     "/api/staff/supervisor/database-stats": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get database statistics 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan statistik database yang detail\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -6123,7 +6123,7 @@
     "/api/staff/supervisor/error-logs": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Supervisor"
         ],
         "summary": "Get system error logs 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan log error sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
@@ -8239,7 +8239,7 @@
     "/api/staff/manager/dashboard": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get dashboard manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan dashboard manager dengan business metrics",
@@ -8354,7 +8354,7 @@
     "/api/staff/manager/users": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get semua users untuk manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan daftar semua users dengan filter",
@@ -8461,7 +8461,7 @@
     "/api/staff/manager/fields": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get semua lapangan untuk manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan daftar semua lapangan",
@@ -8542,7 +8542,7 @@
     "/api/staff/manager/bookings": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get semua booking untuk manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan daftar semua booking dengan filter\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
@@ -8671,7 +8671,7 @@
     "/api/staff/manager/analytics": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get business analytics 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan business analytics untuk manager",
@@ -8828,7 +8828,7 @@
     "/api/staff/manager/reports/revenue": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get revenue report 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan laporan revenue dengan filter tanggal\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
@@ -8943,7 +8943,7 @@
     "/api/staff/manager/reports/bookings": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get bookings report 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan laporan booking dengan filter tanggal\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
@@ -9057,7 +9057,7 @@
     "/api/staff/manager/staff-performance": {
       "get": {
         "tags": [
-          "Staff"
+          "Staff Manager"
         ],
         "summary": "Get staff performance 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan metrics performa staff\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",

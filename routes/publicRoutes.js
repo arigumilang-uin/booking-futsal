@@ -438,6 +438,37 @@ router.get('/field-types',
 );
 
 /**
+ * @swagger
+ * /api/public/field-locations:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get lokasi lapangan ⚪ PUBLIC
+ *     description: Endpoint untuk mendapatkan daftar lokasi lapangan yang tersedia
+ *     responses:
+ *       200:
+ *         description: Daftar lokasi lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       location:
+ *                         type: string
+ *                         example: "Jakarta Selatan"
+ *                       count:
+ *                         type: integer
+ *                         example: 5
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ *
  * @route   GET /api/public/field-locations
  * @desc    Get available field locations
  * @access  Public
