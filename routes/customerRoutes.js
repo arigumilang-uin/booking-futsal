@@ -1029,7 +1029,9 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  *
- * // REVIEW ROUTES
+ */
+
+// REVIEW ROUTES
 router.get('/reviews', getUserReviewsList);
 router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
@@ -1389,7 +1391,9 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *
- * // FAVORITES ROUTES
+ */
+
+// FAVORITES ROUTES
 router.get('/favorites', getFavoriteFields);
 router.post('/favorites/:fieldId', addFieldToFavorites);
 router.delete('/favorites/:fieldId', removeFieldFromFavorites);
