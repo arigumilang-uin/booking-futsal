@@ -4826,6 +4826,225 @@
         }
       }
     },
+    "/api/staff/supervisor/system-health": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get system health 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk mendapatkan status kesehatan sistem dan monitoring\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "System health berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "system_status": {
+                          "type": "string",
+                          "example": "healthy"
+                        },
+                        "uptime": {
+                          "type": "string",
+                          "example": "15 days, 8 hours"
+                        },
+                        "memory_usage": {
+                          "type": "object",
+                          "properties": {
+                            "used": {
+                              "type": "string",
+                              "example": "256 MB"
+                            },
+                            "total": {
+                              "type": "string",
+                              "example": "512 MB"
+                            },
+                            "percentage": {
+                              "type": "number",
+                              "example": 50
+                            }
+                          }
+                        },
+                        "database_status": {
+                          "type": "string",
+                          "example": "connected"
+                        },
+                        "active_connections": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "response_time": {
+                          "type": "string",
+                          "example": "45ms"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/staff/supervisor/staff": {
+      "post": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Create staff user 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk membuat user staff baru\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "phone",
+                  "role"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Staff"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.staff@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password123"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "081234567890"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "staff_kasir",
+                      "operator_lapangan",
+                      "manajer_futsal"
+                    ],
+                    "example": "staff_kasir"
+                  },
+                  "department": {
+                    "type": "string",
+                    "example": "Operations"
+                  },
+                  "employee_id": {
+                    "type": "string",
+                    "example": "EMP001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Staff user berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Staff user created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat membuat staff",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/settings": {
       "get": {
         "tags": [
@@ -5705,6 +5924,93 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deactivate user 🔴 MANAGEMENT ONLY",
+        "description": "Endpoint untuk menonaktifkan user (soft delete)\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user yang akan dinonaktifkan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User berhasil dinonaktifkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User deactivated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Management yang dapat menonaktifkan user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Management level required"
+                    },
+                    "required_roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "manajer_futsal",
+                        "supervisor_sistem"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
