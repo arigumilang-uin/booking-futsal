@@ -32,7 +32,7 @@ router.use(requireStaff);
  * /api/staff/operator/dashboard:
  *   get:
  *     tags: [Staff]
- *     summary: Get dashboard operator lapangan
+ *     summary: Get dashboard operator lapangan 🟢 STAFF
  *     description: Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola
  *     security:
  *       - bearerAuth: []
@@ -102,7 +102,7 @@ router.get('/dashboard', getOperatorDashboard);
  * /api/staff/operator/fields:
  *   get:
  *     tags: [Staff]
- *     summary: Get lapangan yang ditugaskan
+ *     summary: Get lapangan yang ditugaskan 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator
  *     security:
  *       - bearerAuth: []
@@ -243,7 +243,7 @@ router.get('/schedule/:date', async (req, res) => {
  * /api/staff/operator/bookings/{id}/confirm:
  *   put:
  *     tags: [Staff]
- *     summary: Konfirmasi booking
+ *     summary: Konfirmasi booking 🟢 STAFF
  *     description: Endpoint untuk mengkonfirmasi booking yang pending
  *     security:
  *       - bearerAuth: []
@@ -324,7 +324,7 @@ router.put('/bookings/:id/complete', completeBooking);
  * /api/staff/operator/bookings:
  *   get:
  *     tags: [Staff]
- *     summary: Get semua booking untuk operator
+ *     summary: Get semua booking untuk operator 🟢 STAFF
  *     description: Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)
  *     security:
  *       - bearerAuth: []

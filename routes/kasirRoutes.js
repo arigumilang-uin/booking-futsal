@@ -254,7 +254,7 @@ router.get('/pending-payments', getPendingPayments);
  * /api/staff/kasir/payments/manual:
  *   post:
  *     tags: [Staff]
- *     summary: Proses pembayaran manual
+ *     summary: Proses pembayaran manual 🟢 STAFF
  *     description: Endpoint untuk memproses pembayaran manual (cash, transfer)
  *     security:
  *       - bearerAuth: []
@@ -380,7 +380,7 @@ router.post('/payments/debug', async (req, res) => {
  * /api/staff/kasir/payments/{id}/confirm:
  *   put:
  *     tags: [Staff]
- *     summary: Konfirmasi pembayaran
+ *     summary: Konfirmasi pembayaran 🟢 STAFF
  *     description: Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima
  *     security:
  *       - bearerAuth: []
@@ -448,7 +448,7 @@ router.put('/payments/:id/confirm', confirmPayment);
  * /api/staff/kasir/statistics:
  *   get:
  *     tags: [Staff]
- *     summary: Get statistik pembayaran
+ *     summary: Get statistik pembayaran 🟢 STAFF
  *     description: Endpoint untuk mendapatkan statistik pembayaran untuk kasir
  *     security:
  *       - bearerAuth: []
@@ -552,7 +552,7 @@ router.get('/bookings/:id', getBookingDetailForKasir);
  * /api/staff/kasir/dashboard:
  *   get:
  *     tags: [Staff]
- *     summary: Get dashboard kasir
+ *     summary: Get dashboard kasir 🟢 STAFF
  *     description: Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran
  *     security:
  *       - bearerAuth: []
@@ -671,7 +671,7 @@ router.get('/dashboard', async (req, res) => {
  * /api/staff/kasir/payment-methods:
  *   get:
  *     tags: [Staff]
- *     summary: Get metode pembayaran yang tersedia
+ *     summary: Get metode pembayaran yang tersedia 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir
  *     security:
  *       - bearerAuth: []

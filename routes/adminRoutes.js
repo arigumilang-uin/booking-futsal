@@ -93,7 +93,7 @@ router.use(requireAuth);
  * /api/admin/settings:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua system settings
+ *     summary: Get semua system settings 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua pengaturan sistem
  *     security:
  *       - bearerAuth: []
@@ -213,7 +213,7 @@ router.put('/settings/:key/reset', requireAdmin, resetSettingToDefault);
  * /api/admin/audit-logs:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua audit logs
+ *     summary: Get semua audit logs 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua log audit sistem
  *     security:
  *       - bearerAuth: []
@@ -378,7 +378,7 @@ router.get('/audit-logs/export', requireAdmin, exportAuditLogs);
  * /api/admin/notifications:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua notifikasi
+ *     summary: Get semua notifikasi 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua notifikasi sistem
  *     security:
  *       - bearerAuth: []
@@ -441,7 +441,7 @@ router.get('/audit-logs/export', requireAdmin, exportAuditLogs);
  *         $ref: '#/components/responses/Forbidden'
  *   post:
  *     tags: [Admin]
- *     summary: Buat notifikasi sistem
+ *     summary: Buat notifikasi sistem 🟡 MANAGEMENT
  *     description: Endpoint untuk membuat notifikasi sistem baru
  *     security:
  *       - bearerAuth: []

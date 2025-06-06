@@ -34,7 +34,7 @@ router.use(requireManagement);
  * /api/staff/manager/dashboard:
  *   get:
  *     tags: [Staff]
- *     summary: Get dashboard manager
+ *     summary: Get dashboard manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan dashboard manager dengan business metrics
  *     security:
  *       - bearerAuth: []
@@ -115,7 +115,7 @@ router.get('/dashboard', getManagerDashboard);
  * /api/staff/manager/users:
  *   get:
  *     tags: [Staff]
- *     summary: Get semua users untuk manager
+ *     summary: Get semua users untuk manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan daftar semua users dengan filter
  *     security:
  *       - bearerAuth: []
@@ -204,7 +204,7 @@ router.put('/users/:id/status', updateUserStatusByManager);
  * /api/staff/manager/fields:
  *   get:
  *     tags: [Staff]
- *     summary: Get semua lapangan untuk manager
+ *     summary: Get semua lapangan untuk manager 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan daftar semua lapangan
  *     security:
  *       - bearerAuth: []
@@ -392,7 +392,7 @@ router.put('/bookings/:id/status', updateBookingStatusForManager);
  * /api/staff/manager/analytics:
  *   get:
  *     tags: [Staff]
- *     summary: Get business analytics
+ *     summary: Get business analytics 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan business analytics untuk manager
  *     security:
  *       - bearerAuth: []

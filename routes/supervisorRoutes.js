@@ -30,7 +30,7 @@ router.use(requireAdmin);
  * /api/staff/supervisor/dashboard:
  *   get:
  *     tags: [Staff]
- *     summary: Get dashboard supervisor
+ *     summary: Get dashboard supervisor 🔴 SUPERVISOR ONLY
  *     description: Endpoint untuk mendapatkan dashboard supervisor dengan system overview
  *     security:
  *       - bearerAuth: []
