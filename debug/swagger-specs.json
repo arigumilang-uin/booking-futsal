@@ -541,6 +541,177 @@
         }
       }
     },
+    "/api/public/fields/{fieldId}/reviews": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get review lapangan",
+        "description": "Endpoint untuk mendapatkan daftar review lapangan dari customer",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar review berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "user_name": {
+                            "type": "string"
+                          },
+                          "rating": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 5
+                          },
+                          "comment": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/public/fields/{fieldId}/rating": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get rating lapangan",
+        "description": "Endpoint untuk mendapatkan ringkasan rating lapangan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rating lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "field_id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "average_rating": {
+                          "type": "string",
+                          "example": "4.5"
+                        },
+                        "total_reviews": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "rating_distribution": {
+                          "type": "object",
+                          "properties": {
+                            "1": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "2": {
+                              "type": "integer",
+                              "example": 0
+                            },
+                            "3": {
+                              "type": "integer",
+                              "example": 2
+                            },
+                            "4": {
+                              "type": "integer",
+                              "example": 8
+                            },
+                            "5": {
+                              "type": "integer",
+                              "example": 15
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/customer/profile": {
       "get": {
         "tags": [
@@ -765,6 +936,105 @@
         "responses": {
           "200": {
             "description": "Daftar booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/bookings/history": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get riwayat booking customer",
+        "description": "Endpoint untuk mendapatkan riwayat booking customer dengan pagination dan filter",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status booking"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Riwayat booking berhasil diambil",
             "content": {
               "application/json": {
                 "schema": {
@@ -1161,6 +1431,83 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/bookings/{bookingId}/can-review": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Cek apakah customer bisa review booking",
+        "description": "Endpoint untuk mengecek apakah customer dapat memberikan review untuk booking tertentu",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bookingId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID booking yang akan dicek"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status review berhasil dicek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "can_review": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "booking_id": {
+                          "type": "integer",
+                          "example": 123
+                        },
+                        "booking_status": {
+                          "type": "string",
+                          "example": "completed"
+                        },
+                        "already_reviewed": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "reason": {
+                          "type": "string",
+                          "example": "Booking completed and not yet reviewed"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }

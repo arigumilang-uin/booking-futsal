@@ -310,6 +310,66 @@ router.post('/bookings', createCustomerBooking);
 router.get('/bookings', getCustomerBookings);
 
 /**
+ * @swagger
+ * /api/customer/bookings/history:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get riwayat booking customer
+ *     description: Endpoint untuk mendapatkan riwayat booking customer dengan pagination dan filter
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status booking
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Riwayat booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/customer/bookings/history
  * @desc    Get customer booking history dengan pagination
  * @access  Private (Customer only)
@@ -608,6 +668,73 @@ router.get('/dashboard', getCustomerDashboard);
  *
  */
 
+/**
+ * @swagger
+ * /api/customer/notifications/count:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get jumlah notifikasi belum dibaca
+ *     description: Endpoint untuk mendapatkan jumlah notifikasi yang belum dibaca
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Jumlah notifikasi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     unread_count:
+ *                       type: integer
+ *                       example: 5
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/notifications/{id}/read:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Tandai notifikasi sebagai dibaca
+ *     description: Endpoint untuk menandai notifikasi tertentu sebagai sudah dibaca
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID notifikasi
+ *     responses:
+ *       200:
+ *         description: Notifikasi berhasil ditandai sebagai dibaca
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Notification marked as read"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ */
+
 // NOTIFICATION ROUTES
 router.get('/notifications', getNotifications);
 router.get('/notifications/count', getUnreadNotificationsCount);
@@ -623,7 +750,128 @@ router.post('/reviews', createReview);
 router.get('/reviews/:id', getReviewDetail);
 router.put('/reviews/:id', updateReview);
 router.delete('/reviews/:id', deleteReview);
+/**
+ * @swagger
+ * /api/customer/bookings/{bookingId}/can-review:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Cek apakah customer bisa review booking
+ *     description: Endpoint untuk mengecek apakah customer dapat memberikan review untuk booking tertentu
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: bookingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan dicek
+ *     responses:
+ *       200:
+ *         description: Status review berhasil dicek
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     can_review:
+ *                       type: boolean
+ *                       example: true
+ *                     booking_id:
+ *                       type: integer
+ *                       example: 123
+ *                     booking_status:
+ *                       type: string
+ *                       example: "completed"
+ *                     already_reviewed:
+ *                       type: boolean
+ *                       example: false
+ *                     reason:
+ *                       type: string
+ *                       example: "Booking completed and not yet reviewed"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
 router.get('/bookings/:bookingId/can-review', checkCanReview);
+
+/**
+ * @swagger
+ * /api/customer/favorites/{fieldId}:
+ *   post:
+ *     tags: [Customer]
+ *     summary: Tambah lapangan ke favorit
+ *     description: Endpoint untuk menambahkan lapangan ke daftar favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan ditambahkan ke favorit
+ *     responses:
+ *       200:
+ *         description: Lapangan berhasil ditambahkan ke favorit
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field added to favorites"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *   delete:
+ *     tags: [Customer]
+ *     summary: Hapus lapangan dari favorit
+ *     description: Endpoint untuk menghapus lapangan dari daftar favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan dihapus dari favorit
+ *     responses:
+ *       200:
+ *         description: Lapangan berhasil dihapus dari favorit
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field removed from favorites"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ */
 
 // FAVORITES ROUTES
 router.get('/favorites', getFavoriteFields);

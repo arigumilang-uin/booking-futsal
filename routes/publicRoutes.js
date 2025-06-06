@@ -355,6 +355,65 @@ router.get('/version', (req, res) => {
 router.get('/app-config', getApplicationConfig);
 
 /**
+ * @swagger
+ * /api/public/fields/{fieldId}/reviews:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get review lapangan
+ *     description: Endpoint untuk mendapatkan daftar review lapangan dari customer
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *     responses:
+ *       200:
+ *         description: Daftar review berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       user_name:
+ *                         type: string
+ *                       rating:
+ *                         type: integer
+ *                         minimum: 1
+ *                         maximum: 5
+ *                       comment:
+ *                         type: string
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/public/fields/:fieldId/reviews
  * @desc    Get field reviews (public view)
  * @access  Public
@@ -367,6 +426,63 @@ router.get('/fields/:fieldId/reviews',
 );
 
 /**
+ * @swagger
+ * /api/public/fields/{fieldId}/rating:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get rating lapangan
+ *     description: Endpoint untuk mendapatkan ringkasan rating lapangan
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *     responses:
+ *       200:
+ *         description: Rating lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     field_id:
+ *                       type: integer
+ *                       example: 1
+ *                     average_rating:
+ *                       type: string
+ *                       example: "4.5"
+ *                     total_reviews:
+ *                       type: integer
+ *                       example: 25
+ *                     rating_distribution:
+ *                       type: object
+ *                       properties:
+ *                         "5":
+ *                           type: integer
+ *                           example: 15
+ *                         "4":
+ *                           type: integer
+ *                           example: 8
+ *                         "3":
+ *                           type: integer
+ *                           example: 2
+ *                         "2":
+ *                           type: integer
+ *                           example: 0
+ *                         "1":
+ *                           type: integer
+ *                           example: 0
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/public/fields/:fieldId/rating
  * @desc    Get field rating summary
  * @access  Public

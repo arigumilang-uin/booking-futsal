@@ -1,0 +1,60 @@
+{
+  "low_priority": [
+    "GET /api/enhanced/",
+    "GET /api/enhanced/architecture",
+    "GET /api/enhanced/features",
+    "GET /api/enhanced/status",
+    "GET /api/health",
+    "GET /api/routes",
+    "GET /api/test/health",
+    "GET /api/test/routes"
+  ],
+  "skip_priority": [
+    "GET /api/public/debug/table/:tableName",
+    "GET /api/public/debug/test-promotion",
+    "GET /api/public/debug/test-settings",
+    "GET /api/test/admin",
+    "GET /api/test/auth",
+    "GET /api/test/customer",
+    "GET /api/test/database",
+    "GET /api/test/environment",
+    "GET /api/test/memory",
+    "GET /api/test/public",
+    "GET /api/test/staff"
+  ],
+  "categories": {
+    "Enhanced Info": [
+      "GET /api/enhanced/",
+      "GET /api/enhanced/architecture",
+      "GET /api/enhanced/features",
+      "GET /api/enhanced/status"
+    ],
+    "Health/Monitoring": [
+      "GET /api/health",
+      "GET /api/routes",
+      "GET /api/test/health",
+      "GET /api/test/routes"
+    ],
+    "Debug Endpoints": [
+      "GET /api/public/debug/table/:tableName",
+      "GET /api/public/debug/test-promotion",
+      "GET /api/public/debug/test-settings"
+    ],
+    "Test Endpoints": [
+      "GET /api/test/admin",
+      "GET /api/test/auth",
+      "GET /api/test/customer",
+      "GET /api/test/database",
+      "GET /api/test/environment",
+      "GET /api/test/memory",
+      "GET /api/test/public",
+      "GET /api/test/staff"
+    ]
+  },
+  "recommendations": {
+    "document_target": 171,
+    "optional_target": 179,
+    "skip_count": 11,
+    "total_coverage": "90-94%"
+  }
+}
