@@ -32,18 +32,127 @@ const { requireAuth } = require('../middlewares/auth/authMiddleware');
 // =====================================================
 
 /**
- * @route   POST /api/auth/register
- * @desc    Register new user
- * @access  Public
- * @body    { name, email, password, phone, role }
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Register pengguna baru
+ *     description: Endpoint untuk mendaftarkan pengguna baru dengan role default penyewa
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password, phone]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *                 description: "Nama lengkap"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john@example.com"
+ *                 description: "Email unik"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *                 description: "Password minimal 6 karakter"
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *                 description: "Nomor telepon"
+ *               role:
+ *                 type: string
+ *                 enum: [user, penyewa]
+ *                 default: user
+ *                 description: "Role (opsional)"
+ *     responses:
+ *       201:
+ *         description: Registrasi berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Registration successful"
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                   description: "JWT token (development only)"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       409:
+ *         $ref: '#/components/responses/Conflict'
  */
 router.post('/register', register);
 
 /**
- * @route   POST /api/auth/login
- * @desc    Login user
- * @access  Public
- * @body    { email, password }
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Login pengguna
+ *     description: Endpoint untuk autentikasi pengguna dengan email dan password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "ppwweebb01@gmail.com"
+ *                 description: "Email pengguna"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *                 description: "Password pengguna"
+ *     responses:
+ *       200:
+ *         description: Login berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Login berhasil"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       description: "JWT token"
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Password salah atau email tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Password salah"
  */
 router.post('/login', login);
 
@@ -55,9 +164,30 @@ router.post('/login', login);
 router.post('/logout', logout);
 
 /**
- * @route   GET /api/auth/profile
- * @desc    Get current user profile
- * @access  Private (Authenticated users)
+ * @swagger
+ * /api/auth/profile:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Get profil pengguna
+ *     description: Endpoint untuk mendapatkan profil pengguna yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/profile', requireAuth, getProfile);
 
@@ -445,9 +575,60 @@ router.post('/validate-email-batch', async (req, res) => {
 });
 
 /**
- * @route   GET /api/auth/roles
- * @desc    Get available roles in system
- * @access  Public
+ * @swagger
+ * /api/auth/roles:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Mendapatkan daftar role sistem
+ *     description: Endpoint untuk mendapatkan informasi role yang tersedia dalam sistem enhanced 6-level hierarchy
+ *     responses:
+ *       200:
+ *         description: Daftar role berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     roles:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: "user"
+ *                           label:
+ *                             type: string
+ *                             example: "Customer"
+ *                           description:
+ *                             type: string
+ *                             example: "Regular customer who can book fields"
+ *                           level:
+ *                             type: integer
+ *                             example: 2
+ *                     enhanced_roles:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: "penyewa"
+ *                           label:
+ *                             type: string
+ *                             example: "Customer"
+ *                           description:
+ *                             type: string
+ *                             example: "Customer who can book fields"
+ *                           level:
+ *                             type: integer
+ *                             example: 2
  */
 router.get('/roles', (req, res) => {
   res.json({
