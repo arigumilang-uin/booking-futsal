@@ -1129,6 +1129,105 @@ router.delete('/users/:id', requireManagement, async (req, res) => {
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/fields:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan daftar semua lapangan dengan filter
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive]
+ *         description: Filter berdasarkan status
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan tipe lapangan
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan lokasi
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nama lapangan
+ *     responses:
+ *       200:
+ *         description: Daftar lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     fields:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Field'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         total_fields:
+ *                           type: integer
+ *                         active_fields:
+ *                           type: integer
+ *                         inactive_fields:
+ *                           type: integer
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *                 required_roles:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["manajer_futsal", "supervisor_sistem"]
+ *
  * @route   GET /api/admin/fields
  * @desc    Get all fields for admin management
  * @access  Management (manajer_futsal+)

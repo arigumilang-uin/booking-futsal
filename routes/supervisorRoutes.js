@@ -275,6 +275,99 @@ router.get('/system-health', getSystemHealth);
 router.post('/staff', createStaffUser);
 
 /**
+ * @swagger
+ * /api/staff/supervisor/users:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get semua users 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan daftar semua users dengan full access
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [pengunjung, penyewa, staff_kasir, operator_lapangan, manajer_futsal, supervisor_sistem]
+ *         description: Filter berdasarkan role
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pencarian berdasarkan nama atau email
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter berdasarkan status aktif
+ *       - in: query
+ *         name: department
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan departemen (untuk staff)
+ *     responses:
+ *       200:
+ *         description: Daftar users berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         total_users:
+ *                           type: integer
+ *                         active_users:
+ *                           type: integer
+ *                         role_breakdown:
+ *                           type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/users
  * @desc    Get all users dengan full access
  * @access  Private (Supervisor only)

@@ -6505,6 +6505,135 @@
         }
       }
     },
+    "/api/staff/manager/bookings": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get semua booking untuk manager 🟡 MANAGEMENT",
+        "description": "Endpoint untuk mendapatkan daftar semua booking dengan filter\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Halaman data"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah data per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status booking"
+          },
+          {
+            "in": "query",
+            "name": "field_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan ID lapangan"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "bookings": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Booking"
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "total_bookings": {
+                              "type": "integer"
+                            },
+                            "total_revenue": {
+                              "type": "string"
+                            },
+                            "status_breakdown": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/api/staff/manager/analytics": {
       "get": {
         "tags": [

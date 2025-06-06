@@ -213,6 +213,19 @@ const swaggerOptions = {
             total: { type: 'integer', description: 'Total item' },
             total_pages: { type: 'integer', description: 'Total halaman' }
           }
+        },
+
+        // Pagination Schema (alias untuk kompatibilitas)
+        Pagination: {
+          type: 'object',
+          properties: {
+            current_page: { type: 'integer', description: 'Halaman saat ini', example: 1 },
+            per_page: { type: 'integer', description: 'Jumlah item per halaman', example: 10 },
+            total: { type: 'integer', description: 'Total item', example: 100 },
+            total_pages: { type: 'integer', description: 'Total halaman', example: 10 },
+            has_next: { type: 'boolean', description: 'Apakah ada halaman selanjutnya', example: true },
+            has_prev: { type: 'boolean', description: 'Apakah ada halaman sebelumnya', example: false }
+          }
         }
       },
       responses: {
