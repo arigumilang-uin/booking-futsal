@@ -478,7 +478,7 @@ router.get('/bookings/:id', getCustomerBookingDetail);
  * /api/customer/bookings/{id}/cancel:
  *   put:
  *     tags: [Customer]
- *     summary: Batalkan booking customer
+ *     summary: Batalkan booking customer 🔵 CUSTOMER
  *     description: Endpoint untuk membatalkan booking yang sudah dibuat
  *     security:
  *       - bearerAuth: []
@@ -573,7 +573,7 @@ router.get('/upcoming-bookings', (req, res) => {
  * /api/customer/dashboard:
  *   get:
  *     tags: [Customer]
- *     summary: Get dashboard customer
+ *     summary: Get dashboard customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan data dashboard customer dengan statistik booking
  *     security:
  *       - bearerAuth: []
@@ -723,7 +723,7 @@ router.get('/dashboard', getCustomerDashboard);
  * /api/customer/notifications/count:
  *   get:
  *     tags: [Customer]
- *     summary: Get jumlah notifikasi belum dibaca
+ *     summary: Get jumlah notifikasi belum dibaca 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan jumlah notifikasi yang belum dibaca
  *     security:
  *       - bearerAuth: []
@@ -752,7 +752,7 @@ router.get('/dashboard', getCustomerDashboard);
  * /api/customer/notifications/{id}/read:
  *   put:
  *     tags: [Customer]
- *     summary: Tandai notifikasi sebagai dibaca
+ *     summary: Tandai notifikasi sebagai dibaca 🔵 CUSTOMER
  *     description: Endpoint untuk menandai notifikasi tertentu sebagai sudah dibaca
  *     security:
  *       - bearerAuth: []
@@ -799,7 +799,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
  * /api/customer/reviews:
  *   get:
  *     tags: [Customer]
- *     summary: Get daftar review customer
+ *     summary: Get daftar review customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan semua review yang dibuat oleh customer
  *     security:
  *       - bearerAuth: []
@@ -846,7 +846,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *         $ref: '#/components/responses/Unauthorized'
  *   post:
  *     tags: [Customer]
- *     summary: Buat review baru
+ *     summary: Buat review baru 🔵 CUSTOMER
  *     description: Endpoint untuk membuat review lapangan setelah booking selesai
  *     security:
  *       - bearerAuth: []
@@ -908,7 +908,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
  * /api/customer/reviews/{id}:
  *   get:
  *     tags: [Customer]
- *     summary: Get detail review
+ *     summary: Get detail review 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan detail review berdasarkan ID
  *     security:
  *       - bearerAuth: []
@@ -951,7 +951,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *         $ref: '#/components/responses/NotFound'
  *   put:
  *     tags: [Customer]
- *     summary: Update review
+ *     summary: Update review 🔵 CUSTOMER
  *     description: Endpoint untuk mengupdate review yang sudah dibuat
  *     security:
  *       - bearerAuth: []
@@ -998,7 +998,7 @@ router.get('/notifications/statistics', getNotificationStatistics);
  *         $ref: '#/components/responses/NotFound'
  *   delete:
  *     tags: [Customer]
- *     summary: Hapus review
+ *     summary: Hapus review 🔵 CUSTOMER
  *     description: Endpoint untuk menghapus review yang sudah dibuat
  *     security:
  *       - bearerAuth: []
@@ -1042,7 +1042,7 @@ router.delete('/reviews/:id', deleteReview);
  * /api/customer/bookings/{bookingId}/can-review:
  *   get:
  *     tags: [Customer]
- *     summary: Cek apakah customer bisa review booking
+ *     summary: Cek apakah customer bisa review booking 🔵 CUSTOMER
  *     description: Endpoint untuk mengecek apakah customer dapat memberikan review untuk booking tertentu
  *     security:
  *       - bearerAuth: []
@@ -1095,7 +1095,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/{fieldId}:
  *   post:
  *     tags: [Customer]
- *     summary: Tambah lapangan ke favorit
+ *     summary: Tambah lapangan ke favorit 🔵 CUSTOMER
  *     description: Endpoint untuk menambahkan lapangan ke daftar favorit customer
  *     security:
  *       - bearerAuth: []
@@ -1127,7 +1127,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  *         $ref: '#/components/responses/NotFound'
  *   delete:
  *     tags: [Customer]
- *     summary: Hapus lapangan dari favorit
+ *     summary: Hapus lapangan dari favorit 🔵 CUSTOMER
  *     description: Endpoint untuk menghapus lapangan dari daftar favorit customer
  *     security:
  *       - bearerAuth: []
@@ -1165,7 +1165,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/{fieldId}/toggle:
  *   put:
  *     tags: [Customer]
- *     summary: Toggle status favorit lapangan
+ *     summary: Toggle status favorit lapangan 🔵 CUSTOMER
  *     description: Endpoint untuk toggle status favorit lapangan (add/remove)
  *     security:
  *       - bearerAuth: []
@@ -1204,7 +1204,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/{fieldId}/check:
  *   get:
  *     tags: [Customer]
- *     summary: Cek status favorit lapangan
+ *     summary: Cek status favorit lapangan 🔵 CUSTOMER
  *     description: Endpoint untuk mengecek apakah lapangan sudah difavoritkan
  *     security:
  *       - bearerAuth: []
@@ -1243,7 +1243,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/availability:
  *   get:
  *     tags: [Customer]
- *     summary: Get favorit dengan info ketersediaan
+ *     summary: Get favorit dengan info ketersediaan 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan lapangan favorit dengan informasi ketersediaan
  *     security:
  *       - bearerAuth: []
@@ -1287,7 +1287,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/statistics:
  *   get:
  *     tags: [Customer]
- *     summary: Get statistik favorit
+ *     summary: Get statistik favorit 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan statistik lapangan favorit customer
  *     security:
  *       - bearerAuth: []
@@ -1321,7 +1321,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/favorites/count:
  *   get:
  *     tags: [Customer]
- *     summary: Get jumlah favorit
+ *     summary: Get jumlah favorit 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan jumlah lapangan favorit customer
  *     security:
  *       - bearerAuth: []
@@ -1350,7 +1350,7 @@ router.get('/bookings/:bookingId/can-review', checkCanReview);
  * /api/customer/recommendations:
  *   get:
  *     tags: [Customer]
- *     summary: Get rekomendasi lapangan
+ *     summary: Get rekomendasi lapangan 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan rekomendasi lapangan berdasarkan preferensi customer
  *     security:
  *       - bearerAuth: []
@@ -1409,7 +1409,7 @@ router.get('/recommendations', getRecommendations);
  * /api/customer/promotions:
  *   get:
  *     tags: [Customer]
- *     summary: Get promosi yang tersedia untuk customer
+ *     summary: Get promosi yang tersedia untuk customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan daftar promosi yang dapat digunakan customer
  *     security:
  *       - bearerAuth: []
@@ -1450,7 +1450,7 @@ router.get('/recommendations', getRecommendations);
  * /api/customer/promotions/{code}:
  *   get:
  *     tags: [Customer]
- *     summary: Get detail promosi berdasarkan kode
+ *     summary: Get detail promosi berdasarkan kode 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan detail promosi berdasarkan kode promosi
  *     security:
  *       - bearerAuth: []
@@ -1505,7 +1505,7 @@ router.get('/recommendations', getRecommendations);
  * /api/customer/promotions/validate:
  *   post:
  *     tags: [Customer]
- *     summary: Validasi kode promosi
+ *     summary: Validasi kode promosi 🔵 CUSTOMER
  *     description: Endpoint untuk memvalidasi kode promosi sebelum digunakan
  *     security:
  *       - bearerAuth: []

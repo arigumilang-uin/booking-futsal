@@ -633,7 +633,7 @@ router.get('/fields/:fieldId/reviews',
  * /api/public/fields/{fieldId}/rating:
  *   get:
  *     tags: [Public]
- *     summary: Get rating lapangan
+ *     summary: Get rating lapangan ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan ringkasan rating lapangan
  *     parameters:
  *       - in: path
@@ -701,7 +701,7 @@ router.get('/fields/:fieldId/rating',
  * /api/public/promotions:
  *   get:
  *     tags: [Public]
- *     summary: Get promosi yang tersedia
+ *     summary: Get promosi yang tersedia ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan daftar promosi yang sedang aktif
  *     responses:
  *       200:
@@ -759,7 +759,7 @@ router.get('/promotions',
  * /api/public/fields/{fieldId}/promotions:
  *   get:
  *     tags: [Public]
- *     summary: Get promosi untuk lapangan tertentu
+ *     summary: Get promosi untuk lapangan tertentu ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan promosi yang berlaku untuk lapangan tertentu
  *     parameters:
  *       - in: path
