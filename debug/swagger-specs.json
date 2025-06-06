@@ -21,7 +21,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Register pengguna baru",
+        "summary": "Register pengguna baru ⚪ PUBLIC",
         "description": "Endpoint untuk mendaftarkan pengguna baru dengan role default penyewa",
         "requestBody": {
           "required": true,
@@ -113,7 +113,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Login pengguna",
+        "summary": "Login pengguna ⚪ PUBLIC",
         "description": "Endpoint untuk autentikasi pengguna dengan email dan password",
         "requestBody": {
           "required": true,
@@ -203,7 +203,7 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Logout pengguna",
+        "summary": "Logout pengguna 🔵 AUTHENTICATED",
         "description": "Endpoint untuk logout pengguna dan menghapus session/token",
         "security": [
           {
@@ -569,7 +569,7 @@
         "tags": [
           "Public"
         ],
-        "summary": "Get informasi sistem",
+        "summary": "Get informasi sistem ⚪ PUBLIC",
         "description": "Endpoint untuk mendapatkan informasi sistem publik",
         "responses": {
           "200": {
@@ -646,7 +646,7 @@
         "tags": [
           "Public"
         ],
-        "summary": "Get status database",
+        "summary": "Get status database ⚪ PUBLIC",
         "description": "Endpoint untuk mengecek status database dan tabel",
         "responses": {
           "200": {
@@ -1427,7 +1427,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Get profil customer",
+        "summary": "Get profil customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan profil customer yang sedang login",
         "security": [
           {
@@ -1469,7 +1469,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Update profil customer",
+        "summary": "Update profil customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mengupdate profil customer yang sedang login",
         "security": [
           {
@@ -1545,7 +1545,7 @@
         "tags": [
           "Customer"
         ],
-        "summary": "Buat booking baru",
+        "summary": "Buat booking baru 🔵 CUSTOMER",
         "description": "Endpoint untuk membuat booking lapangan baru",
         "security": [
           {
@@ -2087,9 +2087,9 @@
     "/api/customer/notifications": {
       "get": {
         "tags": [
-          "Enhanced Features"
+          "Customer"
         ],
-        "summary": "Get notifikasi customer",
+        "summary": "Get notifikasi customer 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan daftar notifikasi customer",
         "security": [
           {
@@ -2178,9 +2178,9 @@
     "/api/customer/favorites": {
       "get": {
         "tags": [
-          "Enhanced Features"
+          "Customer"
         ],
-        "summary": "Get lapangan favorit",
+        "summary": "Get lapangan favorit 🔵 CUSTOMER",
         "description": "Endpoint untuk mendapatkan daftar lapangan favorit customer",
         "security": [
           {
@@ -3492,7 +3492,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get daftar pembayaran untuk kasir",
+        "summary": "Get daftar pembayaran untuk kasir 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir",
         "security": [
           {
@@ -5191,6 +5191,165 @@
         }
       }
     },
+    "/api/staff/supervisor/audit-logs": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get audit logs 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk mendapatkan audit logs sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Halaman data"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Jumlah data per halaman"
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan action"
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan user ID"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit logs berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "user_id": {
+                                "type": "integer"
+                              },
+                              "action": {
+                                "type": "string"
+                              },
+                              "table_name": {
+                                "type": "string"
+                              },
+                              "record_id": {
+                                "type": "integer"
+                              },
+                              "old_values": {
+                                "type": "object"
+                              },
+                              "new_values": {
+                                "type": "object"
+                              },
+                              "ip_address": {
+                                "type": "string"
+                              },
+                              "user_agent": {
+                                "type": "string"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            }
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/settings": {
       "get": {
         "tags": [
@@ -6080,7 +6239,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Deactivate user 🔴 MANAGEMENT ONLY",
+        "summary": "Deactivate user 🟡 MANAGEMENT",
         "description": "Endpoint untuk menonaktifkan user (soft delete)\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
         "security": [
           {
@@ -6441,6 +6600,141 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/admin/fields/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update lapangan 🟡 MANAGEMENT",
+        "description": "Endpoint untuk mengupdate data lapangan\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan yang akan diupdate"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Lapangan A Updated"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "futsal"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Lapangan futsal indoor dengan fasilitas lengkap"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 120000
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "example": 22
+                  },
+                  "location": {
+                    "type": "string",
+                    "example": "Lantai 2"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "Jl. Futsal No. 123"
+                  },
+                  "facilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "AC",
+                      "Sound System",
+                      "Lighting",
+                      "Parking"
+                    ]
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lapangan berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Field updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Field"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Management yang dapat mengupdate lapangan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Management level required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }

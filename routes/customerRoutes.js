@@ -308,7 +308,7 @@ router.post('/bookings', createCustomerBooking);
  * /api/customer/bookings:
  *   get:
  *     tags: [Customer]
- *     summary: Get daftar booking customer
+ *     summary: Get daftar booking customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan semua booking milik customer yang sedang login
  *     security:
  *       - bearerAuth: []
@@ -364,7 +364,7 @@ router.get('/bookings', getCustomerBookings);
  * /api/customer/bookings/history:
  *   get:
  *     tags: [Customer]
- *     summary: Get riwayat booking customer
+ *     summary: Get riwayat booking customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan riwayat booking customer dengan pagination dan filter
  *     security:
  *       - bearerAuth: []
@@ -436,7 +436,7 @@ router.get('/bookings/history', (req, res) => {
  * /api/customer/bookings/{id}:
  *   get:
  *     tags: [Customer]
- *     summary: Get detail booking customer
+ *     summary: Get detail booking customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan detail booking berdasarkan ID
  *     security:
  *       - bearerAuth: []

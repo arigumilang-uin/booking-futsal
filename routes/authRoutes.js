@@ -194,7 +194,7 @@ router.post('/logout', logout);
  * /api/auth/profile:
  *   get:
  *     tags: [Authentication]
- *     summary: Get profil pengguna
+ *     summary: Get profil pengguna 🔵 AUTHENTICATED
  *     description: Endpoint untuk mendapatkan profil pengguna yang sedang login
  *     security:
  *       - bearerAuth: []
@@ -222,7 +222,7 @@ router.get('/profile', requireAuth, getProfile);
  * /api/auth/refresh:
  *   post:
  *     tags: [Authentication]
- *     summary: Refresh JWT token
+ *     summary: Refresh JWT token 🔵 AUTHENTICATED
  *     description: Endpoint untuk memperbarui JWT token yang akan expired
  *     security:
  *       - bearerAuth: []
@@ -281,7 +281,7 @@ router.post('/refresh', requireAuth, refreshToken);
  * /api/auth/roles:
  *   get:
  *     tags: [Authentication]
- *     summary: Mendapatkan daftar role sistem
+ *     summary: Mendapatkan daftar role sistem ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan semua role yang tersedia dalam sistem enhanced 6-level hierarchy
  *     responses:
  *       200:
@@ -378,7 +378,7 @@ router.get('/roles', (req, res) => {
  * /api/auth/change-password:
  *   post:
  *     tags: [Authentication]
- *     summary: Ubah password pengguna
+ *     summary: Ubah password pengguna 🔵 AUTHENTICATED
  *     description: Endpoint untuk mengubah password pengguna yang sedang login
  *     security:
  *       - bearerAuth: []
@@ -524,7 +524,7 @@ router.get('/verify', requireAuth, (req, res) => {
  * /api/auth/forgot-password:
  *   post:
  *     tags: [Authentication]
- *     summary: Request reset password
+ *     summary: Request reset password ⚪ PUBLIC
  *     description: Endpoint untuk meminta reset password melalui email
  *     requestBody:
  *       required: true

@@ -113,7 +113,7 @@ router.get('/payments', getAllPaymentsForKasir);
  * /api/staff/kasir/payments/pending:
  *   get:
  *     tags: [Staff]
- *     summary: Get pembayaran pending
+ *     summary: Get pembayaran pending 🟢 STAFF
  *     description: Endpoint untuk mendapatkan daftar pembayaran yang masih pending
  *     security:
  *       - bearerAuth: []
@@ -177,7 +177,7 @@ router.get('/payments/pending', getPendingPayments);
  * /api/staff/kasir/payments/{id}:
  *   get:
  *     tags: [Staff]
- *     summary: Get detail pembayaran
+ *     summary: Get detail pembayaran 🟢 STAFF
  *     description: Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir
  *     security:
  *       - bearerAuth: []

@@ -1595,6 +1595,75 @@ router.put('/fields/:id', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/fields/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Delete lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk menghapus lapangan (soft delete)
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan dihapus
+ *     responses:
+ *       200:
+ *         description: Lapangan berhasil dihapus (soft delete)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field deleted successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: "Lapangan A"
+ *                     is_active:
+ *                       type: boolean
+ *                       example: false
+ *                     deleted_at:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat menghapus lapangan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   DELETE /api/admin/fields/:id
  * @desc    Delete field (soft delete)
  * @access  Management (manajer_futsal+)

@@ -210,7 +210,7 @@ router.get('/database-status', async (req, res) => {
  * @swagger
  * /api/public/fields:
  *   get:
- *     summary: Mendapatkan daftar lapangan yang tersedia
+ *     summary: Mendapatkan daftar lapangan yang tersedia ⚪ PUBLIC
  *     description: Endpoint publik untuk mendapatkan semua lapangan futsal dengan informasi lengkap
  *     tags: [Public]
  *     parameters:
@@ -284,7 +284,7 @@ router.get('/fields',
  * /api/public/fields/{id}:
  *   get:
  *     tags: [Public]
- *     summary: Get detail lapangan
+ *     summary: Get detail lapangan ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan detail lengkap lapangan berdasarkan ID
  *     parameters:
  *       - in: path
@@ -324,7 +324,7 @@ router.get('/fields/:id',
  * /api/public/fields/{id}/availability:
  *   get:
  *     tags: [Public]
- *     summary: Cek ketersediaan lapangan
+ *     summary: Cek ketersediaan lapangan ⚪ PUBLIC
  *     description: Endpoint untuk mengecek ketersediaan lapangan pada tanggal tertentu
  *     parameters:
  *       - in: path

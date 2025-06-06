@@ -11,7 +11,7 @@ const router = express.Router();
  * /api/enhanced/:
  *   get:
  *     tags: [Enhanced Features]
- *     summary: Get enhanced features overview
+ *     summary: Get enhanced features overview ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan overview fitur-fitur enhanced sistem
  *     responses:
  *       200:
@@ -124,7 +124,7 @@ router.get('/', (req, res) => {
  * /api/enhanced/features:
  *   get:
  *     tags: [Enhanced Features]
- *     summary: Get detailed enhanced features
+ *     summary: Get detailed enhanced features ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan daftar detail fitur-fitur enhanced
  *     responses:
  *       200:
