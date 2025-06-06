@@ -393,6 +393,113 @@ router.put('/users/:id/role', forceUpdateUserRole);
 router.get('/analytics', getSystemAnalytics);
 
 /**
+ * @swagger
+ * /api/staff/supervisor/audit-logs:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get audit logs 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan audit logs sistem
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan action
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan user ID
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Audit logs berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     logs:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           user_id:
+ *                             type: integer
+ *                           action:
+ *                             type: string
+ *                           table_name:
+ *                             type: string
+ *                           record_id:
+ *                             type: integer
+ *                           old_values:
+ *                             type: object
+ *                           new_values:
+ *                             type: object
+ *                           ip_address:
+ *                             type: string
+ *                           user_agent:
+ *                             type: string
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/audit-logs
  * @desc    Get audit logs
  * @access  Private (Supervisor only)

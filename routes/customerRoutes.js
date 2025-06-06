@@ -170,7 +170,7 @@ router.get('/fields', getCustomerFields);
  * /api/customer/bookings:
  *   post:
  *     tags: [Customer]
- *     summary: Buat booking baru
+ *     summary: Buat booking baru 🔵 CUSTOMER
  *     description: Endpoint untuk membuat booking lapangan baru
  *     security:
  *       - bearerAuth: []
@@ -252,7 +252,7 @@ router.get('/fields', getCustomerFields);
  *                   example: 'Time slot already booked'
  *   get:
  *     tags: [Customer]
- *     summary: Get daftar booking customer
+ *     summary: Get daftar booking customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan semua booking milik customer yang sedang login
  *     security:
  *       - bearerAuth: []

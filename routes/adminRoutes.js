@@ -1463,6 +1463,98 @@ router.post('/fields', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/fields/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mengupdate data lapangan
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan diupdate
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Lapangan A Updated"
+ *               type:
+ *                 type: string
+ *                 example: "futsal"
+ *               description:
+ *                 type: string
+ *                 example: "Lapangan futsal indoor dengan fasilitas lengkap"
+ *               price:
+ *                 type: number
+ *                 example: 120000
+ *               capacity:
+ *                 type: integer
+ *                 example: 22
+ *               location:
+ *                 type: string
+ *                 example: "Lantai 2"
+ *               address:
+ *                 type: string
+ *                 example: "Jl. Futsal No. 123"
+ *               facilities:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["AC", "Sound System", "Lighting", "Parking"]
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Lapangan berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Field'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat mengupdate lapangan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/admin/fields/:id
  * @desc    Update field
  * @access  Management (manajer_futsal+)
