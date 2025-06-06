@@ -855,7 +855,17 @@ router.get('/role-management/dashboard', requireManagement, getRoleManagementDas
  *   get:
  *     tags: [Admin]
  *     summary: Get semua users 🟡 MANAGEMENT
- *     description: Endpoint untuk mendapatkan semua users untuk management
+ *     description: |
+ *       Endpoint untuk mendapatkan semua users untuk management
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) - Dapat melihat SEMUA users
+ *       - ✅ **Manager Futsal** (manajer_futsal) - Hanya dapat melihat users dengan role di BAWAH mereka
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *
+ *       **🛡️ ROLE HIERARCHY PROTECTION:**
+ *       - Manager TIDAK dapat melihat/mengelola Supervisor
+ *       - Setiap role hanya dapat mengelola role di bawah level mereka
  *     security:
  *       - bearerAuth: []
  *       - cookieAuth: []
@@ -936,7 +946,17 @@ router.put('/role-management/change-role', requireManagement, changeUserRoleDire
  *   get:
  *     tags: [Admin]
  *     summary: Get detail user 🟡 MANAGEMENT
- *     description: Endpoint untuk mendapatkan detail user berdasarkan ID
+ *     description: |
+ *       Endpoint untuk mendapatkan detail user berdasarkan ID
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) - Dapat melihat SEMUA users
+ *       - ✅ **Manager Futsal** (manajer_futsal) - Hanya dapat melihat users dengan role di BAWAH mereka
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *
+ *       **🛡️ ROLE HIERARCHY PROTECTION:**
+ *       - Manager TIDAK dapat melihat detail Supervisor
+ *       - Error 403 jika mencoba akses user dengan role lebih tinggi
  *     security:
  *       - bearerAuth: []
  *       - cookieAuth: []
@@ -982,6 +1002,39 @@ router.get('/users/:id', requireManagement, async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'User not found'
+      });
+    }
+
+    // Role hierarchy validation
+    const currentUserRole = req.rawUser.role;
+    const targetUserRole = user.role;
+
+    // Define role hierarchy levels
+    const roleHierarchy = {
+      'supervisor_sistem': 6,
+      'manajer_futsal': 5,
+      'operator_lapangan': 4,
+      'staff_kasir': 3,
+      'penyewa': 2,
+      'pengunjung': 1
+    };
+
+    const currentUserLevel = roleHierarchy[currentUserRole] || 0;
+    const targetUserLevel = roleHierarchy[targetUserRole] || 0;
+
+    // Manager cannot access supervisor data
+    if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Cannot access supervisor data'
+      });
+    }
+
+    // Only allow access to users with lower or equal hierarchy level
+    if (currentUserLevel < targetUserLevel) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Insufficient role level'
       });
     }
 
@@ -1070,9 +1123,64 @@ router.get('/users/:id', requireManagement, async (req, res) => {
  */
 router.put('/users/:id', requireManagement, async (req, res) => {
   try {
-    const { updateUserProfile, updateUserRole, updateUserStatus } = require('../models/core/userModel');
+    const { updateUserProfile, updateUserRole, updateUserStatus, getUserByIdRaw } = require('../models/core/userModel');
     const { id } = req.params;
     const { name, email, phone, role, is_active } = req.body;
+
+    // Validate user exists and check role hierarchy
+    const existingUser = await getUserByIdRaw(id);
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Role hierarchy validation
+    const currentUserRole = req.rawUser.role;
+    const targetUserRole = existingUser.role;
+
+    // Define role hierarchy levels
+    const roleHierarchy = {
+      'supervisor_sistem': 6,
+      'manajer_futsal': 5,
+      'operator_lapangan': 4,
+      'staff_kasir': 3,
+      'penyewa': 2,
+      'pengunjung': 1
+    };
+
+    const currentUserLevel = roleHierarchy[currentUserRole] || 0;
+    const targetUserLevel = roleHierarchy[targetUserRole] || 0;
+
+    // Manager cannot update supervisor
+    if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Cannot modify supervisor data'
+      });
+    }
+
+    // Only allow modification of users with lower hierarchy level
+    if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Insufficient role level'
+      });
+    }
+
+    // If trying to change role, validate new role
+    if (role && role !== existingUser.role) {
+      const newRoleLevel = roleHierarchy[role] || 0;
+
+      // Cannot assign role higher than or equal to current user's role
+      if (newRoleLevel >= currentUserLevel) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied - Cannot assign higher or equal role'
+        });
+      }
+    }
 
     let updatedUser = null;
 
@@ -1181,14 +1289,56 @@ router.put('/users/:id', requireManagement, async (req, res) => {
  */
 router.delete('/users/:id', requireManagement, async (req, res) => {
   try {
-    const { updateUserStatus } = require('../models/core/userModel');
+    const { updateUserStatus, getUserByIdRaw } = require('../models/core/userModel');
     const { id } = req.params;
+
+    // Validate user exists and check role hierarchy
+    const existingUser = await getUserByIdRaw(id);
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Role hierarchy validation
+    const currentUserRole = req.rawUser.role;
+    const targetUserRole = existingUser.role;
+
+    // Define role hierarchy levels
+    const roleHierarchy = {
+      'supervisor_sistem': 6,
+      'manajer_futsal': 5,
+      'operator_lapangan': 4,
+      'staff_kasir': 3,
+      'penyewa': 2,
+      'pengunjung': 1
+    };
+
+    const currentUserLevel = roleHierarchy[currentUserRole] || 0;
+    const targetUserLevel = roleHierarchy[targetUserRole] || 0;
+
+    // Manager cannot delete supervisor
+    if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Cannot delete supervisor'
+      });
+    }
+
+    // Only allow deletion of users with lower hierarchy level
+    if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Insufficient role level'
+      });
+    }
 
     const updatedUser = await updateUserStatus(id, false);
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'Failed to deactivate user'
       });
     }
 

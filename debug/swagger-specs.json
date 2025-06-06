@@ -4247,6 +4247,111 @@
         }
       }
     },
+    "/api/staff/kasir/daily-report": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get daily cash report 🟢 STAFF",
+        "description": "Endpoint untuk mendapatkan laporan kas harian untuk kasir",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Tanggal laporan (default hari ini)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daily cash report berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "date": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "opening_balance": {
+                          "type": "string",
+                          "example": "1000000.00"
+                        },
+                        "total_cash_in": {
+                          "type": "string",
+                          "example": "2500000.00"
+                        },
+                        "total_cash_out": {
+                          "type": "string",
+                          "example": "500000.00"
+                        },
+                        "closing_balance": {
+                          "type": "string",
+                          "example": "3000000.00"
+                        },
+                        "transactions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "cash_in",
+                                  "cash_out"
+                                ]
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              },
+                              "time": {
+                                "type": "string",
+                                "format": "time"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/api/staff/kasir/dashboard": {
       "get": {
         "tags": [
@@ -4934,6 +5039,87 @@
                     },
                     "pagination": {
                       "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/operator/bookings/pending": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get pending bookings 🟢 STAFF",
+        "description": "Endpoint untuk mendapatkan booking yang pending untuk operator",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending bookings berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "booking_number": {
+                            "type": "string"
+                          },
+                          "field_name": {
+                            "type": "string"
+                          },
+                          "customer_name": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "start_time": {
+                            "type": "string",
+                            "format": "time"
+                          },
+                          "end_time": {
+                            "type": "string",
+                            "format": "time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "pending"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -5707,6 +5893,125 @@
         }
       }
     },
+    "/api/staff/supervisor/system-maintenance": {
+      "post": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Trigger system maintenance 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk memicu tugas maintenance sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "task"
+                ],
+                "properties": {
+                  "task": {
+                    "type": "string",
+                    "enum": [
+                      "cleanup_logs",
+                      "optimize_database",
+                      "clear_cache",
+                      "backup_data"
+                    ],
+                    "example": "cleanup_logs"
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "days_to_keep": {
+                        "type": "integer",
+                        "example": 30
+                      },
+                      "force": {
+                        "type": "boolean",
+                        "example": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Maintenance task berhasil dijalankan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Maintenance task completed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "task": {
+                          "type": "string"
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "completed_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "results": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/staff/supervisor/database-stats": {
       "get": {
         "tags": [
@@ -5781,6 +6086,133 @@
                               "type": "number"
                             }
                           }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/staff/supervisor/error-logs": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get system error logs 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk mendapatkan log error sistem\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Halaman data"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Jumlah data per halaman"
+          },
+          {
+            "in": "query",
+            "name": "level",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "error",
+                "warning",
+                "info"
+              ],
+              "default": "error"
+            },
+            "description": "Level log yang ingin diambil"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Error logs berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "level": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "stack": {
+                                "type": "string"
+                              },
+                              "timestamp": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "source": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "pagination": {
+                          "$ref": "#/components/schemas/Pagination"
                         }
                       }
                     }
@@ -6451,6 +6883,120 @@
         }
       }
     },
+    "/api/admin/promotions/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update promosi 🟡 MANAGEMENT",
+        "description": "Endpoint untuk mengupdate promosi\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID promosi yang akan diupdate"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Diskon Weekend Updated"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Diskon khusus untuk booking weekend"
+                  },
+                  "value": {
+                    "type": "number",
+                    "example": 15
+                  },
+                  "min_amount": {
+                    "type": "number",
+                    "example": 100000
+                  },
+                  "max_discount": {
+                    "type": "number",
+                    "example": 50000
+                  },
+                  "usage_limit": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "user_limit": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Promosi berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Promotion updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Promotion"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/admin/users": {
       "get": {
         "tags": [
@@ -7070,6 +7616,79 @@
       }
     },
     "/api/admin/fields/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get detail lapangan 🟡 MANAGEMENT",
+        "description": "Endpoint untuk mendapatkan detail lapangan untuk admin\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem)\n- ✅ **Manager Futsal** (manajer_futsal)\n- ❌ Staff lainnya tidak dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan yang akan diambil"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Field"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Management yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Management level required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
       "put": {
         "tags": [
           "Admin"
