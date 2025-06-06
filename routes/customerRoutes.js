@@ -100,6 +100,56 @@ router.use(requireCustomer);
 router.get('/profile', getCustomerProfile);
 
 /**
+ * @swagger
+ * /api/customer/profile:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Update profil customer
+ *     description: Endpoint untuk mengupdate profil customer yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe Updated"
+ *                 description: "Nama lengkap customer"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.updated@example.com"
+ *                 description: "Email customer"
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *                 description: "Nomor telepon customer"
+ *     responses:
+ *       200:
+ *         description: Profil berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Profile updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   PUT /api/customer/profile
  * @desc    Update customer profile
  * @access  Private (Customer only)

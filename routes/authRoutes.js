@@ -157,6 +157,32 @@ router.post('/register', register);
 router.post('/login', login);
 
 /**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Logout pengguna
+ *     description: Endpoint untuk logout pengguna dan menghapus session/token
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Logout successful"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   POST /api/auth/logout
  * @desc    Logout user
  * @access  Public
@@ -192,6 +218,41 @@ router.post('/logout', logout);
 router.get('/profile', requireAuth, getProfile);
 
 /**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Refresh JWT token
+ *     description: Endpoint untuk memperbarui JWT token yang akan expired
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Token berhasil di-refresh
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Token refreshed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                     expires_in:
+ *                       type: string
+ *                       example: "24h"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   POST /api/auth/refresh
  * @desc    Refresh JWT token
  * @access  Private (Authenticated users)

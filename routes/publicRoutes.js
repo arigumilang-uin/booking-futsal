@@ -494,6 +494,54 @@ router.get('/fields/:fieldId/rating',
 );
 
 /**
+ * @swagger
+ * /api/public/promotions:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get promosi yang tersedia
+ *     description: Endpoint untuk mendapatkan daftar promosi yang sedang aktif
+ *     responses:
+ *       200:
+ *         description: Daftar promosi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Diskon Weekend"
+ *                       description:
+ *                         type: string
+ *                         example: "Diskon 20% untuk booking weekend"
+ *                       code:
+ *                         type: string
+ *                         example: "WEEKEND20"
+ *                       type:
+ *                         type: string
+ *                         enum: [percentage, fixed]
+ *                         example: "percentage"
+ *                       value:
+ *                         type: string
+ *                         example: "20.00"
+ *                       valid_from:
+ *                         type: string
+ *                         format: date-time
+ *                       valid_until:
+ *                         type: string
+ *                         format: date-time
+ *
  * @route   GET /api/public/promotions
  * @desc    Get available promotions
  * @access  Public
@@ -504,6 +552,65 @@ router.get('/promotions',
 );
 
 /**
+ * @swagger
+ * /api/public/fields/{fieldId}/promotions:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get promosi untuk lapangan tertentu
+ *     description: Endpoint untuk mendapatkan promosi yang berlaku untuk lapangan tertentu
+ *     parameters:
+ *       - in: path
+ *         name: fieldId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2024-12-01'
+ *         description: Tanggal booking
+ *       - in: query
+ *         name: start_time
+ *         schema:
+ *           type: string
+ *           example: '10:00'
+ *         description: Waktu mulai booking
+ *     responses:
+ *       200:
+ *         description: Promosi lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       code:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ *                       applicable_fields:
+ *                         type: array
+ *                         items:
+ *                           type: integer
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/public/fields/:fieldId/promotions
  * @desc    Get promotions applicable for specific field
  * @access  Public
