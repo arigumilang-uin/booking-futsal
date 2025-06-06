@@ -35,7 +35,7 @@ router.use(requireStaff);
  * /api/staff/kasir/payments:
  *   get:
  *     tags: [Staff]
- *     summary: Get daftar pembayaran untuk kasir
+ *     summary: Get daftar pembayaran untuk kasir 🟢 STAFF
  *     description: Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir
  *     security:
  *       - bearerAuth: []

@@ -70,7 +70,7 @@ router.use(requireCustomer);
  * /api/customer/profile:
  *   get:
  *     tags: [Customer]
- *     summary: Get profil customer
+ *     summary: Get profil customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan profil customer yang sedang login
  *     security:
  *       - bearerAuth: []
@@ -104,7 +104,7 @@ router.get('/profile', getCustomerProfile);
  * /api/customer/profile:
  *   put:
  *     tags: [Customer]
- *     summary: Update profil customer
+ *     summary: Update profil customer 🔵 CUSTOMER
  *     description: Endpoint untuk mengupdate profil customer yang sedang login
  *     security:
  *       - bearerAuth: []
@@ -635,8 +635,8 @@ router.get('/dashboard', getCustomerDashboard);
  * @swagger
  * /api/customer/notifications:
  *   get:
- *     tags: [Enhanced Features]
- *     summary: Get notifikasi customer
+ *     tags: [Customer]
+ *     summary: Get notifikasi customer 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan daftar notifikasi customer
  *     security:
  *       - bearerAuth: []
@@ -692,8 +692,8 @@ router.get('/dashboard', getCustomerDashboard);
  * @swagger
  * /api/customer/favorites:
  *   get:
- *     tags: [Enhanced Features]
- *     summary: Get lapangan favorit
+ *     tags: [Customer]
+ *     summary: Get lapangan favorit 🔵 CUSTOMER
  *     description: Endpoint untuk mendapatkan daftar lapangan favorit customer
  *     security:
  *       - bearerAuth: []

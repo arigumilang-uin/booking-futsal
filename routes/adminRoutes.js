@@ -1035,7 +1035,7 @@ router.put('/users/:id', requireManagement, async (req, res) => {
  * /api/admin/users/{id}:
  *   delete:
  *     tags: [Admin]
- *     summary: Deactivate user 🔴 MANAGEMENT ONLY
+ *     summary: Deactivate user 🟡 MANAGEMENT
  *     description: |
  *       Endpoint untuk menonaktifkan user (soft delete)
  *

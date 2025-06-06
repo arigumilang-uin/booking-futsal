@@ -36,7 +36,7 @@ const { requireAuth } = require('../middlewares/auth/authMiddleware');
  * /api/auth/register:
  *   post:
  *     tags: [Authentication]
- *     summary: Register pengguna baru
+ *     summary: Register pengguna baru ⚪ PUBLIC
  *     description: Endpoint untuk mendaftarkan pengguna baru dengan role default penyewa
  *     requestBody:
  *       required: true
@@ -99,7 +99,7 @@ router.post('/register', register);
  * /api/auth/login:
  *   post:
  *     tags: [Authentication]
- *     summary: Login pengguna
+ *     summary: Login pengguna ⚪ PUBLIC
  *     description: Endpoint untuk autentikasi pengguna dengan email dan password
  *     requestBody:
  *       required: true
@@ -161,7 +161,7 @@ router.post('/login', login);
  * /api/auth/logout:
  *   post:
  *     tags: [Authentication]
- *     summary: Logout pengguna
+ *     summary: Logout pengguna 🔵 AUTHENTICATED
  *     description: Endpoint untuk logout pengguna dan menghapus session/token
  *     security:
  *       - bearerAuth: []

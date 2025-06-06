@@ -31,7 +31,7 @@ const { optionalAuth } = require('../middlewares/auth/authMiddleware');
  * /api/public/system-info:
  *   get:
  *     tags: [Public]
- *     summary: Get informasi sistem
+ *     summary: Get informasi sistem ⚪ PUBLIC
  *     description: Endpoint untuk mendapatkan informasi sistem publik
  *     responses:
  *       200:
@@ -92,7 +92,7 @@ router.get('/system-info', getSystemInfo);
  * /api/public/database-status:
  *   get:
  *     tags: [Public]
- *     summary: Get status database
+ *     summary: Get status database ⚪ PUBLIC
  *     description: Endpoint untuk mengecek status database dan tabel
  *     responses:
  *       200:
