@@ -1316,6 +1316,94 @@ router.get('/fields/:id', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/fields:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Create lapangan baru 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk membuat lapangan baru
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, price]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Lapangan A"
+ *               type:
+ *                 type: string
+ *                 example: "futsal"
+ *               description:
+ *                 type: string
+ *                 example: "Lapangan futsal indoor dengan rumput sintetis"
+ *               price:
+ *                 type: number
+ *                 example: 100000
+ *               capacity:
+ *                 type: integer
+ *                 example: 22
+ *               location:
+ *                 type: string
+ *                 example: "Lantai 1"
+ *               address:
+ *                 type: string
+ *                 example: "Jl. Futsal No. 123"
+ *               facilities:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["AC", "Sound System", "Lighting"]
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                   lng:
+ *                     type: number
+ *     responses:
+ *       201:
+ *         description: Lapangan berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field created successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Field'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat membuat lapangan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *
  * @route   POST /api/admin/fields
  * @desc    Create new field
  * @access  Management (manajer_futsal+)
