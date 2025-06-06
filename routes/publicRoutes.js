@@ -172,6 +172,35 @@ router.get('/fields',
 );
 
 /**
+ * @swagger
+ * /api/public/fields/{id}:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get detail lapangan
+ *     description: Endpoint untuk mendapatkan detail lengkap lapangan berdasarkan ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *     responses:
+ *       200:
+ *         description: Detail lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Field'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/public/fields/:id
  * @desc    Get field detail untuk pengunjung
  * @access  Public
@@ -183,6 +212,67 @@ router.get('/fields/:id',
 );
 
 /**
+ * @swagger
+ * /api/public/fields/{id}/availability:
+ *   get:
+ *     tags: [Public]
+ *     summary: Cek ketersediaan lapangan
+ *     description: Endpoint untuk mengecek ketersediaan lapangan pada tanggal tertentu
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2024-12-01'
+ *         description: Tanggal yang ingin dicek
+ *     responses:
+ *       200:
+ *         description: Ketersediaan lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     field_id:
+ *                       type: integer
+ *                       example: 1
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                       example: '2024-12-01'
+ *                     available_slots:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           start_time:
+ *                             type: string
+ *                             example: '10:00'
+ *                           end_time:
+ *                             type: string
+ *                             example: '11:00'
+ *                           is_available:
+ *                             type: boolean
+ *                           price:
+ *                             type: string
+ *                             example: '150000.00'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/public/fields/:id/availability
  * @desc    Get field availability untuk pengunjung
  * @access  Public

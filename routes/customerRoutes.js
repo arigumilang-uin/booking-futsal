@@ -322,6 +322,40 @@ router.get('/bookings/history', (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/customer/bookings/{id}:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get detail booking customer
+ *     description: Endpoint untuk mendapatkan detail booking berdasarkan ID
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking
+ *     responses:
+ *       200:
+ *         description: Detail booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Booking'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/customer/bookings/:id
  * @desc    Get customer booking detail
  * @access  Private (Customer only)
@@ -330,6 +364,68 @@ router.get('/bookings/history', (req, res) => {
 router.get('/bookings/:id', getCustomerBookingDetail);
 
 /**
+ * @swagger
+ * /api/customer/bookings/{id}/cancel:
+ *   put:
+ *     tags: [Customer]
+ *     summary: Batalkan booking customer
+ *     description: Endpoint untuk membatalkan booking yang sudah dibuat
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan dibatalkan
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [reason]
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 example: "Berhalangan hadir"
+ *                 description: "Alasan pembatalan"
+ *     responses:
+ *       200:
+ *         description: Booking berhasil dibatalkan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Booking cancelled successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     booking_id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "cancelled"
+ *                     cancelled_at:
+ *                       type: string
+ *                       format: date-time
+ *                     cancellation_reason:
+ *                       type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/customer/bookings/:id/cancel
  * @desc    Cancel customer booking
  * @access  Private (Customer only)

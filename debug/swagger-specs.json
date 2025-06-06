@@ -408,6 +408,139 @@
         }
       }
     },
+    "/api/public/fields/{id}": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get detail lapangan",
+        "description": "Endpoint untuk mendapatkan detail lengkap lapangan berdasarkan ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Field"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/public/fields/{id}/availability": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Cek ketersediaan lapangan",
+        "description": "Endpoint untuk mengecek ketersediaan lapangan pada tanggal tertentu",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2024-12-01"
+            },
+            "description": "Tanggal yang ingin dicek"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ketersediaan lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "field_id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "date": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "2024-12-01"
+                        },
+                        "available_slots": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "start_time": {
+                                "type": "string",
+                                "example": "10:00"
+                              },
+                              "end_time": {
+                                "type": "string",
+                                "example": "11:00"
+                              },
+                              "is_available": {
+                                "type": "boolean"
+                              },
+                              "price": {
+                                "type": "string",
+                                "example": "150000.00"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/customer/profile": {
       "get": {
         "tags": [
@@ -657,6 +790,159 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/bookings/{id}": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get detail booking customer",
+        "description": "Endpoint untuk mendapatkan detail booking berdasarkan ID",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID booking"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Booking"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/customer/bookings/{id}/cancel": {
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Batalkan booking customer",
+        "description": "Endpoint untuk membatalkan booking yang sudah dibuat",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID booking yang akan dibatalkan"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Berhalangan hadir",
+                    "description": "Alasan pembatalan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking berhasil dibatalkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Booking cancelled successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "booking_id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "cancelled"
+                        },
+                        "cancelled_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "cancellation_reason": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
