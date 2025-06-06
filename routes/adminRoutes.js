@@ -849,6 +849,42 @@ router.post('/role-management/request-change', requireManagement, requestRoleCha
 router.put('/role-management/change-role', requireManagement, changeUserRoleDirect);
 
 /**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail user
+ *     description: Endpoint untuk mendapatkan detail user berdasarkan ID
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID user
+ *     responses:
+ *       200:
+ *         description: Detail user berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/admin/users/:id
  * @desc    Get user detail
  * @access  Management (manajer_futsal+)
@@ -881,6 +917,69 @@ router.get('/users/:id', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update user
+ *     description: Endpoint untuk mengupdate data user
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe Updated"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.updated@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *               role:
+ *                 type: string
+ *                 enum: [pengunjung, penyewa, staff_kasir, operator_lapangan, manajer_futsal, supervisor_sistem]
+ *                 example: "penyewa"
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: User berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/admin/users/:id
  * @desc    Update user
  * @access  Management (manajer_futsal+)

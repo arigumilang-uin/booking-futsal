@@ -317,11 +317,34 @@
                       "properties": {
                         "token": {
                           "type": "string",
-                          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                          "description": "JWT token baru yang sudah di-refresh"
                         },
                         "expires_in": {
                           "type": "string",
-                          "example": "24h"
+                          "example": "7d",
+                          "description": "Durasi expired token (7 hari)"
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 123
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "user@example.com"
+                            },
+                            "name": {
+                              "type": "string",
+                              "example": "John Doe"
+                            },
+                            "role": {
+                              "type": "string",
+                              "example": "penyewa"
+                            }
+                          }
                         }
                       }
                     }

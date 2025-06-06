@@ -393,6 +393,41 @@ router.get('/fields/:id/availability',
 );
 
 /**
+ * @swagger
+ * /api/public/field-types:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get tipe lapangan
+ *     description: Endpoint untuk mendapatkan daftar tipe lapangan yang tersedia
+ *     responses:
+ *       200:
+ *         description: Daftar tipe lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Futsal Indoor"
+ *                       description:
+ *                         type: string
+ *                         example: "Lapangan futsal indoor dengan rumput sintetis"
+ *                       price_per_hour:
+ *                         type: string
+ *                         example: "100000.00"
+ *
  * @route   GET /api/public/field-types
  * @desc    Get available field types
  * @access  Public
@@ -413,6 +448,33 @@ router.get('/field-locations',
 );
 
 /**
+ * @swagger
+ * /api/public/health:
+ *   get:
+ *     tags: [Public]
+ *     summary: Health check
+ *     description: Endpoint untuk health check sistem
+ *     responses:
+ *       200:
+ *         description: Sistem berjalan dengan baik
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "API is running"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   example: 3600.5
+ *
  * @route   GET /api/public/health
  * @desc    Health check endpoint
  * @access  Public
@@ -428,6 +490,39 @@ router.get('/health', (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/public/version:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get versi aplikasi
+ *     description: Endpoint untuk mendapatkan versi aplikasi dan informasi build
+ *     responses:
+ *       200:
+ *         description: Informasi versi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     version:
+ *                       type: string
+ *                       example: "2.0.0"
+ *                     build:
+ *                       type: string
+ *                       example: "20241206"
+ *                     environment:
+ *                       type: string
+ *                       example: "production"
+ *                     node_version:
+ *                       type: string
+ *                       example: "18.17.0"
+ *
  * @route   GET /api/public/version
  * @desc    Get API version
  * @access  Public
