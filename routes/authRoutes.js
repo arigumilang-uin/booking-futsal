@@ -199,6 +199,103 @@ router.get('/profile', requireAuth, getProfile);
 router.post('/refresh', requireAuth, refreshToken);
 
 /**
+ * @swagger
+ * /api/auth/roles:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Mendapatkan daftar role sistem
+ *     description: Endpoint untuk mendapatkan semua role yang tersedia dalam sistem enhanced 6-level hierarchy
+ *     responses:
+ *       200:
+ *         description: Daftar role berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     roles:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: "penyewa"
+ *                           label:
+ *                             type: string
+ *                             example: "Customer (Penyewa)"
+ *                           level:
+ *                             type: integer
+ *                             example: 2
+ *                           description:
+ *                             type: string
+ *                             example: "Customer yang dapat melakukan booking"
+ *                     hierarchy:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["pengunjung", "penyewa", "staff_kasir", "operator_lapangan", "manajer_futsal", "supervisor_sistem"]
+ */
+router.get('/roles', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      roles: [
+        {
+          value: 'pengunjung',
+          label: 'Guest (Pengunjung)',
+          level: 1,
+          description: 'Pengunjung yang dapat melihat informasi publik'
+        },
+        {
+          value: 'penyewa',
+          label: 'Customer (Penyewa)',
+          level: 2,
+          description: 'Customer yang dapat melakukan booking'
+        },
+        {
+          value: 'staff_kasir',
+          label: 'Cashier (Staff Kasir)',
+          level: 3,
+          description: 'Staff yang menangani pembayaran'
+        },
+        {
+          value: 'operator_lapangan',
+          label: 'Field Operator (Operator Lapangan)',
+          level: 4,
+          description: 'Staff yang mengelola lapangan dan booking'
+        },
+        {
+          value: 'manajer_futsal',
+          label: 'Manager (Manajer Futsal)',
+          level: 5,
+          description: 'Manager yang mengelola bisnis dan analytics'
+        },
+        {
+          value: 'supervisor_sistem',
+          label: 'System Supervisor (Supervisor Sistem)',
+          level: 6,
+          description: 'Supervisor dengan akses penuh sistem'
+        }
+      ],
+      hierarchy: ['pengunjung', 'penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'],
+      enhanced_features: {
+        role_based_access: true,
+        hierarchical_permissions: true,
+        employee_management: true,
+        audit_trail: true
+      }
+    }
+  });
+});
+
+/**
  * @route   POST /api/auth/change-password
  * @desc    Change user password
  * @access  Private (Authenticated users)
@@ -574,126 +671,6 @@ router.post('/validate-email-batch', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/auth/roles:
- *   get:
- *     tags: [Authentication]
- *     summary: Mendapatkan daftar role sistem
- *     description: Endpoint untuk mendapatkan informasi role yang tersedia dalam sistem enhanced 6-level hierarchy
- *     responses:
- *       200:
- *         description: Daftar role berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: object
- *                   properties:
- *                     roles:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           value:
- *                             type: string
- *                             example: "user"
- *                           label:
- *                             type: string
- *                             example: "Customer"
- *                           description:
- *                             type: string
- *                             example: "Regular customer who can book fields"
- *                           level:
- *                             type: integer
- *                             example: 2
- *                     enhanced_roles:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           value:
- *                             type: string
- *                             example: "penyewa"
- *                           label:
- *                             type: string
- *                             example: "Customer"
- *                           description:
- *                             type: string
- *                             example: "Customer who can book fields"
- *                           level:
- *                             type: integer
- *                             example: 2
- */
-router.get('/roles', (req, res) => {
-  res.json({
-    success: true,
-    data: {
-      roles: [
-        {
-          value: 'user',
-          label: 'Customer',
-          description: 'Regular customer who can book fields',
-          level: 2
-        },
-        {
-          value: 'pengelola',
-          label: 'Staff',
-          description: 'Staff member with operational access',
-          level: 4
-        },
-        {
-          value: 'admin',
-          label: 'Administrator',
-          description: 'System administrator with full access',
-          level: 6
-        }
-      ],
-      enhanced_roles: [
-        {
-          value: 'pengunjung',
-          label: 'Guest',
-          description: 'Guest user with read-only access',
-          level: 1
-        },
-        {
-          value: 'penyewa',
-          label: 'Customer',
-          description: 'Customer who can book fields',
-          level: 2
-        },
-        {
-          value: 'staff_kasir',
-          label: 'Cashier Staff',
-          description: 'Staff responsible for payment processing',
-          level: 3
-        },
-        {
-          value: 'operator_lapangan',
-          label: 'Field Operator',
-          description: 'Staff responsible for field operations',
-          level: 4
-        },
-        {
-          value: 'manajer_futsal',
-          label: 'Futsal Manager',
-          description: 'Manager with business management access',
-          level: 5
-        },
-        {
-          value: 'supervisor_sistem',
-          label: 'System Supervisor',
-          description: 'Supervisor with full system access',
-          level: 6
-        }
-      ]
-    }
-  });
-});
+
 
 module.exports = router;

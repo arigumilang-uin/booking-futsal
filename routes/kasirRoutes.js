@@ -31,6 +31,76 @@ router.use(requireStaff);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/staff/kasir/payments:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get daftar pembayaran untuk kasir
+ *     description: Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, paid, failed]
+ *         description: Filter berdasarkan status pembayaran
+ *       - in: query
+ *         name: method
+ *         schema:
+ *           type: string
+ *           enum: [cash, bank_transfer, debit_card]
+ *         description: Filter berdasarkan metode pembayaran
+ *     responses:
+ *       200:
+ *         description: Daftar pembayaran berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       payment_number:
+ *                         type: string
+ *                         example: 'PAY-20241201-001'
+ *                       booking_id:
+ *                         type: integer
+ *                       amount:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/payments
  * @desc    Get all payments untuk kasir
  * @access  Private (Kasir, Manager, Supervisor)
@@ -61,6 +131,75 @@ router.get('/payments/:id', getPaymentDetailForKasir);
 router.get('/pending-payments', getPendingPayments);
 
 /**
+ * @swagger
+ * /api/staff/kasir/payments/manual:
+ *   post:
+ *     tags: [Staff]
+ *     summary: Proses pembayaran manual
+ *     description: Endpoint untuk memproses pembayaran manual (cash, transfer)
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [booking_id, method, amount]
+ *             properties:
+ *               booking_id:
+ *                 type: integer
+ *                 example: 1
+ *                 description: ID booking
+ *               method:
+ *                 type: string
+ *                 enum: [cash, bank_transfer, debit_card]
+ *                 description: Metode pembayaran
+ *               amount:
+ *                 type: string
+ *                 example: '200000.00'
+ *                 description: Jumlah pembayaran
+ *               reference_number:
+ *                 type: string
+ *                 example: 'TRF123456'
+ *                 description: Nomor referensi (untuk non-cash)
+ *               notes:
+ *                 type: string
+ *                 description: Catatan pembayaran
+ *     responses:
+ *       201:
+ *         description: Pembayaran berhasil diproses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Payment processed successfully'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     payment_number:
+ *                       type: string
+ *                       example: 'PAY-20241201-001'
+ *                     amount:
+ *                       type: string
+ *                     method:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   POST /api/staff/kasir/payments/manual
  * @desc    Process manual payment (cash, transfer)
  * @access  Private (Kasir, Manager, Supervisor)
@@ -159,6 +298,77 @@ router.get('/bookings', getAllBookingsForKasir);
 router.get('/bookings/:id', getBookingDetailForKasir);
 
 /**
+ * @swagger
+ * /api/staff/kasir/dashboard:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get dashboard kasir
+ *     description: Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard kasir berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     staff_info:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "Jane Kasir"
+ *                         employee_id:
+ *                           type: string
+ *                           example: "KS001"
+ *                         role:
+ *                           type: string
+ *                           example: "Kasir"
+ *                     today_summary:
+ *                       type: object
+ *                       properties:
+ *                         total_transactions:
+ *                           type: integer
+ *                           example: 15
+ *                         total_amount:
+ *                           type: string
+ *                           example: "3500000.00"
+ *                         pending_payments:
+ *                           type: integer
+ *                           example: 3
+ *                         cash_payments:
+ *                           type: integer
+ *                           example: 8
+ *                         digital_payments:
+ *                           type: integer
+ *                           example: 7
+ *                     recent_transactions:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           payment_number:
+ *                             type: string
+ *                           amount:
+ *                             type: string
+ *                           method:
+ *                             type: string
+ *                           status:
+ *                             type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/dashboard
  * @desc    Get kasir dashboard
  * @access  Private (Kasir, Manager, Supervisor)
@@ -207,6 +417,68 @@ router.get('/dashboard', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/kasir/payment-methods:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get metode pembayaran yang tersedia
+ *     description: Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Daftar metode pembayaran berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     manual_methods:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: "cash"
+ *                           label:
+ *                             type: string
+ *                             example: "Cash"
+ *                           description:
+ *                             type: string
+ *                             example: "Pembayaran tunai"
+ *                           requires_reference:
+ *                             type: boolean
+ *                             example: false
+ *                     digital_methods:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           value:
+ *                             type: string
+ *                             example: "ewallet"
+ *                           label:
+ *                             type: string
+ *                             example: "E-Wallet"
+ *                           description:
+ *                             type: string
+ *                             example: "GoPay, OVO, DANA, dll"
+ *                           gateway:
+ *                             type: string
+ *                             example: "midtrans"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/payment-methods
  * @desc    Get available payment methods
  * @access  Private (Kasir, Manager, Supervisor)

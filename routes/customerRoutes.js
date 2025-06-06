@@ -66,6 +66,33 @@ router.use(requireCustomer);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/customer/profile:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get profil customer
+ *     description: Endpoint untuk mendapatkan profil customer yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Profil customer berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/customer/profile
  * @desc    Get customer profile
  * @access  Private (Customer only)
@@ -89,6 +116,136 @@ router.put('/profile', updateCustomerProfile);
 router.get('/fields', getCustomerFields);
 
 /**
+ * @swagger
+ * /api/customer/bookings:
+ *   post:
+ *     tags: [Customer]
+ *     summary: Buat booking baru
+ *     description: Endpoint untuk membuat booking lapangan baru
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [field_id, date, start_time, end_time, name, phone]
+ *             properties:
+ *               field_id:
+ *                 type: integer
+ *                 example: 1
+ *                 description: ID lapangan
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 example: '2024-12-01'
+ *                 description: Tanggal booking
+ *               start_time:
+ *                 type: string
+ *                 example: '10:00'
+ *                 description: Waktu mulai (HH:MM)
+ *               end_time:
+ *                 type: string
+ *                 example: '12:00'
+ *                 description: Waktu selesai (HH:MM)
+ *               name:
+ *                 type: string
+ *                 example: 'John Doe'
+ *                 description: Nama pemesan
+ *               phone:
+ *                 type: string
+ *                 example: '081234567890'
+ *                 description: Nomor telepon
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: 'john@example.com'
+ *                 description: Email (opsional)
+ *               notes:
+ *                 type: string
+ *                 example: 'Booking untuk turnamen'
+ *                 description: Catatan tambahan
+ *     responses:
+ *       201:
+ *         description: Booking berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Booking created successfully'
+ *                 data:
+ *                   $ref: '#/components/schemas/Booking'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       409:
+ *         description: Konflik waktu booking
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: 'Time slot already booked'
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get daftar booking customer
+ *     description: Endpoint untuk mendapatkan semua booking milik customer yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status booking
+ *     responses:
+ *       200:
+ *         description: Daftar booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   POST /api/customer/bookings
  * @desc    Create new booking
  * @access  Private (Customer only)
@@ -97,6 +254,54 @@ router.get('/fields', getCustomerFields);
 router.post('/bookings', createCustomerBooking);
 
 /**
+ * @swagger
+ * /api/customer/bookings:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get daftar booking customer
+ *     description: Endpoint untuk mendapatkan semua booking milik customer yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status booking
+ *     responses:
+ *       200:
+ *         description: Daftar booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/customer/bookings
  * @desc    Get customer bookings
  * @access  Private (Customer only)
@@ -158,6 +363,58 @@ router.get('/upcoming-bookings', (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/customer/dashboard:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get dashboard customer
+ *     description: Endpoint untuk mendapatkan data dashboard customer dengan statistik booking
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard customer berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     customer_info:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         total_bookings:
+ *                           type: integer
+ *                     booking_stats:
+ *                       type: object
+ *                       properties:
+ *                         pending:
+ *                           type: integer
+ *                         confirmed:
+ *                           type: integer
+ *                         completed:
+ *                           type: integer
+ *                     recent_bookings:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Booking'
+ *                     favorite_fields:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Field'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/customer/dashboard
  * @desc    Get customer dashboard data
  * @access  Private (Customer only)
@@ -167,6 +424,93 @@ router.get('/dashboard', getCustomerDashboard);
 // =====================================================
 // ENHANCED FEATURES - CUSTOMER ACCESS
 // =====================================================
+
+/**
+ * @swagger
+ * /api/customer/notifications:
+ *   get:
+ *     tags: [Enhanced Features]
+ *     summary: Get notifikasi customer
+ *     description: Endpoint untuk mendapatkan daftar notifikasi customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: unread_only
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *     responses:
+ *       200:
+ *         description: Daftar notifikasi berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       is_read:
+ *                         type: boolean
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ * @swagger
+ * /api/customer/favorites:
+ *   get:
+ *     tags: [Enhanced Features]
+ *     summary: Get lapangan favorit
+ *     description: Endpoint untuk mendapatkan daftar lapangan favorit customer
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Daftar favorit berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Field'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
+ */
 
 // NOTIFICATION ROUTES
 router.get('/notifications', getNotifications);

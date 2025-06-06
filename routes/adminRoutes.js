@@ -784,6 +784,78 @@ router.get('/analytics/performance', requireManagement, getPerformanceMetrics);
 router.get('/bookings/statistics', requireManagement, getBookingStatisticsAdmin);
 
 /**
+ * @swagger
+ * /api/admin/bookings:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua booking untuk admin
+ *     description: Endpoint untuk mendapatkan semua booking dengan akses admin/management
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Nomor halaman
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah item per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status booking
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan user ID
+ *       - in: query
+ *         name: field_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan field ID
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Daftar booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/bookings
  * @desc    Get all bookings for admin management
  * @access  Management (manajer_futsal+)
@@ -813,6 +885,49 @@ router.put('/bookings/:id/status', requireManagement, updateBookingStatusAdmin);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/auto-completion/trigger:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Trigger auto-completion manual
+ *     description: Endpoint untuk memicu proses auto-completion booking secara manual (supervisor only)
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Auto-completion berhasil dijalankan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Auto-completion process triggered successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     processed_bookings:
+ *                       type: integer
+ *                       example: 5
+ *                     completed_bookings:
+ *                       type: integer
+ *                       example: 3
+ *                     failed_bookings:
+ *                       type: integer
+ *                       example: 0
+ *                     execution_time:
+ *                       type: string
+ *                       example: "2.5s"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   POST /api/admin/auto-completion/trigger
  * @desc    Manually trigger auto-completion process
  * @access  Admin (supervisor_sistem only)

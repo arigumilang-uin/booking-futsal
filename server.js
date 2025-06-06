@@ -26,13 +26,21 @@ const server = app.listen(PORT, () => {
     timestamp: new Date().toISOString()
   });
 
+  // Determine base URL based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  const baseUrl = isProduction
+    ? 'https://booking-futsal-production.up.railway.app'
+    : `http://localhost:${PORT}`;
+
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Available endpoints:`);
-  console.log(`   - Health Check: http://localhost:${PORT}/health`);
-  console.log(`   - Enhanced Health: http://localhost:${PORT}/health`);
-  console.log(`   - API Documentation: http://localhost:${PORT}/api-docs`);
-  console.log(`   - Database Test: http://localhost:${PORT}/api/test/database`);
+  console.log(`   - Health Check: ${baseUrl}/health`);
+  console.log(`   - Enhanced Health: ${baseUrl}/health`);
+  console.log(`   - API Documentation: ${baseUrl}/api-docs`);
+  console.log(`   - Database Test: ${baseUrl}/api/test/database`);
+  console.log(`   - System Info: ${baseUrl}/api/public/system-info`);
+  console.log(`   - Database Status: ${baseUrl}/api/public/database-status`);
 
   // Start performance monitoring
   startMetricsCollection(60000); // Collect metrics every minute

@@ -28,6 +28,69 @@ router.use(requireStaff);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/staff/operator/dashboard:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get dashboard operator lapangan
+ *     description: Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard operator berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     operator_info:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                           example: "John Operator"
+ *                         employee_id:
+ *                           type: string
+ *                           example: "OP001"
+ *                         assigned_fields:
+ *                           type: integer
+ *                           example: 3
+ *                     today_stats:
+ *                       type: object
+ *                       properties:
+ *                         total_bookings:
+ *                           type: integer
+ *                           example: 12
+ *                         pending_confirmations:
+ *                           type: integer
+ *                           example: 3
+ *                         active_bookings:
+ *                           type: integer
+ *                           example: 2
+ *                     field_status:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           field_name:
+ *                             type: string
+ *                           status:
+ *                             type: string
+ *                           current_booking:
+ *                             type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/operator/dashboard
  * @desc    Get operator dashboard
  * @access  Private (Operator, Manager, Supervisor)
@@ -134,6 +197,69 @@ router.get('/schedule/:date', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/operator/bookings/{id}/confirm:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Konfirmasi booking
+ *     description: Endpoint untuk mengkonfirmasi booking yang pending
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan dikonfirmasi
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               notes:
+ *                 type: string
+ *                 example: "Booking dikonfirmasi, lapangan siap"
+ *                 description: "Catatan konfirmasi (opsional)"
+ *     responses:
+ *       200:
+ *         description: Booking berhasil dikonfirmasi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Booking confirmed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     booking_id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "confirmed"
+ *                     confirmed_at:
+ *                       type: string
+ *                       format: date-time
+ *                     confirmed_by:
+ *                       type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/staff/operator/bookings/:id/confirm
  * @desc    Confirm booking
  * @access  Private (Operator, Manager, Supervisor)

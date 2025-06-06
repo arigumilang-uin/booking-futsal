@@ -1,0 +1,1694 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Enhanced Futsal Booking System API",
+    "version": "2.0.0",
+    "description": "API untuk sistem booking lapangan futsal dengan fitur lengkap"
+  },
+  "servers": [
+    {
+      "url": "https://booking-futsal-production.up.railway.app",
+      "description": "Production Server (Railway)"
+    },
+    {
+      "url": "http://localhost:5000",
+      "description": "Development Server"
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register pengguna baru",
+        "description": "Endpoint untuk mendaftarkan pengguna baru dengan role default penyewa",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "phone"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe",
+                    "description": "Nama lengkap"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com",
+                    "description": "Email unik"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123",
+                    "description": "Password minimal 6 karakter"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "081234567890",
+                    "description": "Nomor telepon"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "penyewa"
+                    ],
+                    "default": "user",
+                    "description": "Role (opsional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registrasi berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Registration successful"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "JWT token (development only)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login pengguna",
+        "description": "Endpoint untuk autentikasi pengguna dengan email dan password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "ppwweebb01@gmail.com",
+                    "description": "Email pengguna"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123",
+                    "description": "Password pengguna"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login berhasil"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "description": "JWT token"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Password salah atau email tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Password salah"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get profil pengguna",
+        "description": "Endpoint untuk mendapatkan profil pengguna yang sedang login",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/roles": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Mendapatkan daftar role sistem",
+        "description": "Endpoint untuk mendapatkan semua role yang tersedia dalam sistem enhanced 6-level hierarchy",
+        "responses": {
+          "200": {
+            "description": "Daftar role berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "example": "penyewa"
+                              },
+                              "label": {
+                                "type": "string",
+                                "example": "Customer (Penyewa)"
+                              },
+                              "level": {
+                                "type": "integer",
+                                "example": 2
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Customer yang dapat melakukan booking"
+                              }
+                            }
+                          }
+                        },
+                        "hierarchy": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "pengunjung",
+                            "penyewa",
+                            "staff_kasir",
+                            "operator_lapangan",
+                            "manajer_futsal",
+                            "supervisor_sistem"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/fields": {
+      "get": {
+        "summary": "Mendapatkan daftar lapangan yang tersedia",
+        "description": "Endpoint publik untuk mendapatkan semua lapangan futsal dengan informasi lengkap",
+        "tags": [
+          "Public"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Kata kunci pencarian"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "futsal",
+                "mini_soccer",
+                "basketball"
+              ]
+            },
+            "description": "Filter berdasarkan jenis lapangan"
+          },
+          {
+            "in": "query",
+            "name": "location",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan lokasi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Daftar lapangan berhasil diambil"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Field"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer/profile": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get profil customer",
+        "description": "Endpoint untuk mendapatkan profil customer yang sedang login",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil customer berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/customer/bookings": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Buat booking baru",
+        "description": "Endpoint untuk membuat booking lapangan baru",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "field_id",
+                  "date",
+                  "start_time",
+                  "end_time",
+                  "name",
+                  "phone"
+                ],
+                "properties": {
+                  "field_id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "ID lapangan"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2024-12-01",
+                    "description": "Tanggal booking"
+                  },
+                  "start_time": {
+                    "type": "string",
+                    "example": "10:00",
+                    "description": "Waktu mulai (HH:MM)"
+                  },
+                  "end_time": {
+                    "type": "string",
+                    "example": "12:00",
+                    "description": "Waktu selesai (HH:MM)"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe",
+                    "description": "Nama pemesan"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "081234567890",
+                    "description": "Nomor telepon"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com",
+                    "description": "Email (opsional)"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "example": "Booking untuk turnamen",
+                    "description": "Catatan tambahan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Booking created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Booking"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Konflik waktu booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Time slot already booked"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get daftar booking customer",
+        "description": "Endpoint untuk mendapatkan semua booking milik customer yang sedang login",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status booking"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/dashboard": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get dashboard customer",
+        "description": "Endpoint untuk mendapatkan data dashboard customer dengan statistik booking",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard customer berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "customer_info": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "type": "string"
+                            },
+                            "total_bookings": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "booking_stats": {
+                          "type": "object",
+                          "properties": {
+                            "pending": {
+                              "type": "integer"
+                            },
+                            "confirmed": {
+                              "type": "integer"
+                            },
+                            "completed": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "recent_bookings": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Booking"
+                          }
+                        },
+                        "favorite_fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Field"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/notifications": {
+      "get": {
+        "tags": [
+          "Enhanced Features"
+        ],
+        "summary": "Get notifikasi customer",
+        "description": "Endpoint untuk mendapatkan daftar notifikasi customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "unread_only",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar notifikasi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "is_read": {
+                            "type": "boolean"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites": {
+      "get": {
+        "tags": [
+          "Enhanced Features"
+        ],
+        "summary": "Get lapangan favorit",
+        "description": "Endpoint untuk mendapatkan daftar lapangan favorit customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar favorit berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Field"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/payments": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get daftar pembayaran untuk kasir",
+        "description": "Endpoint untuk mendapatkan semua pembayaran yang perlu diproses kasir",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "paid",
+                "failed"
+              ]
+            },
+            "description": "Filter berdasarkan status pembayaran"
+          },
+          {
+            "in": "query",
+            "name": "method",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cash",
+                "bank_transfer",
+                "debit_card"
+              ]
+            },
+            "description": "Filter berdasarkan metode pembayaran"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar pembayaran berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "payment_number": {
+                            "type": "string",
+                            "example": "PAY-20241201-001"
+                          },
+                          "booking_id": {
+                            "type": "integer"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "method": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/payments/manual": {
+      "post": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Proses pembayaran manual",
+        "description": "Endpoint untuk memproses pembayaran manual (cash, transfer)",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "booking_id",
+                  "method",
+                  "amount"
+                ],
+                "properties": {
+                  "booking_id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "ID booking"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "cash",
+                      "bank_transfer",
+                      "debit_card"
+                    ],
+                    "description": "Metode pembayaran"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "example": "200000.00",
+                    "description": "Jumlah pembayaran"
+                  },
+                  "reference_number": {
+                    "type": "string",
+                    "example": "TRF123456",
+                    "description": "Nomor referensi (untuk non-cash)"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Catatan pembayaran"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pembayaran berhasil diproses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Payment processed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "payment_number": {
+                          "type": "string",
+                          "example": "PAY-20241201-001"
+                        },
+                        "amount": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/dashboard": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get dashboard kasir",
+        "description": "Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard kasir berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "staff_info": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "example": "Jane Kasir"
+                            },
+                            "employee_id": {
+                              "type": "string",
+                              "example": "KS001"
+                            },
+                            "role": {
+                              "type": "string",
+                              "example": "Kasir"
+                            }
+                          }
+                        },
+                        "today_summary": {
+                          "type": "object",
+                          "properties": {
+                            "total_transactions": {
+                              "type": "integer",
+                              "example": 15
+                            },
+                            "total_amount": {
+                              "type": "string",
+                              "example": "3500000.00"
+                            },
+                            "pending_payments": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "cash_payments": {
+                              "type": "integer",
+                              "example": 8
+                            },
+                            "digital_payments": {
+                              "type": "integer",
+                              "example": 7
+                            }
+                          }
+                        },
+                        "recent_transactions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "payment_number": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "method": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/payment-methods": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get metode pembayaran yang tersedia",
+        "description": "Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar metode pembayaran berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "manual_methods": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "example": "cash"
+                              },
+                              "label": {
+                                "type": "string",
+                                "example": "Cash"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Pembayaran tunai"
+                              },
+                              "requires_reference": {
+                                "type": "boolean",
+                                "example": false
+                              }
+                            }
+                          }
+                        },
+                        "digital_methods": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "example": "ewallet"
+                              },
+                              "label": {
+                                "type": "string",
+                                "example": "E-Wallet"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "GoPay, OVO, DANA, dll"
+                              },
+                              "gateway": {
+                                "type": "string",
+                                "example": "midtrans"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/operator/dashboard": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get dashboard operator lapangan",
+        "description": "Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard operator berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "operator_info": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "example": "John Operator"
+                            },
+                            "employee_id": {
+                              "type": "string",
+                              "example": "OP001"
+                            },
+                            "assigned_fields": {
+                              "type": "integer",
+                              "example": 3
+                            }
+                          }
+                        },
+                        "today_stats": {
+                          "type": "object",
+                          "properties": {
+                            "total_bookings": {
+                              "type": "integer",
+                              "example": 12
+                            },
+                            "pending_confirmations": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "active_bookings": {
+                              "type": "integer",
+                              "example": 2
+                            }
+                          }
+                        },
+                        "field_status": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field_name": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "current_booking": {
+                                "type": "object"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/staff/operator/bookings/{id}/confirm": {
+      "put": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Konfirmasi booking",
+        "description": "Endpoint untuk mengkonfirmasi booking yang pending",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID booking yang akan dikonfirmasi"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Booking dikonfirmasi, lapangan siap",
+                    "description": "Catatan konfirmasi (opsional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking berhasil dikonfirmasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Booking confirmed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "booking_id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "confirmed"
+                        },
+                        "confirmed_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "confirmed_by": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/admin/bookings": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua booking untuk admin",
+        "description": "Endpoint untuk mendapatkan semua booking dengan akses admin/management",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Nomor halaman"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah item per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status booking"
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan user ID"
+          },
+          {
+            "in": "query",
+            "name": "field_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan field ID"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/auto-completion/trigger": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Trigger auto-completion manual",
+        "description": "Endpoint untuk memicu proses auto-completion booking secara manual (supervisor only)",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auto-completion berhasil dijalankan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Auto-completion process triggered successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "processed_bookings": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "completed_bookings": {
+                          "type": "integer",
+                          "example": 3
+                        },
+                        "failed_bookings": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "execution_time": {
+                          "type": "string",
+                          "example": "2.5s"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
