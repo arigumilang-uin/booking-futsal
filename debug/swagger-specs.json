@@ -541,6 +541,163 @@
         }
       }
     },
+    "/api/public/system-info": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get informasi sistem",
+        "description": "Endpoint untuk mendapatkan informasi sistem publik",
+        "responses": {
+          "200": {
+            "description": "Informasi sistem berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "app_name": {
+                          "type": "string",
+                          "example": "Enhanced Futsal Booking System"
+                        },
+                        "version": {
+                          "type": "string",
+                          "example": "2.0.0"
+                        },
+                        "environment": {
+                          "type": "string",
+                          "example": "production"
+                        },
+                        "server_time": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "example": "Asia/Jakarta"
+                        },
+                        "features": {
+                          "type": "object",
+                          "properties": {
+                            "role_based_access": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "auto_completion": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "notifications": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "reviews": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "promotions": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/database-status": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get status database",
+        "description": "Endpoint untuk mengecek status database dan tabel",
+        "responses": {
+          "200": {
+            "description": "Status database berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "database_connected": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "total_tables": {
+                          "type": "integer",
+                          "example": 15
+                        },
+                        "missing_tables": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "existing_tables": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "migration_status": {
+                          "type": "string",
+                          "example": "completed"
+                        },
+                        "last_check": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Database connection error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Database connection failed"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/public/fields": {
       "get": {
         "summary": "Mendapatkan daftar lapangan yang tersedia",
@@ -2363,6 +2520,537 @@
         }
       }
     },
+    "/api/customer/favorites/{fieldId}/toggle": {
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Toggle status favorit lapangan",
+        "description": "Endpoint untuk toggle status favorit lapangan (add/remove)",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status favorit berhasil di-toggle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Field favorite status toggled"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_favorite": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites/{fieldId}/check": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Cek status favorit lapangan",
+        "description": "Endpoint untuk mengecek apakah lapangan sudah difavoritkan",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fieldId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID lapangan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status favorit berhasil dicek",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_favorite": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "field_id": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites/availability": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get favorit dengan info ketersediaan",
+        "description": "Endpoint untuk mendapatkan lapangan favorit dengan informasi ketersediaan",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2024-12-01"
+            },
+            "description": "Tanggal untuk cek ketersediaan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorit dengan ketersediaan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field_id": {
+                            "type": "integer"
+                          },
+                          "field_name": {
+                            "type": "string"
+                          },
+                          "availability": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites/statistics": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get statistik favorit",
+        "description": "Endpoint untuk mendapatkan statistik lapangan favorit customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistik favorit berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_favorites": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "most_booked_favorite": {
+                          "type": "object"
+                        },
+                        "average_rating": {
+                          "type": "number",
+                          "example": 4.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/favorites/count": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get jumlah favorit",
+        "description": "Endpoint untuk mendapatkan jumlah lapangan favorit customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jumlah favorit berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "example": 5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/promotions": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get promosi yang tersedia untuk customer",
+        "description": "Endpoint untuk mendapatkan daftar promosi yang dapat digunakan customer",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar promosi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "valid_until": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/promotions/{code}": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get detail promosi berdasarkan kode",
+        "description": "Endpoint untuk mendapatkan detail promosi berdasarkan kode promosi",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Kode promosi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail promosi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "min_booking_amount": {
+                          "type": "string"
+                        },
+                        "valid_from": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "valid_until": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/customer/promotions/validate": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Validasi kode promosi",
+        "description": "Endpoint untuk memvalidasi kode promosi sebelum digunakan",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "WEEKEND20"
+                  },
+                  "booking_amount": {
+                    "type": "number",
+                    "example": 100000
+                  },
+                  "field_id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validasi promosi berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_valid": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "discount_amount": {
+                          "type": "number",
+                          "example": 20000
+                        },
+                        "final_amount": {
+                          "type": "number",
+                          "example": 80000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/api/staff/kasir/payments": {
       "get": {
         "tags": [
@@ -2570,6 +3258,102 @@
         }
       }
     },
+    "/api/staff/kasir/payments/{id}": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get detail pembayaran",
+        "description": "Endpoint untuk mendapatkan detail pembayaran berdasarkan ID untuk kasir",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID pembayaran"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail pembayaran berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "payment_number": {
+                          "type": "string"
+                        },
+                        "booking_id": {
+                          "type": "integer"
+                        },
+                        "amount": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "customer_name": {
+                          "type": "string"
+                        },
+                        "field_name": {
+                          "type": "string"
+                        },
+                        "booking_date": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "confirmed_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/staff/kasir/payments/manual": {
       "post": {
         "tags": [
@@ -2769,6 +3553,117 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/staff/kasir/statistics": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get statistik pembayaran",
+        "description": "Endpoint untuk mendapatkan statistik pembayaran untuk kasir",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistik pembayaran berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_payments": {
+                          "type": "integer",
+                          "example": 150
+                        },
+                        "total_amount": {
+                          "type": "string",
+                          "example": "15000000.00"
+                        },
+                        "completed_payments": {
+                          "type": "integer",
+                          "example": 140
+                        },
+                        "pending_payments": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "payment_methods": {
+                          "type": "object",
+                          "properties": {
+                            "cash": {
+                              "type": "integer"
+                            },
+                            "transfer": {
+                              "type": "integer"
+                            },
+                            "ewallet": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "daily_revenue": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              "amount": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
@@ -3072,6 +3967,73 @@
         }
       }
     },
+    "/api/staff/operator/fields": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get lapangan yang ditugaskan",
+        "description": "Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "current_bookings": {
+                            "type": "integer"
+                          },
+                          "today_revenue": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/api/staff/operator/bookings/{id}/confirm": {
       "put": {
         "tags": [
@@ -3170,6 +4132,144 @@
         }
       }
     },
+    "/api/staff/operator/bookings": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get semua booking untuk operator",
+        "description": "Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status booking"
+          },
+          {
+            "in": "query",
+            "name": "field_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan lapangan"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "booking_number": {
+                            "type": "string"
+                          },
+                          "field_name": {
+                            "type": "string"
+                          },
+                          "customer_name": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "start_time": {
+                            "type": "string"
+                          },
+                          "end_time": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "total_amount": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/api/admin/settings": {
       "get": {
         "tags": [
@@ -3214,6 +4314,581 @@
                           "is_public": {
                             "type": "boolean"
                           }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/audit-logs": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua audit logs",
+        "description": "Endpoint untuk mendapatkan semua log audit sistem",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan user ID"
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan action (CREATE, UPDATE, DELETE)"
+          },
+          {
+            "in": "query",
+            "name": "table_name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan nama tabel"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar audit logs berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "user_id": {
+                            "type": "integer"
+                          },
+                          "action": {
+                            "type": "string"
+                          },
+                          "table_name": {
+                            "type": "string"
+                          },
+                          "record_id": {
+                            "type": "integer"
+                          },
+                          "old_values": {
+                            "type": "object"
+                          },
+                          "new_values": {
+                            "type": "object"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/notifications": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua notifikasi",
+        "description": "Endpoint untuk mendapatkan semua notifikasi sistem",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan user ID"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan tipe notifikasi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar notifikasi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "priority": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Buat notifikasi sistem",
+        "description": "Endpoint untuk membuat notifikasi sistem baru",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "message"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Maintenance Scheduled"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "System maintenance will be performed tonight"
+                  },
+                  "user_id": {
+                    "type": "integer",
+                    "example": 123
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "system"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ],
+                    "example": "high"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notifikasi berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Notification created successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/promotions": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get semua promosi",
+        "description": "Endpoint untuk mendapatkan semua promosi untuk management",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "all"
+              ]
+            },
+            "description": "Filter berdasarkan status promosi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar promosi berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "is_active": {
+                            "type": "boolean"
+                          },
+                          "usage_count": {
+                            "type": "integer"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Buat promosi baru",
+        "description": "Endpoint untuk membuat promosi baru",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "code",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Weekend Discount"
+                  },
+                  "code": {
+                    "type": "string",
+                    "example": "WEEKEND20"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "20% discount for weekend bookings"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "percentage",
+                      "fixed"
+                    ],
+                    "example": "percentage"
+                  },
+                  "value": {
+                    "type": "string",
+                    "example": "20.00"
+                  },
+                  "min_booking_amount": {
+                    "type": "string",
+                    "example": "50000.00"
+                  },
+                  "usage_limit": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "valid_from": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "valid_until": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "applicable_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "example": [
+                      1,
+                      2,
+                      3
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Promosi berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Promotion created successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string"
                         }
                       }
                     }

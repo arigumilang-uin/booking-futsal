@@ -26,6 +26,84 @@ router.use(requireAdmin);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/staff/supervisor/dashboard:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get dashboard supervisor
+ *     description: Endpoint untuk mendapatkan dashboard supervisor dengan system overview
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard supervisor berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     system_overview:
+ *                       type: object
+ *                       properties:
+ *                         total_users:
+ *                           type: integer
+ *                           example: 1500
+ *                         active_sessions:
+ *                           type: integer
+ *                           example: 45
+ *                         system_uptime:
+ *                           type: string
+ *                           example: "15 days, 8 hours"
+ *                         database_status:
+ *                           type: string
+ *                           example: "healthy"
+ *                     business_metrics:
+ *                       type: object
+ *                       properties:
+ *                         total_revenue:
+ *                           type: string
+ *                         total_bookings:
+ *                           type: integer
+ *                         system_performance:
+ *                           type: object
+ *                     recent_activities:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           activity:
+ *                             type: string
+ *                           user:
+ *                             type: string
+ *                           timestamp:
+ *                             type: string
+ *                             format: date-time
+ *                     alerts:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                           message:
+ *                             type: string
+ *                           severity:
+ *                             type: string
+ *                           timestamp:
+ *                             type: string
+ *                             format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/supervisor/dashboard
  * @desc    Get supervisor dashboard
  * @access  Private (Supervisor only)

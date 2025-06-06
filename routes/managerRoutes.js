@@ -30,6 +30,80 @@ router.use(requireManagement);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/staff/manager/dashboard:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get dashboard manager
+ *     description: Endpoint untuk mendapatkan dashboard manager dengan business metrics
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard manager berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     overview:
+ *                       type: object
+ *                       properties:
+ *                         total_revenue:
+ *                           type: string
+ *                           example: "50000000.00"
+ *                         total_bookings:
+ *                           type: integer
+ *                           example: 1250
+ *                         active_customers:
+ *                           type: integer
+ *                           example: 350
+ *                         field_utilization:
+ *                           type: number
+ *                           example: 75.5
+ *                     today_stats:
+ *                       type: object
+ *                       properties:
+ *                         revenue:
+ *                           type: string
+ *                         bookings:
+ *                           type: integer
+ *                         completed_bookings:
+ *                           type: integer
+ *                     monthly_trends:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           month:
+ *                             type: string
+ *                           revenue:
+ *                             type: string
+ *                           bookings:
+ *                             type: integer
+ *                     top_fields:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           field_name:
+ *                             type: string
+ *                           revenue:
+ *                             type: string
+ *                           booking_count:
+ *                             type: integer
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/dashboard
  * @desc    Get manager dashboard
  * @access  Private (Manager, Supervisor)
@@ -112,6 +186,103 @@ router.get('/bookings/:id', getBookingDetailForManager);
 router.put('/bookings/:id/status', updateBookingStatusForManager);
 
 /**
+ * @swagger
+ * /api/staff/manager/analytics:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get business analytics
+ *     description: Endpoint untuk mendapatkan business analytics untuk manager
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly, yearly]
+ *           default: monthly
+ *         description: Periode analisis
+ *     responses:
+ *       200:
+ *         description: Business analytics berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     revenue_analytics:
+ *                       type: object
+ *                       properties:
+ *                         total_revenue:
+ *                           type: string
+ *                         growth_rate:
+ *                           type: number
+ *                         period_comparison:
+ *                           type: object
+ *                     booking_analytics:
+ *                       type: object
+ *                       properties:
+ *                         total_bookings:
+ *                           type: integer
+ *                         completion_rate:
+ *                           type: number
+ *                         cancellation_rate:
+ *                           type: number
+ *                     customer_analytics:
+ *                       type: object
+ *                       properties:
+ *                         new_customers:
+ *                           type: integer
+ *                         returning_customers:
+ *                           type: integer
+ *                         customer_retention:
+ *                           type: number
+ *                     field_performance:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           field_name:
+ *                             type: string
+ *                           utilization_rate:
+ *                             type: number
+ *                           revenue:
+ *                             type: string
+ *                     trends:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           period:
+ *                             type: string
+ *                           revenue:
+ *                             type: string
+ *                           bookings:
+ *                             type: integer
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/manager/analytics
  * @desc    Get business analytics
  * @access  Private (Manager, Supervisor)
