@@ -506,6 +506,51 @@
         }
       }
     },
+    "/api/auth/verify": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Verify authentication status 🔵 AUTHENTICATED",
+        "description": "Endpoint untuk memverifikasi status autentikasi pengguna",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication status berhasil diverifikasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User authenticated"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/api/auth/forgot-password": {
       "post": {
         "tags": [
@@ -549,6 +594,63 @@
                     "message": {
                       "type": "string",
                       "example": "Password reset email sent successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/auth/send-verification": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Send email verification ⚪ PUBLIC",
+        "description": "Endpoint untuk mengirim email verifikasi ke pengguna",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verifikasi berhasil dikirim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Verification email sent successfully"
                     }
                   }
                 }
@@ -1000,6 +1102,52 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/public/field-locations": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get lokasi lapangan ⚪ PUBLIC",
+        "description": "Endpoint untuk mendapatkan daftar lokasi lapangan yang tersedia",
+        "responses": {
+          "200": {
+            "description": "Daftar lokasi lapangan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "location": {
+                            "type": "string",
+                            "example": "Jakarta Selatan"
+                          },
+                          "count": {
+                            "type": "integer",
+                            "example": 5
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -2565,9 +2713,10 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "booking_id",
                   "field_id",
-                  "rating"
+                  "booking_id",
+                  "rating",
+                  "comment"
                 ],
                 "properties": {
                   "booking_id": {
@@ -2586,7 +2735,7 @@
                   },
                   "comment": {
                     "type": "string",
-                    "example": "Lapangan bagus dan bersih"
+                    "example": "Lapangan sangat bagus dan bersih"
                   }
                 }
               }
@@ -2621,7 +2770,8 @@
                         "comment": {
                           "type": "string"
                         }
-                      }
+                      },
+                      "$ref": "#/components/schemas/Review"
                     }
                   }
                 }
@@ -2633,6 +2783,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
@@ -2731,7 +2884,7 @@
             "schema": {
               "type": "integer"
             },
-            "description": "ID review"
+            "description": "ID review yang akan diupdate"
           }
         ],
         "requestBody": {
@@ -2749,7 +2902,7 @@
                   },
                   "comment": {
                     "type": "string",
-                    "example": "Lapangan bagus, updated review"
+                    "example": "Update: Lapangan bagus tapi agak ramai"
                   }
                 }
               }
@@ -2771,6 +2924,9 @@
                     "message": {
                       "type": "string",
                       "example": "Review updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
                     }
                   }
                 }
@@ -2779,6 +2935,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -2807,7 +2966,7 @@
             "schema": {
               "type": "integer"
             },
-            "description": "ID review"
+            "description": "ID review yang akan dihapus"
           }
         ],
         "responses": {
@@ -2833,6 +2992,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -3011,7 +3173,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Field removed from favorites"
+                      "example": "Field removed from favorites successfully"
                     }
                   }
                 }

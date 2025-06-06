@@ -599,6 +599,71 @@ router.get('/statistics', getPaymentStatsForKasir);
 router.get('/daily-report', getDailyCashReport);
 
 /**
+ * @swagger
+ * /api/staff/kasir/bookings:
+ *   get:
+ *     tags: [Staff Kasir]
+ *     summary: Get semua booking untuk kasir 🟢 STAFF
+ *     description: Endpoint untuk mendapatkan semua booking yang terkait dengan pembayaran untuk kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: payment_status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, failed, refunded]
+ *         description: Filter berdasarkan status pembayaran
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Tanggal mulai filter
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Tanggal akhir filter
+ *     responses:
+ *       200:
+ *         description: Daftar booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     bookings:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Booking'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/bookings
  * @desc    Get all bookings for kasir (payment related)
  * @access  Private (Kasir, Manager, Supervisor)
@@ -607,6 +672,57 @@ router.get('/daily-report', getDailyCashReport);
 router.get('/bookings', getAllBookingsForKasir);
 
 /**
+ * @swagger
+ * /api/staff/kasir/bookings/{id}:
+ *   get:
+ *     tags: [Staff Kasir]
+ *     summary: Get detail booking untuk kasir 🟢 STAFF
+ *     description: Endpoint untuk mendapatkan detail booking beserta informasi pembayaran untuk kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan diambil detailnya
+ *     responses:
+ *       200:
+ *         description: Detail booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   allOf:
+ *                     - $ref: '#/components/schemas/Booking'
+ *                     - type: object
+ *                       properties:
+ *                         payment_info:
+ *                           type: object
+ *                           properties:
+ *                             status:
+ *                               type: string
+ *                             method:
+ *                               type: string
+ *                             amount:
+ *                               type: string
+ *                             confirmed_at:
+ *                               type: string
+ *                               format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/staff/kasir/bookings/:id
  * @desc    Get booking detail for kasir (payment related)
  * @access  Private (Kasir, Manager, Supervisor)

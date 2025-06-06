@@ -147,6 +147,62 @@ router.get('/dashboard', getOperatorDashboard);
 router.get('/fields', getAssignedFields);
 
 /**
+ * @swagger
+ * /api/staff/operator/fields/{id}/status:
+ *   put:
+ *     tags: [Staff Operator]
+ *     summary: Update status lapangan 🟢 STAFF
+ *     description: Endpoint untuk mengupdate status lapangan oleh operator
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan diupdate statusnya
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [available, maintenance, occupied, closed]
+ *                 example: "maintenance"
+ *               notes:
+ *                 type: string
+ *                 example: "Sedang perbaikan rumput lapangan"
+ *     responses:
+ *       200:
+ *         description: Status lapangan berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Field status updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Field'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/staff/operator/fields/:id/status
  * @desc    Update field status (maintenance, active, etc.)
  * @access  Private (Operator, Manager, Supervisor)
@@ -478,6 +534,61 @@ router.put('/bookings/:id/complete', completeBooking);
 router.get('/bookings', getAllBookingsForOperator);
 
 /**
+ * @swagger
+ * /api/staff/operator/bookings/{id}:
+ *   get:
+ *     tags: [Staff Operator]
+ *     summary: Get detail booking untuk operator 🟢 STAFF
+ *     description: Endpoint untuk mendapatkan detail booking untuk operator lapangan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan diambil detailnya
+ *     responses:
+ *       200:
+ *         description: Detail booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   allOf:
+ *                     - $ref: '#/components/schemas/Booking'
+ *                     - type: object
+ *                       properties:
+ *                         field_info:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                             type:
+ *                               type: string
+ *                             status:
+ *                               type: string
+ *                         customer_info:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                             phone:
+ *                               type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/staff/operator/bookings/:id
  * @desc    Get booking detail for operator
  * @access  Private (Operator, Manager, Supervisor)
