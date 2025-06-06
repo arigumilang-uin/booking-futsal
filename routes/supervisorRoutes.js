@@ -625,6 +625,84 @@ router.get('/system-config', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/supervisor/system-maintenance:
+ *   post:
+ *     tags: [Staff]
+ *     summary: Trigger system maintenance 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk memicu tugas maintenance sistem
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [task]
+ *             properties:
+ *               task:
+ *                 type: string
+ *                 enum: [cleanup_logs, optimize_database, clear_cache, backup_data]
+ *                 example: "cleanup_logs"
+ *               options:
+ *                 type: object
+ *                 properties:
+ *                   days_to_keep:
+ *                     type: integer
+ *                     example: 30
+ *                   force:
+ *                     type: boolean
+ *                     example: false
+ *     responses:
+ *       200:
+ *         description: Maintenance task berhasil dijalankan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Maintenance task completed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     task:
+ *                       type: string
+ *                     started_at:
+ *                       type: string
+ *                       format: date-time
+ *                     completed_at:
+ *                       type: string
+ *                       format: date-time
+ *                     results:
+ *                       type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   POST /api/staff/supervisor/system-maintenance
  * @desc    Trigger system maintenance tasks
  * @access  Private (Supervisor only)
@@ -767,6 +845,90 @@ router.get('/database-stats', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/supervisor/error-logs:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get system error logs 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan log error sistem
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: level
+ *         schema:
+ *           type: string
+ *           enum: [error, warning, info]
+ *           default: error
+ *         description: Level log yang ingin diambil
+ *     responses:
+ *       200:
+ *         description: Error logs berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     logs:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           level:
+ *                             type: string
+ *                           message:
+ *                             type: string
+ *                           stack:
+ *                             type: string
+ *                           timestamp:
+ *                             type: string
+ *                             format: date-time
+ *                           source:
+ *                             type: string
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/error-logs
  * @desc    Get system error logs
  * @access  Private (Supervisor only)

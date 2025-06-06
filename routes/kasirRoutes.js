@@ -524,6 +524,73 @@ router.put('/payments/:id/confirm', confirmPayment);
 router.get('/statistics', getPaymentStatsForKasir);
 
 /**
+ * @swagger
+ * /api/staff/kasir/daily-report:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get daily cash report 🟢 STAFF
+ *     description: Endpoint untuk mendapatkan laporan kas harian untuk kasir
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Tanggal laporan (default hari ini)
+ *     responses:
+ *       200:
+ *         description: Daily cash report berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     opening_balance:
+ *                       type: string
+ *                       example: "1000000.00"
+ *                     total_cash_in:
+ *                       type: string
+ *                       example: "2500000.00"
+ *                     total_cash_out:
+ *                       type: string
+ *                       example: "500000.00"
+ *                     closing_balance:
+ *                       type: string
+ *                       example: "3000000.00"
+ *                     transactions:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           type:
+ *                             type: string
+ *                             enum: [cash_in, cash_out]
+ *                           amount:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           time:
+ *                             type: string
+ *                             format: time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/daily-report
  * @desc    Get daily cash report
  * @access  Private (Kasir, Manager, Supervisor)

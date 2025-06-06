@@ -486,6 +486,59 @@ router.get('/bookings', getAllBookingsForOperator);
 router.get('/bookings/:id', getBookingDetailForOperator);
 
 /**
+ * @swagger
+ * /api/staff/operator/bookings/pending:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get pending bookings 🟢 STAFF
+ *     description: Endpoint untuk mendapatkan booking yang pending untuk operator
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending bookings berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       booking_number:
+ *                         type: string
+ *                       field_name:
+ *                         type: string
+ *                       customer_name:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date
+ *                       start_time:
+ *                         type: string
+ *                         format: time
+ *                       end_time:
+ *                         type: string
+ *                         format: time
+ *                       status:
+ *                         type: string
+ *                         example: "pending"
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/operator/bookings/pending
  * @desc    Get pending bookings yang perlu dikonfirmasi
  * @access  Private (Operator, Manager, Supervisor)

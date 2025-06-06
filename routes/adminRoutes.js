@@ -715,6 +715,88 @@ router.get('/promotions', requireManagement, getAllPromotionsAdmin);
 router.post('/promotions', requireManagement, createPromotionAdmin);
 
 /**
+ * @swagger
+ * /api/admin/promotions/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update promosi 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mengupdate promosi
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID promosi yang akan diupdate
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Diskon Weekend Updated"
+ *               description:
+ *                 type: string
+ *                 example: "Diskon khusus untuk booking weekend"
+ *               value:
+ *                 type: number
+ *                 example: 15
+ *               min_amount:
+ *                 type: number
+ *                 example: 100000
+ *               max_discount:
+ *                 type: number
+ *                 example: 50000
+ *               usage_limit:
+ *                 type: integer
+ *                 example: 100
+ *               user_limit:
+ *                 type: integer
+ *                 example: 1
+ *               start_date:
+ *                 type: string
+ *                 format: date
+ *               end_date:
+ *                 type: string
+ *                 format: date
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Promosi berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Promotion updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Promotion'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/admin/promotions/:id
  * @desc    Update promotion
  * @access  Management (manajer_futsal+)
@@ -1284,6 +1366,59 @@ router.get('/fields', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/fields/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan detail lapangan untuk admin
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan diambil
+ *     responses:
+ *       200:
+ *         description: Detail lapangan berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Field'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/admin/fields/:id
  * @desc    Get field detail
  * @access  Management (manajer_futsal+)

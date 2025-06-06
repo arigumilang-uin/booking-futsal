@@ -2001,6 +2001,149 @@
         }
       }
     },
+    "/api/customer/booking-history": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get riwayat booking lengkap 🔵 CUSTOMER",
+        "description": "Endpoint untuk mendapatkan riwayat booking lengkap customer dengan pagination",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Halaman data"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Jumlah data per halaman"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "description": "Filter berdasarkan status"
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal mulai"
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter tanggal akhir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Riwayat booking berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customer/upcoming-bookings": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Get booking mendatang 🔵 CUSTOMER",
+        "description": "Endpoint untuk mendapatkan booking yang akan datang",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking mendatang berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Booking"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/api/customer/dashboard": {
       "get": {
         "tags": [
@@ -4568,6 +4711,106 @@
         }
       }
     },
+    "/api/staff/operator/bookings/{id}/complete": {
+      "put": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Complete booking 🟢 STAFF",
+        "description": "Endpoint untuk menyelesaikan booking setelah selesai dimainkan",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID booking yang akan diselesaikan"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Booking selesai dengan baik"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking berhasil diselesaikan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Booking completed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "completed"
+                        },
+                        "completed_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "completed_by": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/api/staff/operator/bookings": {
       "get": {
         "tags": [
@@ -5464,6 +5707,114 @@
         }
       }
     },
+    "/api/staff/supervisor/database-stats": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Get database statistics 🔴 SUPERVISOR ONLY",
+        "description": "Endpoint untuk mendapatkan statistik database yang detail\n\n**🔐 ACCESS LEVEL:**\n- ✅ **Supervisor Sistem** (supervisor_sistem) ONLY\n- ❌ Manager dan staff lainnya TIDAK dapat mengakses\n",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database statistics berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "database_info": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "version": {
+                              "type": "string"
+                            },
+                            "size": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "table_stats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "table_name": {
+                                "type": "string"
+                              },
+                              "row_count": {
+                                "type": "integer"
+                              },
+                              "size": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "performance": {
+                          "type": "object",
+                          "properties": {
+                            "active_connections": {
+                              "type": "integer"
+                            },
+                            "slow_queries": {
+                              "type": "integer"
+                            },
+                            "cache_hit_ratio": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Hanya Supervisor yang dapat mengakses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied - Supervisor level required"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/settings": {
       "get": {
         "tags": [
@@ -5871,7 +6222,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua promosi",
+        "summary": "Get semua promosi 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua promosi untuk management",
         "security": [
           {
@@ -5977,7 +6328,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Buat promosi baru",
+        "summary": "Buat promosi baru 🟡 MANAGEMENT",
         "description": "Endpoint untuk membuat promosi baru",
         "security": [
           {
@@ -6105,7 +6456,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua users",
+        "summary": "Get semua users 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua users untuk management",
         "security": [
           {
@@ -6196,7 +6547,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get detail user",
+        "summary": "Get detail user 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan detail user berdasarkan ID",
         "security": [
           {
@@ -6252,7 +6603,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Update user",
+        "summary": "Update user 🟡 MANAGEMENT",
         "description": "Endpoint untuk mengupdate data user",
         "security": [
           {
@@ -6953,7 +7304,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua booking untuk admin",
+        "summary": "Get semua booking untuk admin 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua booking dengan akses admin/management",
         "security": [
           {
@@ -7071,7 +7422,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Trigger auto-completion manual",
+        "summary": "Trigger auto-completion manual 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk memicu proses auto-completion booking secara manual (supervisor only)",
         "security": [
           {
