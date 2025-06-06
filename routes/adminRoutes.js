@@ -89,6 +89,44 @@ router.use(requireAuth);
 // =====================================================
 
 /**
+ * @swagger
+ * /api/admin/settings:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua system settings
+ *     description: Endpoint untuk mendapatkan semua pengaturan sistem
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       key:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       is_public:
+ *                         type: boolean
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/settings
  * @desc    Get all system settings
  * @access  Admin (supervisor_sistem only)
@@ -378,6 +416,58 @@ router.put('/promotions/:id/toggle', requireManagement, togglePromotionStatus);
 router.get('/role-management/dashboard', requireManagement, getRoleManagementDashboard);
 
 /**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua users
+ *     description: Endpoint untuk mendapatkan semua users untuk management
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [pengunjung, penyewa, staff_kasir, operator_lapangan, manajer_futsal, supervisor_sistem]
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name or email
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/users
  * @desc    Get all users for admin management
  * @access  Management (manajer_futsal+)

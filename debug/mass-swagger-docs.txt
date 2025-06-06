@@ -1,0 +1,868 @@
+
+// 1. GET /api/admin/settings
+/**
+ * @swagger
+ * /api/admin/settings:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua system settings
+ *     description: Endpoint untuk mendapatkan semua pengaturan sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 2. GET /api/admin/settings/public
+/**
+ * @swagger
+ * /api/admin/settings/public:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get public system settings
+ *     description: Endpoint untuk mendapatkan pengaturan sistem yang bersifat publik
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 3. GET /api/admin/settings/:key
+/**
+ * @swagger
+ * /api/admin/settings/{key}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get setting berdasarkan key
+ *     description: Endpoint untuk mendapatkan pengaturan berdasarkan key tertentu
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: key
+         required: true
+         schema:
+           type: integer
+         description: key parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 4. PUT /api/admin/settings/:key
+/**
+ * @swagger
+ * /api/admin/settings/{key}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update system setting
+ *     description: Endpoint untuk mengupdate pengaturan sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: key
+         required: true
+         schema:
+           type: integer
+         description: key parameter
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               value:
+                 type: string
+               description:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 5. POST /api/admin/settings
+/**
+ * @swagger
+ * /api/admin/settings:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat system setting baru
+ *     description: Endpoint untuk membuat pengaturan sistem baru
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               key:
+                 type: string
+               value:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 6. DELETE /api/admin/settings/:key
+/**
+ * @swagger
+ * /api/admin/settings/{key}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Hapus system setting
+ *     description: Endpoint untuk menghapus pengaturan sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: key
+         required: true
+         schema:
+           type: integer
+         description: key parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 7. GET /api/admin/audit-logs
+/**
+ * @swagger
+ * /api/admin/audit-logs:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua audit logs
+ *     description: Endpoint untuk mendapatkan semua log audit sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 8. GET /api/admin/audit-logs/statistics
+/**
+ * @swagger
+ * /api/admin/audit-logs/statistics:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get statistik audit logs
+ *     description: Endpoint untuk mendapatkan statistik audit logs
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 9. GET /api/admin/audit-logs/:id
+/**
+ * @swagger
+ * /api/admin/audit-logs/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail audit log
+ *     description: Endpoint untuk mendapatkan detail audit log berdasarkan ID
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 10. GET /api/admin/notifications
+/**
+ * @swagger
+ * /api/admin/notifications:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua notifikasi
+ *     description: Endpoint untuk mendapatkan semua notifikasi sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 11. POST /api/admin/notifications
+/**
+ * @swagger
+ * /api/admin/notifications:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat notifikasi sistem
+ *     description: Endpoint untuk membuat notifikasi sistem baru
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               title:
+                 type: string
+               message:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 12. POST /api/admin/notifications/broadcast
+/**
+ * @swagger
+ * /api/admin/notifications/broadcast:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Broadcast notifikasi
+ *     description: Endpoint untuk broadcast notifikasi ke multiple users
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               title:
+                 type: string
+               message:
+                 type: string
+               user_ids:
+                 type: array
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 13. GET /api/admin/promotions
+/**
+ * @swagger
+ * /api/admin/promotions:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua promosi
+ *     description: Endpoint untuk mendapatkan semua promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 14. POST /api/admin/promotions
+/**
+ * @swagger
+ * /api/admin/promotions:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat promosi baru
+ *     description: Endpoint untuk membuat promosi baru
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               code:
+                 type: string
+               type:
+                 type: string
+               value:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 15. PUT /api/admin/promotions/:id
+/**
+ * @swagger
+ * /api/admin/promotions/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update promosi
+ *     description: Endpoint untuk mengupdate promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               value:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 16. DELETE /api/admin/promotions/:id
+/**
+ * @swagger
+ * /api/admin/promotions/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Hapus promosi
+ *     description: Endpoint untuk menghapus promosi
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 17. GET /api/admin/users
+/**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get semua users
+ *     description: Endpoint untuk mendapatkan semua users untuk management
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 18. GET /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get detail user
+ *     description: Endpoint untuk mendapatkan detail user berdasarkan ID
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 19. PUT /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Update user
+ *     description: Endpoint untuk mengupdate data user
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               email:
+                 type: string
+               role:
+                 type: string
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 20. DELETE /api/admin/users/:id
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Deactivate user
+ *     description: Endpoint untuk menonaktifkan user (soft delete)
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - in: path
+         name: id
+         required: true
+         schema:
+           type: integer
+         description: id parameter
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 21. GET /api/admin/analytics/business
+/**
+ * @swagger
+ * /api/admin/analytics/business:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get business analytics
+ *     description: Endpoint untuk mendapatkan analytics bisnis
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 22. GET /api/admin/analytics/system
+/**
+ * @swagger
+ * /api/admin/analytics/system:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get system analytics
+ *     description: Endpoint untuk mendapatkan analytics sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+// 23. GET /api/admin/analytics/performance
+/**
+ * @swagger
+ * /api/admin/analytics/performance:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get performance metrics
+ *     description: Endpoint untuk mendapatkan metrics performa sistem
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+
+
+ *     responses:
+ *       200:
+ *         description: Success response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */

@@ -109,6 +109,63 @@ router.use(requireStaff);
 router.get('/payments', getAllPaymentsForKasir);
 
 /**
+ * @swagger
+ * /api/staff/kasir/payments/pending:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get pembayaran pending
+ *     description: Endpoint untuk mendapatkan daftar pembayaran yang masih pending
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Daftar pembayaran pending berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       payment_number:
+ *                         type: string
+ *                       amount:
+ *                         type: string
+ *                       method:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                         example: "pending"
+ *                       booking_id:
+ *                         type: integer
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/staff/kasir/payments/pending
  * @desc    Get pending payments yang perlu diproses
  * @access  Private (Kasir, Manager, Supervisor)
@@ -257,6 +314,65 @@ router.post('/payments/debug', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/kasir/payments/{id}/confirm:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Konfirmasi pembayaran
+ *     description: Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID pembayaran yang akan dikonfirmasi
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               notes:
+ *                 type: string
+ *                 example: "Pembayaran cash diterima"
+ *                 description: "Catatan konfirmasi pembayaran"
+ *     responses:
+ *       200:
+ *         description: Pembayaran berhasil dikonfirmasi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Payment confirmed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "completed"
+ *                     confirmed_at:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/staff/kasir/payments/:id/confirm
  * @desc    Confirm pending payment
  * @access  Private (Kasir, Manager, Supervisor)

@@ -357,6 +357,54 @@ router.get('/roles', (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/auth/change-password:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Ubah password pengguna
+ *     description: Endpoint untuk mengubah password pengguna yang sedang login
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [current_password, new_password, confirm_password]
+ *             properties:
+ *               current_password:
+ *                 type: string
+ *                 example: "oldpassword123"
+ *                 description: "Password saat ini"
+ *               new_password:
+ *                 type: string
+ *                 example: "newpassword123"
+ *                 description: "Password baru"
+ *               confirm_password:
+ *                 type: string
+ *                 example: "newpassword123"
+ *                 description: "Konfirmasi password baru"
+ *     responses:
+ *       200:
+ *         description: Password berhasil diubah
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Password changed successfully"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   POST /api/auth/change-password
  * @desc    Change user password
  * @access  Private (Authenticated users)
@@ -455,6 +503,44 @@ router.get('/verify', requireAuth, (req, res) => {
 // =====================================================
 
 /**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Request reset password
+ *     description: Endpoint untuk meminta reset password melalui email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *                 description: "Email pengguna yang akan direset passwordnya"
+ *     responses:
+ *       200:
+ *         description: Email reset password berhasil dikirim
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Password reset email sent successfully"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   POST /api/auth/forgot-password
  * @desc    Request password reset
  * @access  Public
