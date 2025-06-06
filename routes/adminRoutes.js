@@ -1031,6 +1031,67 @@ router.put('/users/:id', requireManagement, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Deactivate user 🔴 MANAGEMENT ONLY
+ *     description: |
+ *       Endpoint untuk menonaktifkan user (soft delete)
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID user yang akan dinonaktifkan
+ *     responses:
+ *       200:
+ *         description: User berhasil dinonaktifkan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User deactivated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Management yang dapat menonaktifkan user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Management level required"
+ *                 required_roles:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["manajer_futsal", "supervisor_sistem"]
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   DELETE /api/admin/users/:id
  * @desc    Deactivate user (soft delete)
  * @access  Management (manajer_futsal+)

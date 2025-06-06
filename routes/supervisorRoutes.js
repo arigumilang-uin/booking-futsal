@@ -111,6 +111,77 @@ router.use(requireAdmin);
 router.get('/dashboard', getSupervisorDashboard);
 
 /**
+ * @swagger
+ * /api/staff/supervisor/system-health:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get system health 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan status kesehatan sistem dan monitoring
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: System health berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     system_status:
+ *                       type: string
+ *                       example: "healthy"
+ *                     uptime:
+ *                       type: string
+ *                       example: "15 days, 8 hours"
+ *                     memory_usage:
+ *                       type: object
+ *                       properties:
+ *                         used:
+ *                           type: string
+ *                           example: "256 MB"
+ *                         total:
+ *                           type: string
+ *                           example: "512 MB"
+ *                         percentage:
+ *                           type: number
+ *                           example: 50.0
+ *                     database_status:
+ *                       type: string
+ *                       example: "connected"
+ *                     active_connections:
+ *                       type: integer
+ *                       example: 25
+ *                     response_time:
+ *                       type: string
+ *                       example: "45ms"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/system-health
  * @desc    Get system health dan monitoring
  * @access  Private (Supervisor only)
@@ -118,6 +189,84 @@ router.get('/dashboard', getSupervisorDashboard);
 router.get('/system-health', getSystemHealth);
 
 /**
+ * @swagger
+ * /api/staff/supervisor/staff:
+ *   post:
+ *     tags: [Staff]
+ *     summary: Create staff user 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk membuat user staff baru
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password, phone, role]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Staff"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john.staff@example.com"
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "password123"
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *               role:
+ *                 type: string
+ *                 enum: [staff_kasir, operator_lapangan, manajer_futsal]
+ *                 example: "staff_kasir"
+ *               department:
+ *                 type: string
+ *                 example: "Operations"
+ *               employee_id:
+ *                 type: string
+ *                 example: "EMP001"
+ *     responses:
+ *       201:
+ *         description: Staff user berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Staff user created successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat membuat staff
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   POST /api/staff/supervisor/staff
  * @desc    Create new staff user
  * @access  Private (Supervisor only)
