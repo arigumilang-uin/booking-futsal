@@ -182,6 +182,79 @@ router.get('/dashboard', getManagerDashboard);
 router.get('/users', getAllUsersForManager);
 
 /**
+ * @swagger
+ * /api/staff/manager/users/{id}/role:
+ *   put:
+ *     tags: [Staff Manager]
+ *     summary: Update role user 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mengupdate role user oleh manager
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *
+ *       **🛡️ ROLE HIERARCHY PROTECTION:**
+ *       - Manager hanya dapat mengupdate role di bawah level mereka
+ *       - Tidak dapat mengupdate role supervisor
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID user yang akan diupdate rolenya
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [new_role]
+ *             properties:
+ *               new_role:
+ *                 type: string
+ *                 enum: [pengunjung, penyewa, staff_kasir, operator_lapangan]
+ *                 example: "staff_kasir"
+ *     responses:
+ *       200:
+ *         description: Role user berhasil diupdate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User role updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Role hierarchy violation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Cannot assign higher or equal role"
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/staff/manager/users/:id/role
  * @desc    Update user role
  * @access  Private (Manager, Supervisor)
@@ -371,6 +444,72 @@ router.put('/fields/:id', updateFieldByManager);
 router.get('/bookings', getAllBookingsForManager);
 
 /**
+ * @swagger
+ * /api/staff/manager/bookings/{id}:
+ *   get:
+ *     tags: [Staff Manager]
+ *     summary: Get detail booking untuk manager 🟡 MANAGEMENT
+ *     description: Endpoint untuk mendapatkan detail booking untuk manager
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan diambil detailnya
+ *     responses:
+ *       200:
+ *         description: Detail booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   allOf:
+ *                     - $ref: '#/components/schemas/Booking'
+ *                     - type: object
+ *                       properties:
+ *                         field_info:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                             type:
+ *                               type: string
+ *                             location:
+ *                               type: string
+ *                         customer_info:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                             email:
+ *                               type: string
+ *                             phone:
+ *                               type: string
+ *                         payment_info:
+ *                           type: object
+ *                           properties:
+ *                             status:
+ *                               type: string
+ *                             method:
+ *                               type: string
+ *                             amount:
+ *                               type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   GET /api/staff/manager/bookings/:id
  * @desc    Get booking detail for manager
  * @access  Private (Manager, Supervisor)
