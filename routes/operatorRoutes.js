@@ -311,6 +311,71 @@ router.get('/schedule/:date', async (req, res) => {
 router.put('/bookings/:id/confirm', confirmBooking);
 
 /**
+ * @swagger
+ * /api/staff/operator/bookings/{id}/complete:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Complete booking 🟢 STAFF
+ *     description: Endpoint untuk menyelesaikan booking setelah selesai dimainkan
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID booking yang akan diselesaikan
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               notes:
+ *                 type: string
+ *                 example: "Booking selesai dengan baik"
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *     responses:
+ *       200:
+ *         description: Booking berhasil diselesaikan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Booking completed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "completed"
+ *                     completed_at:
+ *                       type: string
+ *                       format: date-time
+ *                     completed_by:
+ *                       type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @route   PUT /api/staff/operator/bookings/:id/complete
  * @desc    Complete booking setelah selesai dimainkan
  * @access  Private (Operator, Manager, Supervisor)

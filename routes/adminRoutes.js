@@ -562,7 +562,7 @@ router.get('/notifications/user/:userId', requireManagement, getUserNotification
  * /api/admin/promotions:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua promosi
+ *     summary: Get semua promosi 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua promosi untuk management
  *     security:
  *       - bearerAuth: []
@@ -625,7 +625,7 @@ router.get('/notifications/user/:userId', requireManagement, getUserNotification
  *         $ref: '#/components/responses/Forbidden'
  *   post:
  *     tags: [Admin]
- *     summary: Buat promosi baru
+ *     summary: Buat promosi baru 🟡 MANAGEMENT
  *     description: Endpoint untuk membuat promosi baru
  *     security:
  *       - bearerAuth: []
@@ -772,7 +772,7 @@ router.get('/role-management/dashboard', requireManagement, getRoleManagementDas
  * /api/admin/users:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua users
+ *     summary: Get semua users 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua users untuk management
  *     security:
  *       - bearerAuth: []
@@ -853,7 +853,7 @@ router.put('/role-management/change-role', requireManagement, changeUserRoleDire
  * /api/admin/users/{id}:
  *   get:
  *     tags: [Admin]
- *     summary: Get detail user
+ *     summary: Get detail user 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan detail user berdasarkan ID
  *     security:
  *       - bearerAuth: []
@@ -921,7 +921,7 @@ router.get('/users/:id', requireManagement, async (req, res) => {
  * /api/admin/users/{id}:
  *   put:
  *     tags: [Admin]
- *     summary: Update user
+ *     summary: Update user 🟡 MANAGEMENT
  *     description: Endpoint untuk mengupdate data user
  *     security:
  *       - bearerAuth: []
@@ -1738,7 +1738,7 @@ router.get('/bookings/statistics', requireManagement, getBookingStatisticsAdmin)
  * /api/admin/bookings:
  *   get:
  *     tags: [Admin]
- *     summary: Get semua booking untuk admin
+ *     summary: Get semua booking untuk admin 🟡 MANAGEMENT
  *     description: Endpoint untuk mendapatkan semua booking dengan akses admin/management
  *     security:
  *       - bearerAuth: []
@@ -1839,7 +1839,7 @@ router.put('/bookings/:id/status', requireManagement, updateBookingStatusAdmin);
  * /api/admin/auto-completion/trigger:
  *   post:
  *     tags: [Admin]
- *     summary: Trigger auto-completion manual
+ *     summary: Trigger auto-completion manual 🔴 SUPERVISOR ONLY
  *     description: Endpoint untuk memicu proses auto-completion booking secara manual (supervisor only)
  *     security:
  *       - bearerAuth: []

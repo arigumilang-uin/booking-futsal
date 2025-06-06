@@ -3795,7 +3795,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Proses pembayaran manual",
+        "summary": "Proses pembayaran manual 🟢 STAFF",
         "description": "Endpoint untuk memproses pembayaran manual (cash, transfer)",
         "security": [
           {
@@ -3906,7 +3906,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Konfirmasi pembayaran",
+        "summary": "Konfirmasi pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mengkonfirmasi pembayaran yang sudah diterima",
         "security": [
           {
@@ -3998,7 +3998,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get statistik pembayaran",
+        "summary": "Get statistik pembayaran 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan statistik pembayaran untuk kasir",
         "security": [
           {
@@ -4109,7 +4109,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get dashboard kasir",
+        "summary": "Get dashboard kasir 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan dashboard kasir dengan statistik pembayaran",
         "security": [
           {
@@ -4217,7 +4217,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get metode pembayaran yang tersedia",
+        "summary": "Get metode pembayaran yang tersedia 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar metode pembayaran yang dapat diproses kasir",
         "security": [
           {
@@ -4311,7 +4311,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get dashboard operator lapangan",
+        "summary": "Get dashboard operator lapangan 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan dashboard operator dengan statistik dan informasi lapangan yang dikelola",
         "security": [
           {
@@ -4408,7 +4408,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get lapangan yang ditugaskan",
+        "summary": "Get lapangan yang ditugaskan 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan daftar lapangan yang ditugaskan ke operator",
         "security": [
           {
@@ -4475,7 +4475,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Konfirmasi booking",
+        "summary": "Konfirmasi booking 🟢 STAFF",
         "description": "Endpoint untuk mengkonfirmasi booking yang pending",
         "security": [
           {
@@ -4573,7 +4573,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get semua booking untuk operator",
+        "summary": "Get semua booking untuk operator 🟢 STAFF",
         "description": "Endpoint untuk mendapatkan semua booking yang ditangani operator (hanya lapangan yang ditugaskan)",
         "security": [
           {
@@ -4711,7 +4711,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get dashboard supervisor",
+        "summary": "Get dashboard supervisor 🔴 SUPERVISOR ONLY",
         "description": "Endpoint untuk mendapatkan dashboard supervisor dengan system overview",
         "security": [
           {
@@ -5469,7 +5469,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua system settings",
+        "summary": "Get semua system settings 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua pengaturan sistem",
         "security": [
           {
@@ -5530,7 +5530,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua audit logs",
+        "summary": "Get semua audit logs 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua log audit sistem",
         "security": [
           {
@@ -5667,7 +5667,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get semua notifikasi",
+        "summary": "Get semua notifikasi 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan semua notifikasi sistem",
         "security": [
           {
@@ -5770,7 +5770,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Buat notifikasi sistem",
+        "summary": "Buat notifikasi sistem 🟡 MANAGEMENT",
         "description": "Endpoint untuk membuat notifikasi sistem baru",
         "security": [
           {
@@ -7271,7 +7271,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get dashboard manager",
+        "summary": "Get dashboard manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan dashboard manager dengan business metrics",
         "security": [
           {
@@ -7386,7 +7386,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get semua users untuk manager",
+        "summary": "Get semua users untuk manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan daftar semua users dengan filter",
         "security": [
           {
@@ -7493,7 +7493,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get semua lapangan untuk manager",
+        "summary": "Get semua lapangan untuk manager 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan daftar semua lapangan",
         "security": [
           {
@@ -7703,7 +7703,7 @@
         "tags": [
           "Staff"
         ],
-        "summary": "Get business analytics",
+        "summary": "Get business analytics 🟡 MANAGEMENT",
         "description": "Endpoint untuk mendapatkan business analytics untuk manager",
         "security": [
           {

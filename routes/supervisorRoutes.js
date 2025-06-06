@@ -670,6 +670,79 @@ router.post('/system-maintenance', async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/staff/supervisor/database-stats:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get database statistics 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan statistik database yang detail
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Database statistics berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     database_info:
+ *                       type: object
+ *                       properties:
+ *                         name:
+ *                           type: string
+ *                         version:
+ *                           type: string
+ *                         size:
+ *                           type: string
+ *                     table_stats:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           table_name:
+ *                             type: string
+ *                           row_count:
+ *                             type: integer
+ *                           size:
+ *                             type: string
+ *                     performance:
+ *                       type: object
+ *                       properties:
+ *                         active_connections:
+ *                           type: integer
+ *                         slow_queries:
+ *                           type: integer
+ *                         cache_hit_ratio:
+ *                           type: number
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         description: Forbidden - Hanya Supervisor yang dapat mengakses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied - Supervisor level required"
+ *
  * @route   GET /api/staff/supervisor/database-stats
  * @desc    Get detailed database statistics
  * @access  Private (Supervisor only)

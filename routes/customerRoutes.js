@@ -545,6 +545,66 @@ router.get('/bookings/:id', getCustomerBookingDetail);
 router.put('/bookings/:id/cancel', cancelCustomerBooking);
 
 /**
+ * @swagger
+ * /api/customer/booking-history:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get riwayat booking lengkap 🔵 CUSTOMER
+ *     description: Endpoint untuk mendapatkan riwayat booking lengkap customer dengan pagination
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, confirmed, completed, cancelled]
+ *         description: Filter berdasarkan status
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir
+ *     responses:
+ *       200:
+ *         description: Riwayat booking berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/customer/booking-history
  * @desc    Get customer booking history dengan pagination
  * @access  Private (Customer only)
@@ -557,6 +617,33 @@ router.get('/booking-history', (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/customer/upcoming-bookings:
+ *   get:
+ *     tags: [Customer]
+ *     summary: Get booking mendatang 🔵 CUSTOMER
+ *     description: Endpoint untuk mendapatkan booking yang akan datang
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Booking mendatang berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *
  * @route   GET /api/customer/upcoming-bookings
  * @desc    Get customer upcoming bookings
  * @access  Private (Customer only)
