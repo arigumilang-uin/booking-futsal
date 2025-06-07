@@ -87,6 +87,19 @@ app.get('/', (req, res) => {
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
+// OpenAPI JSON Specification endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.json(specs);
+});
+
+// OpenAPI YAML Specification endpoint (optional)
+app.get('/api-docs.yaml', (req, res) => {
+  const yaml = require('js-yaml');
+  res.setHeader('Content-Type', 'application/x-yaml');
+  res.send(yaml.dump(specs));
+});
+
 // Enhanced health endpoint dengan performance metrics
 app.get('/health', async (req, res) => {
   try {
