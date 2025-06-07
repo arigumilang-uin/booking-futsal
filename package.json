@@ -12,7 +12,7 @@
     "prod": "npx dotenv-cli -e .env.production node server.js",
     "build": "echo 'Build completed - Node.js application ready for production'",
     "postinstall": "npm cache clean --force",
-    "health": "curl -f http://localhost:5000/api/test/health || exit 1"
+    "health": "curl -f https://booking-futsal-production.up.railway.app/api/test/health || exit 1"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

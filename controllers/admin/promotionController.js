@@ -66,13 +66,19 @@ const createPromotionAdmin = async (req, res) => {
     const {
       code, name, description, type, value, min_amount, max_discount,
       usage_limit, user_limit, applicable_fields, applicable_days,
-      applicable_hours, start_date, end_date
+      applicable_hours, start_date, end_date, valid_from, valid_until,
+      min_booking_amount
     } = req.body;
 
     console.log('Create promotion request:', req.body);
 
+    // Support both naming conventions for dates
+    const startDate = start_date || valid_from;
+    const endDate = end_date || valid_until;
+    const minAmount = min_amount || min_booking_amount;
+
     // Validate required fields
-    if (!code || !name || !type || !value || !start_date || !end_date) {
+    if (!code || !name || !type || !value || !startDate || !endDate) {
       return res.status(400).json({
         success: false,
         message: 'Kode, nama, tipe, nilai, tanggal mulai, dan tanggal berakhir diperlukan'
@@ -80,11 +86,11 @@ const createPromotionAdmin = async (req, res) => {
     }
 
     // Validate promotion type
-    const validTypes = ['percentage', 'fixed_amount', 'free_hours'];
+    const validTypes = ['percentage', 'fixed_amount', 'free_hours', 'fixed'];
     if (!validTypes.includes(type)) {
       return res.status(400).json({
         success: false,
-        message: 'Tipe promosi harus percentage, fixed_amount, atau free_hours'
+        message: 'Tipe promosi harus percentage, fixed_amount, fixed, atau free_hours'
       });
     }
 
@@ -104,9 +110,9 @@ const createPromotionAdmin = async (req, res) => {
     }
 
     // Validate dates
-    const startDate = new Date(start_date);
-    const endDate = new Date(end_date);
-    if (endDate <= startDate) {
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    if (endDateObj <= startDateObj) {
       return res.status(400).json({
         success: false,
         message: 'Tanggal berakhir harus setelah tanggal mulai'
@@ -129,16 +135,16 @@ const createPromotionAdmin = async (req, res) => {
       description,
       type,
       value,
-      min_booking_amount: min_amount || 0,
+      min_booking_amount: minAmount || 0,
       max_discount_amount: max_discount,
       usage_limit,
       usage_limit_per_user: user_limit,
       applicable_fields: applicable_fields || [],
       applicable_days: applicable_days || [],
       applicable_times: applicable_hours,
-      valid_from: start_date,
-      valid_until: end_date,
-      created_by: req.user.id
+      valid_from: startDate,
+      valid_until: endDate,
+      created_by: req.rawUser?.id || req.user?.id
     };
 
     console.log('Calling createPromotion with:', promotionData);

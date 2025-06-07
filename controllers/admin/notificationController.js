@@ -94,18 +94,31 @@ const getAllNotifications = async (req, res) => {
 // Create system notification
 const createSystemNotificationAdmin = async (req, res) => {
   try {
-    const { user_id, title, message, data, channels, priority } = req.body;
+    const { user_id, title, message, data, channels, priority, type } = req.body;
 
-    if (!user_id || !title || !message) {
+    // Validation
+    if (!title || !message) {
       return res.status(400).json({
         success: false,
-        message: 'User ID, judul, dan pesan diperlukan'
+        message: 'Judul dan pesan diperlukan'
       });
     }
 
+    // Validate user_id if provided
+    if (user_id) {
+      const { getUserByIdRaw } = require('../../models/core/userModel');
+      const user = await getUserByIdRaw(user_id);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID tidak valid'
+        });
+      }
+    }
+
     const notification = await createNotification({
-      user_id: parseInt(user_id),
-      type: 'system',
+      user_id: user_id ? parseInt(user_id) : null,
+      type: type || 'system',
       title,
       message,
       data: data || {},
@@ -122,7 +135,8 @@ const createSystemNotificationAdmin = async (req, res) => {
     console.error('Create system notification error:', error);
     res.status(500).json({
       success: false,
-      message: 'Gagal membuat notifikasi sistem'
+      message: 'Gagal membuat notifikasi sistem',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

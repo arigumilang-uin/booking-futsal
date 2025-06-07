@@ -506,6 +506,92 @@ router.get('/audit-logs/export', requireAdmin, exportAuditLogs);
 router.get('/notifications', requireManagement, getAllNotifications);
 
 /**
+ * @swagger
+ * /api/admin/notifications:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Buat notifikasi sistem 🟡 MANAGEMENT
+ *     description: Endpoint untuk membuat notifikasi sistem baru
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, message]
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Maintenance Scheduled"
+ *                 description: "Judul notifikasi"
+ *               message:
+ *                 type: string
+ *                 example: "System maintenance will be performed tonight"
+ *                 description: "Isi pesan notifikasi"
+ *               user_id:
+ *                 type: integer
+ *                 example: 1
+ *                 description: "ID user penerima (opsional, jika kosong akan menjadi broadcast)"
+ *               type:
+ *                 type: string
+ *                 enum: [system, booking, payment, promotion]
+ *                 default: system
+ *                 example: "system"
+ *               priority:
+ *                 type: string
+ *                 enum: [low, normal, high, urgent]
+ *                 default: normal
+ *                 example: "high"
+ *               channels:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [app, email, sms]
+ *                 default: ["app"]
+ *                 example: ["app", "email"]
+ *               data:
+ *                 type: object
+ *                 description: "Data tambahan untuk notifikasi"
+ *                 example: {}
+ *     responses:
+ *       201:
+ *         description: Notifikasi berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Notifikasi sistem berhasil dibuat"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     uuid:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     message:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                     priority:
+ *                       type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   POST /api/admin/notifications
  * @desc    Create system notification
  * @access  Management (manajer_futsal+)
@@ -1956,27 +2042,42 @@ router.put('/fields/:id', requireManagement, async (req, res) => {
  */
 router.delete('/fields/:id', requireManagement, async (req, res) => {
   try {
-    const { updateField } = require('../models/business/fieldModel');
+    const { deleteField, getFieldById } = require('../models/business/fieldModel');
     const { id } = req.params;
 
-    const updatedField = await updateField(id, { status: 'deleted' });
-    if (!updatedField) {
+    // Check if field exists first
+    const existingField = await getFieldById(id);
+    if (!existingField) {
       return res.status(404).json({
         success: false,
         message: 'Field not found'
       });
     }
 
+    // Use the dedicated deleteField function (soft delete)
+    const deleted = await deleteField(id);
+    if (!deleted) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to delete field'
+      });
+    }
+
     res.json({
       success: true,
       message: 'Field deleted successfully',
-      data: updatedField
+      data: {
+        id: parseInt(id),
+        name: existingField.name,
+        status: 'deleted'
+      }
     });
   } catch (error) {
     console.error('Delete field error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete field'
+      message: 'Failed to delete field',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
