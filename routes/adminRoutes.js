@@ -2055,8 +2055,8 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
     }
 
     // Use the dedicated deleteField function (soft delete)
-    const deleted = await deleteField(id);
-    if (!deleted) {
+    const deletedField = await deleteField(id);
+    if (!deletedField) {
       return res.status(500).json({
         success: false,
         message: 'Failed to delete field'
@@ -2065,11 +2065,12 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Field deleted successfully',
+      message: 'Field deleted successfully (set to inactive)',
       data: {
-        id: parseInt(id),
-        name: existingField.name,
-        status: 'deleted'
+        id: deletedField.id,
+        name: deletedField.name,
+        status: deletedField.status,
+        updated_at: deletedField.updated_at
       }
     });
   } catch (error) {

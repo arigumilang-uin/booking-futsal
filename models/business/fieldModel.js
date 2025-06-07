@@ -178,9 +178,9 @@ const updateField = async (id, fieldData) => {
 };
 
 const deleteField = async (id) => {
-  const query = 'UPDATE fields SET status = $1, updated_at = NOW() WHERE id = $2';
-  const result = await pool.query(query, ['deleted', id]);
-  return result.rowCount > 0;
+  const query = 'UPDATE fields SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *';
+  const result = await pool.query(query, ['inactive', id]);
+  return result.rowCount > 0 ? result.rows[0] : null;
 };
 
 const searchFieldsByName = async (keyword) => {
