@@ -27,28 +27,122 @@ const {
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: "user@example.com"
+ *         name:
+ *           type: string
+ *           example: "John Doe"
+ *         role:
+ *           type: string
+ *           example: "penyewa"
+ * tags:
+ *   - name: Authentication
+ *     description: Endpoint untuk autentikasi pengguna
+ */
+
 // =====================================================
 // AUTHENTICATION ROUTES
 // =====================================================
 
 /**
- * @route   POST /api/auth/register
- * @desc    Register new user
- * @access  Public
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Register pengguna baru
+ *     description: Endpoint untuk mendaftarkan pengguna baru
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password, phone]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *               phone:
+ *                 type: string
+ *                 example: "081234567890"
+ *     responses:
+ *       201:
+ *         description: Registrasi berhasil
+ *       400:
+ *         description: Data tidak valid
+ *       409:
+ *         description: Email sudah terdaftar
  */
 router.post('/register', register);
 
 /**
- * @route   POST /api/auth/login
- * @desc    Login user
- * @access  Public
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Login pengguna
+ *     description: Endpoint untuk autentikasi pengguna
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *     responses:
+ *       200:
+ *         description: Login berhasil
+ *       400:
+ *         description: Email atau password salah
  */
 router.post('/login', login);
 
 /**
- * @route   POST /api/auth/logout
- * @desc    Logout user
- * @access  Private
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Logout pengguna
+ *     description: Endpoint untuk logout pengguna
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout berhasil
+ *       401:
+ *         description: Token tidak valid
  */
 router.post('/logout', requireAuth, logout);
 

@@ -319,13 +319,15 @@ const swaggerOptions = {
     ]
   },
   apis: [
-    // Dokumentasi Swagger terpisah (clean architecture)
-    './swagger/index.js',
-    './swagger/auth.swagger.js',
-    './swagger/customer.swagger.js',
-    './swagger/admin.swagger.js',
-    './swagger/staff.swagger.js',
-    './swagger/public.swagger.js'
+    // Sementara menggunakan routes files untuk menghindari error parsing
+    './routes/authRoutes.js',
+    './routes/publicRoutes.js',
+    './routes/customerRoutes.js',
+    './routes/kasirRoutes.js',
+    './routes/operatorRoutes.js',
+    './routes/managerRoutes.js',
+    './routes/supervisorRoutes.js',
+    './routes/adminRoutes.js'
   ]
 };
 
