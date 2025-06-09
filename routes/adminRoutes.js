@@ -3413,4 +3413,86 @@ router.post('/auto-completion/manual/:id', requireAdmin, manualCompleteBooking);
  */
 router.get('/auto-completion/config', requireAdmin, getAutoCompletionConfig);
 
+// =====================================================
+// TRACKING TABLES ROUTES - MANAGEMENT LEVEL
+// =====================================================
+
+/**
+ * @route   GET /api/admin/bookings/:id/history
+ * @desc    Get booking history
+ * @access  Management (manajer_futsal+)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id/history', requireManagement, async (req, res) => {
+  try {
+    const { getBookingHistory } = require('../models/tracking/bookingHistoryModel');
+    const { id } = req.params;
+
+    const history = await getBookingHistory(id);
+
+    res.json({
+      success: true,
+      data: history
+    });
+  } catch (error) {
+    console.error('Get booking history error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get booking history'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/admin/bookings/:id/timeline
+ * @desc    Get booking timeline (history + payment events)
+ * @access  Management (manajer_futsal+)
+ * @params  { id: booking_id }
+ */
+router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
+  try {
+    const { getBookingTimeline } = require('../models/tracking/bookingHistoryModel');
+    const { id } = req.params;
+
+    const timeline = await getBookingTimeline(id);
+
+    res.json({
+      success: true,
+      data: timeline
+    });
+  } catch (error) {
+    console.error('Get booking timeline error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get booking timeline'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/admin/payments/:id/logs
+ * @desc    Get payment logs
+ * @access  Management (manajer_futsal+)
+ * @params  { id: payment_id }
+ */
+router.get('/payments/:id/logs', requireManagement, async (req, res) => {
+  try {
+    const { getPaymentLogs } = require('../models/tracking/paymentLogModel');
+    const { id } = req.params;
+
+    const logs = await getPaymentLogs(id);
+
+    res.json({
+      success: true,
+      data: logs
+    });
+  } catch (error) {
+    console.error('Get payment logs error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get payment logs'
+    });
+  }
+});
+
 module.exports = router;
