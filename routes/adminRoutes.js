@@ -971,11 +971,41 @@ router.get('/role-management/dashboard', requireManagement, getRoleManagementDas
  *         schema:
  *           type: string
  *           enum: [pengunjung, penyewa, staff_kasir, operator_lapangan, manajer_futsal, supervisor_sistem]
+ *         description: Filter berdasarkan role user
+ *         example: "supervisor_sistem"
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, all]
+ *         description: Filter berdasarkan status user
+ *         example: "active"
+ *       - in: query
+ *         name: department
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan department user
+ *         example: "IT"
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by name or email
+ *         description: Search by name, email, or employee_id
+ *         example: "john"
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [created_at, name, email, role]
+ *           default: "created_at"
+ *         description: Field untuk sorting
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: "desc"
+ *         description: Urutan sorting
  *     responses:
  *       200:
  *         description: Success response
@@ -1621,13 +1651,16 @@ router.patch('/users/:id/status', requireManagement, async (req, res) => {
  *         name: status
  *         schema:
  *           type: string
- *           enum: [active, inactive]
- *         description: Filter berdasarkan status
+ *           enum: [active, inactive, maintenance]
+ *         description: Filter berdasarkan status lapangan
+ *         example: "active"
  *       - in: query
  *         name: type
  *         schema:
  *           type: string
+ *           enum: [futsal, indoor, outdoor, synthetic, grass]
  *         description: Filter berdasarkan tipe lapangan
+ *         example: "futsal"
  *       - in: query
  *         name: location
  *         schema:
@@ -1698,7 +1731,7 @@ router.get('/fields', requireManagement, async (req, res) => {
     const { getAllFields } = require('../models/business/fieldModel');
     const { page = 1, limit = 20, status, type, location, search } = req.query;
 
-    let fields = await getAllFields();
+    let fields = await getAllFields(1, 1000); // Get all fields with high limit
 
     // Apply filters
     if (status) {
@@ -1857,27 +1890,67 @@ router.get('/fields/:id', requireManagement, async (req, res) => {
  *                 example: "Lapangan A"
  *               type:
  *                 type: string
+ *                 enum: [futsal, indoor, outdoor, synthetic, grass]
+ *                 default: "futsal"
  *                 example: "futsal"
+ *                 description: "Tipe lapangan"
  *               description:
  *                 type: string
  *                 example: "Lapangan futsal indoor dengan rumput sintetis"
  *               price:
  *                 type: number
  *                 example: 100000
+ *                 description: "Harga per jam (weekday)"
+ *               price_weekend:
+ *                 type: number
+ *                 example: 120000
+ *                 description: "Harga per jam (weekend) - opsional"
+ *               price_member:
+ *                 type: number
+ *                 example: 90000
+ *                 description: "Harga per jam untuk member - opsional"
  *               capacity:
  *                 type: integer
+ *                 default: 22
  *                 example: 22
+ *                 description: "Kapasitas maksimal pemain"
  *               location:
  *                 type: string
- *                 example: "Lantai 1"
+ *                 example: "Pekanbaru"
+ *                 description: "Lokasi kota/area"
  *               address:
  *                 type: string
- *                 example: "Jl. Futsal No. 123"
+ *                 example: "Jl. Futsal No. 123, Pekanbaru"
+ *                 description: "Alamat lengkap lapangan"
  *               facilities:
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ["AC", "Sound System", "Lighting"]
+ *                 example: ["AC", "Sound System", "Lighting", "Parking", "Shower"]
+ *                 description: "Fasilitas yang tersedia"
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, maintenance]
+ *                 default: "active"
+ *                 example: "active"
+ *                 description: "Status lapangan"
+ *               operating_hours:
+ *                 type: object
+ *                 properties:
+ *                   start:
+ *                     type: string
+ *                     example: "06:00"
+ *                   end:
+ *                     type: string
+ *                     example: "23:00"
+ *                 description: "Jam operasional lapangan"
+ *               operating_days:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+ *                 example: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+ *                 description: "Hari operasional lapangan"
  *               coordinates:
  *                 type: object
  *                 properties:
@@ -2015,35 +2088,69 @@ router.post('/fields', requireManagement, async (req, res) => {
  *                 example: "Lapangan A Updated"
  *               type:
  *                 type: string
+ *                 enum: [futsal, indoor, outdoor, synthetic, grass]
  *                 example: "futsal"
+ *                 description: "Tipe lapangan"
  *               description:
  *                 type: string
  *                 example: "Lapangan futsal indoor dengan fasilitas lengkap"
  *               price:
  *                 type: number
  *                 example: 120000
+ *                 description: "Harga per jam (weekday)"
+ *               price_weekend:
+ *                 type: number
+ *                 example: 140000
+ *                 description: "Harga per jam (weekend) - opsional"
+ *               price_member:
+ *                 type: number
+ *                 example: 100000
+ *                 description: "Harga per jam untuk member - opsional"
  *               capacity:
  *                 type: integer
  *                 example: 22
+ *                 description: "Kapasitas maksimal pemain"
  *               location:
  *                 type: string
- *                 example: "Lantai 2"
+ *                 example: "Pekanbaru"
+ *                 description: "Lokasi kota/area"
  *               address:
  *                 type: string
- *                 example: "Jl. Futsal No. 123"
+ *                 example: "Jl. Futsal No. 123, Pekanbaru"
+ *                 description: "Alamat lengkap lapangan"
  *               facilities:
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ["AC", "Sound System", "Lighting", "Parking"]
+ *                 example: ["AC", "Sound System", "Lighting", "Parking", "Shower"]
+ *                 description: "Fasilitas yang tersedia"
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, maintenance]
+ *                 example: "active"
+ *                 description: "Status lapangan"
+ *               operating_hours:
+ *                 type: object
+ *                 properties:
+ *                   start:
+ *                     type: string
+ *                     example: "06:00"
+ *                   end:
+ *                     type: string
+ *                     example: "23:00"
+ *                 description: "Jam operasional lapangan"
+ *               operating_days:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+ *                 example: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+ *                 description: "Hari operasional lapangan"
  *               assigned_operator:
  *                 type: integer
  *                 nullable: true
  *                 example: 3
  *                 description: "ID operator yang ditugaskan untuk mengelola lapangan ini"
- *               is_active:
- *                 type: boolean
- *                 example: true
  *     responses:
  *       200:
  *         description: Lapangan berhasil diupdate
@@ -2163,12 +2270,14 @@ router.put('/fields/:id', requireManagement, async (req, res) => {
  *                     name:
  *                       type: string
  *                       example: "Lapangan A"
- *                     is_active:
- *                       type: boolean
- *                       example: false
- *                     deleted_at:
+ *                     status:
+ *                       type: string
+ *                       example: "inactive"
+ *                       description: "Status lapangan setelah soft delete"
+ *                     updated_at:
  *                       type: string
  *                       format: date-time
+ *                       description: "Waktu terakhir diupdate"
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:
