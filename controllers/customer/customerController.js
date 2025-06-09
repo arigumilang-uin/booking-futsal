@@ -55,17 +55,23 @@ const updateCustomerProfile = async (req, res) => {
     }
 
     res.json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: updatedUser
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Profile updated successfully',
+        data: updatedUser
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Update customer profile error:', error);
     res.status(500).json({
-      error: 'Failed to update profile',
-      debug: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to update profile',
+        debug: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -97,13 +103,16 @@ const getCustomerFields = async (req, res) => {
     const paginatedFields = fields.slice(startIndex, endIndex);
 
     res.json({ success: true, data: paginatedFields,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
         total: fields.length,
         total_pages: Math.ceil(fields.length / limit)
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get customer fields error:', error);
@@ -134,9 +143,12 @@ const createCustomerBooking = async (req, res) => {
 
     if (conflict.hasConflict) {
       return res.status(400).json({
-        error: 'Time slot conflict detected',
-        conflicts: conflict.conflicts
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: 'Time slot conflict detected',
+          conflicts: conflict.conflicts
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
@@ -151,18 +163,24 @@ const createCustomerBooking = async (req, res) => {
       end_time,
       name,
       phone,
-      email: email || req.user.email,
-      notes,
-      base_amount,
-      admin_fee,
-      created_by: userId
-    });
+      // Monitoring data object
+      const monitoringData = {
+        email: email || req.user.email,
+        notes,
+        base_amount,
+        admin_fee,
+        created_by: userId
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Booking created successfully',
-      data: booking
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Booking created successfully',
+        data: booking
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Create customer booking error:', error);
@@ -186,13 +204,16 @@ const getCustomerBookings = async (req, res) => {
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
     res.json({ success: true, data: paginatedBookings,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
         total: bookings.length,
         total_pages: Math.ceil(bookings.length / limit)
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get customer bookings error:', error);
@@ -265,10 +286,13 @@ const cancelCustomerBooking = async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Booking cancelled successfully',
-      data: updatedBooking
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Booking cancelled successfully',
+        data: updatedBooking
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Cancel customer booking error:', error);
@@ -311,23 +335,29 @@ const getCustomerDashboard = async (req, res) => {
           member_since: req.user.created_at
         },
         statistics: {
-          total_bookings: totalBookings,
-          completed_bookings: completedBookings,
-          cancelled_bookings: cancelledBookings,
-          total_spent: totalSpent
-        },
-        recent_bookings: recentBookings,
-        upcoming_bookings: upcomingBookings,
-        favorite_fields: [] // Will be populated later if needed
-      }
-    });
+          // Monitoring data object
+          const monitoringData = {
+            total_bookings: totalBookings,
+            completed_bookings: completedBookings,
+            cancelled_bookings: cancelledBookings,
+            total_spent: totalSpent
+            },
+            recent_bookings: recentBookings,
+            upcoming_bookings: upcomingBookings,
+            favorite_fields: [] // Will be populated later if needed
+            }
+          };
+          // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Customer dashboard error:', error);
     res.status(500).json({
-      error: 'Failed to get dashboard data',
-      code: 'DASHBOARD_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get dashboard data',
+        code: 'DASHBOARD_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

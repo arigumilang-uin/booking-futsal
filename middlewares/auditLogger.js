@@ -73,16 +73,19 @@ const loginAuditLogger = async (userId, success, ipAddress, userAgent, additiona
       user_id: userId,
       action: success ? 'LOGIN' : 'LOGIN_FAILED',
       resource_type: 'user',
-      table_name: 'users',
-      resource_id: userId,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      additional_info: {
+      // Monitoring data object
+      const monitoringData = {
+        table_name: 'users',
+        resource_id: userId,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        additional_info: {
         success,
         timestamp: new Date().toISOString(),
         ...additionalInfo
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Login audit logging error:', error);
   }
@@ -93,16 +96,19 @@ const logoutAuditLogger = async (userId, ipAddress, userAgent, additionalInfo = 
     await createAuditLog({
       user_id: userId,
       action: 'LOGOUT',
-      resource_type: 'user',
-      table_name: 'users',
-      resource_id: userId,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      additional_info: {
+      // Monitoring data object
+      const monitoringData = {
+        resource_type: 'user',
+        table_name: 'users',
+        resource_id: userId,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        additional_info: {
         timestamp: new Date().toISOString(),
         ...additionalInfo
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Logout audit logging error:', error);
   }
@@ -115,16 +121,19 @@ const dataChangeAuditLogger = async (userId, action, resourceType, resourceId, o
       action: action.toUpperCase(),
       resource_type: resourceType,
       table_name: `${resourceType}s`,
-      resource_id: resourceId,
-      old_values: oldValues,
-      new_values: newValues,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      additional_info: {
+      // Monitoring data object
+      const monitoringData = {
+        resource_id: resourceId,
+        old_values: oldValues,
+        new_values: newValues,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        additional_info: {
         timestamp: new Date().toISOString(),
         change_type: 'data_modification'
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Data change audit logging error:', error);
   }

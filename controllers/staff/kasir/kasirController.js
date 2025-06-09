@@ -75,24 +75,30 @@ const getAllPaymentsForKasir = async (req, res) => {
     // Sort by created_at desc
     allPaymentData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      actualPayments: actualPayments.length,
-      pendingBookings: pendingBookings.length,
-      totalPaymentData: allPaymentData.length,
-      statusBreakdown: allPaymentData.reduce((acc, p) => {
+      // Monitoring data object
+      const monitoringData = {
+        actualPayments: actualPayments.length,
+        pendingBookings: pendingBookings.length,
+        totalPaymentData: allPaymentData.length,
+        statusBreakdown: allPaymentData.reduce((acc, p) => {
         acc[p.status] = (acc[p.status] || 0) + 1;
         return acc;
-      }, {})
-    });
+        }, {})
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({ success: true, data: allPaymentData,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
         total_actual_payments: actualPayments.length,
         total_pending_bookings: pendingBookings.length,
         total_items: allPaymentData.length
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get all payments for kasir error:', error);
@@ -168,16 +174,19 @@ const processManualPayment = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Manual payment processed successfully',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        message: 'Manual payment processed successfully',
+        data: {
         ...payment,
         notes: `Manual payment processed by staff: ${req.rawUser.name}`,
         processed_by: req.rawUser.name,
         employee_id: req.rawUser.employee_id,
         processed_at: new Date().toISOString(),
         reference_number: reference_number
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Process manual payment error:', error);
@@ -191,13 +200,16 @@ const confirmPayment = async (req, res) => {
     const { id } = req.params;
     const { notes, method = 'cash', amount } = req.body;
 
-      paymentId: id,
-      method,
-      amount,
-      isBookingPayment: id.startsWith('booking_'),
-      staffId,
-      staffName: req.rawUser.name
-    });
+      // Monitoring data object
+      const monitoringData = {
+        paymentId: id,
+        method,
+        amount,
+        isBookingPayment: id.startsWith('booking_'),
+        staffId,
+        staffName: req.rawUser.name
+      };
+      // In production, this would be sent to monitoring service
 
     // Check if this is a booking payment (pending booking without payment record)
     if (id.startsWith('booking_')) {
@@ -209,16 +221,22 @@ const confirmPayment = async (req, res) => {
 
       if (!booking) {
         return res.status(404).json({
-          error: 'Booking not found',
-          code: 'BOOKING_NOT_FOUND'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: 'Booking not found',
+            code: 'BOOKING_NOT_FOUND'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (booking.payment_status !== 'pending') {
         return res.status(400).json({
-          error: 'Booking payment already processed',
-          code: 'PAYMENT_ALREADY_PROCESSED'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: 'Booking payment already processed',
+            code: 'PAYMENT_ALREADY_PROCESSED'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       // Create payment record for this booking
@@ -241,42 +259,57 @@ const confirmPayment = async (req, res) => {
         await updateBookingPaymentStatus(bookingId, 'paid');
 
           bookingId,
-          paymentId: newPayment.id,
-          amount: paymentData.amount,
-          method: paymentData.method,
-          confirmedBy: req.rawUser.name
-        });
+          // Monitoring data object
+          const monitoringData = {
+            paymentId: newPayment.id,
+            amount: paymentData.amount,
+            method: paymentData.method,
+            confirmedBy: req.rawUser.name
+          };
+          // In production, this would be sent to monitoring service
 
         res.json({
-          success: true,
-          message: 'Booking payment confirmed successfully',
-          data: {
+          // Monitoring data object
+          const monitoringData = {
+            success: true,
+            message: 'Booking payment confirmed successfully',
+            data: {
             payment: newPayment,
             booking_id: bookingId,
             type: 'booking_payment_confirmation'
-          }
-        });
+            }
+          };
+          // In production, this would be sent to monitoring service
       } else {
         res.status(500).json({
-          error: 'Failed to create payment record',
-          code: 'PAYMENT_CREATION_FAILED'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: 'Failed to create payment record',
+            code: 'PAYMENT_CREATION_FAILED'
+          };
+          // In production, this would be sent to monitoring service
       }
     } else {
       // Handle regular payment confirmation
       const payment = await getPaymentById(id);
       if (!payment) {
         return res.status(404).json({
-          error: 'Payment not found',
-          code: 'PAYMENT_NOT_FOUND'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: 'Payment not found',
+            code: 'PAYMENT_NOT_FOUND'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (payment.status !== 'pending') {
         return res.status(400).json({
-          error: 'Payment cannot be confirmed',
-          code: 'PAYMENT_NOT_CONFIRMABLE'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: 'Payment cannot be confirmed',
+            code: 'PAYMENT_NOT_CONFIRMABLE'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       // Update payment status
@@ -294,26 +327,35 @@ const confirmPayment = async (req, res) => {
       // Update booking payment status
       await updateBookingPaymentStatus(payment.booking_id, 'paid');
 
-        paymentId: id,
-        method: payment.method,
-        amount: payment.amount,
-        confirmedBy: req.rawUser.name
-      });
+        // Monitoring data object
+        const monitoringData = {
+          paymentId: id,
+          method: payment.method,
+          amount: payment.amount,
+          confirmedBy: req.rawUser.name
+        };
+        // In production, this would be sent to monitoring service
 
       res.json({
-        success: true,
-        message: 'Payment confirmed successfully',
-        data: updatedPayment
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: true,
+          message: 'Payment confirmed successfully',
+          data: updatedPayment
+        };
+        // In production, this would be sent to monitoring service
     }
 
   } catch (error) {
     console.error('❌ Confirm payment error:', error);
     res.status(500).json({
-      error: 'Failed to confirm payment',
-      code: 'PAYMENT_CONFIRM_FAILED',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to confirm payment',
+        code: 'PAYMENT_CONFIRM_FAILED',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -327,9 +369,12 @@ const getPendingPayments = async (req, res) => {
   } catch (error) {
     console.error('Get pending payments error:', error);
     res.status(500).json({
-      error: 'Failed to get pending payments',
-      code: 'PENDING_PAYMENTS_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get pending payments',
+        code: 'PENDING_PAYMENTS_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -343,13 +388,16 @@ const getPaymentStatsForKasir = async (req, res) => {
     const stats = await getPaymentStatistics(startDate, endDate);
 
     res.json({ success: true, data: {
-        period: {
+        // Monitoring data object
+        const monitoringData = {
+          period: {
           start_date: startDate,
           end_date: endDate
-        },
-        statistics: stats
-      }
-    });
+          },
+          statistics: stats
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get payment stats for kasir error:', error);
@@ -376,22 +424,28 @@ const getDailyCashReport = async (req, res) => {
     const methodBreakdown = dailyPayments.reduce((acc, payment) => {
       if (!acc[payment.method]) {
         acc[payment.method] = {
-          count: 0,
-          total_amount: 0
-        };
-      }
-      acc[payment.method].count++;
-      acc[payment.method].total_amount += parseFloat(payment.total_amount);
-      return acc;
-    }, {});
+          // Monitoring data object
+          const monitoringData = {
+            count: 0,
+            total_amount: 0
+            };
+            }
+            acc[payment.method].count++;
+            acc[payment.method].total_amount += parseFloat(payment.total_amount);
+            return acc;
+          };
+          // In production, this would be sent to monitoring service
 
     res.json({ success: true, data: {
-        date: date,
-        summary: stats,
-        method_breakdown: methodBreakdown,
-        total_transactions: dailyPayments.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          date: date,
+          summary: stats,
+          method_breakdown: methodBreakdown,
+          total_transactions: dailyPayments.length
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get daily cash report error:', error);
@@ -431,23 +485,29 @@ const getAllBookingsForKasir = async (req, res) => {
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
     res.json({ success: true, data: {
-        bookings: paginatedBookings,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          bookings: paginatedBookings,
+          pagination: {
           current_page: parseInt(page),
           per_page: parseInt(limit),
           total: bookings.length,
           total_pages: Math.ceil(bookings.length / limit)
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get all bookings kasir error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to get bookings',
-      code: 'KASIR_BOOKINGS_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get bookings',
+        code: 'KASIR_BOOKINGS_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -459,10 +519,13 @@ const getBookingDetailForKasir = async (req, res) => {
     const booking = await getBookingById(id);
     if (!booking) {
       return res.status(404).json({
-        success: false,
-        error: 'Booking not found',
-        code: 'BOOKING_NOT_FOUND'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Booking not found',
+          code: 'BOOKING_NOT_FOUND'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: booking
@@ -471,10 +534,13 @@ const getBookingDetailForKasir = async (req, res) => {
   } catch (error) {
     console.error('Get booking detail kasir error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to get booking detail',
-      code: 'KASIR_BOOKING_DETAIL_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get booking detail',
+        code: 'KASIR_BOOKING_DETAIL_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

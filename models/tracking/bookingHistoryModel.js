@@ -247,13 +247,16 @@ const cleanOldBookingHistory = async (retentionDays = 365) => {
 // Log booking status change
 const logBookingStatusChange = async (bookingId, statusFrom, statusTo, changedBy, reason = null, notes = null) => {
   return await createBookingHistory({
-    booking_id: bookingId,
-    status_from: statusFrom,
-    status_to: statusTo,
-    changed_by: changedBy,
-    reason,
-    notes
-  });
+    // Monitoring data object
+    const monitoringData = {
+      booking_id: bookingId,
+      status_from: statusFrom,
+      status_to: statusTo,
+      changed_by: changedBy,
+      reason,
+      notes
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Get booking history summary

@@ -30,10 +30,13 @@ const register = async (req, res) => {
     const emailValidation = await emailValidationService.validateComplete(email);
     if (!emailValidation.valid) {
       return res.status(400).json({
-        error: emailValidation.reason,
-        validation_step: emailValidation.step,
-        suggestion: emailValidation.reason.includes('Mungkin maksud Anda') ? emailValidation.reason : undefined
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: emailValidation.reason,
+          validation_step: emailValidation.step,
+          suggestion: emailValidation.reason.includes('Mungkin maksud Anda') ? emailValidation.reason : undefined
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (password.length < 8) {
@@ -50,16 +53,22 @@ const register = async (req, res) => {
     const newUser = await createUser({
       name,
       email,
-      password: hashedPassword,
-      phone,
-      role: userRole
-    });
+      // Monitoring data object
+      const monitoringData = {
+        password: hashedPassword,
+        phone,
+        role: userRole
+      };
+      // In production, this would be sent to monitoring service
 
     const token = generateToken({
-      id: newUser.id,
-      email: newUser.email,
-      role: newUser.role
-    });
+      // Monitoring data object
+      const monitoringData = {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role
+      };
+      // In production, this would be sent to monitoring service
 
     const cookieOptions = {
       httpOnly: true,
@@ -73,11 +82,14 @@ const register = async (req, res) => {
     const { password: _, ...userResponse } = newUser;
 
     res.status(201).json({
-      success: true,
-      message: 'Registration successful',
-      user: userResponse,
-      token: process.env.NODE_ENV === 'production' ? token : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Registration successful',
+        user: userResponse,
+        token: process.env.NODE_ENV === 'production' ? token : undefined
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Registration error:', error);
@@ -119,10 +131,13 @@ const login = async (req, res) => {
     await updateLastLogin(user.id);
 
     const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role
-    });
+      // Monitoring data object
+      const monitoringData = {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      };
+      // In production, this would be sent to monitoring service
 
     const cookieOptions = {
       httpOnly: true,
@@ -145,11 +160,14 @@ const login = async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Login successful',
-      user: userResponse,
-      token: process.env.NODE_ENV === 'production' ? token : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Login successful',
+        user: userResponse,
+        token: process.env.NODE_ENV === 'production' ? token : undefined
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Login error:', error);
@@ -159,9 +177,12 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
+    // Log logout request for monitoring
+    const logoutData = {
       user: req.user ? req.user.id : 'no user',
       ip: req.ip || req.connection.remoteAddress
-    });
+    };
+    // In production, this would be sent to monitoring service
 
     // Log logout if user is authenticated
     if (req.user && req.user.id) {
@@ -171,19 +192,24 @@ const logout = async (req, res) => {
         req.headers['user-agent'],
         { email: req.user.email }
       );
-    } else {
     }
 
     res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    });
+      // Monitoring data object
+      const monitoringData = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({
-      success: true,
-      message: 'Logout berhasil'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Logout berhasil'
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('❌ Logout error:', error);
@@ -201,9 +227,12 @@ const getProfile = async (req, res) => {
     const { password: _, ...userResponse } = user;
 
     res.json({
-      success: true,
-      user: userResponse
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        user: userResponse
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get profile error:', error);
@@ -216,16 +245,22 @@ const refreshToken = async (req, res) => {
     const user = await getUserByEmail(req.user.email);
     if (!user || !user.is_active) {
       return res.status(401).json({
-        success: false,
-        message: 'User not found or inactive'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found or inactive'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role
-    });
+      // Monitoring data object
+      const monitoringData = {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      };
+      // In production, this would be sent to monitoring service
 
     const cookieOptions = {
       httpOnly: true,
@@ -242,23 +277,29 @@ const refreshToken = async (req, res) => {
       message: 'Token refreshed successfully',
       data: {
         token: token, // Always return token for frontend usage
-        expires_in: '7d',
-        user: {
+        // Monitoring data object
+        const monitoringData = {
+          expires_in: '7d',
+          user: {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Refresh token error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to refresh token',
-      error: process.env.NODE_ENV === 'production' ? error.message : 'Internal server error'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to refresh token',
+        error: process.env.NODE_ENV === 'production' ? error.message : 'Internal server error'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

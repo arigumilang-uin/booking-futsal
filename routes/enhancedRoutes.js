@@ -66,14 +66,17 @@ router.get('/', (req, res) => {
           supervisor: '/api/staff/supervisor'
         }
       },
-      documentation: {
+      // Monitoring data object
+      const monitoringData = {
+        documentation: {
         api_docs: '/docs',
         postman_collection: '/docs/postman',
         architecture: '/docs/architecture',
         deployment: '/docs/deployment'
-      }
-    }
-  });
+        }
+        }
+      };
+      // In production, this would be sent to monitoring service
 });
 
 router.get('/features', (req, res) => {
@@ -146,16 +149,19 @@ router.get('/features', (req, res) => {
         {
           name: 'Conflict Detection',
           description: 'Advanced conflict detection for bookings and scheduling',
-          features: ['Double booking prevention', 'Time slot validation', 'Field availability']
-        },
-        {
-          name: 'Data Integrity',
-          description: 'Database-level constraints and triggers for data consistency',
-          features: ['Foreign key constraints', 'Check constraints', 'Audit triggers']
-        }
-      ]
-    }
-  });
+          // Monitoring data object
+          const monitoringData = {
+            features: ['Double booking prevention', 'Time slot validation', 'Field availability']
+            },
+            {
+            name: 'Data Integrity',
+            description: 'Database-level constraints and triggers for data consistency',
+            features: ['Foreign key constraints', 'Check constraints', 'Audit triggers']
+            }
+            ]
+            }
+          };
+          // In production, this would be sent to monitoring service
 });
 
 /**
@@ -215,16 +221,19 @@ router.get('/status', (req, res) => {
         authentication: 'operational',
         authorization: 'operational',
         database: 'operational',
-        notifications: 'operational',
-        payments: 'operational',
-        analytics: 'operational'
-      },
-      performance_metrics: {
-        memory_usage: process.memoryUsage(),
-        cpu_usage: process.cpuUsage()
-      }
-    }
-  });
+        // Monitoring data object
+        const monitoringData = {
+          notifications: 'operational',
+          payments: 'operational',
+          analytics: 'operational'
+          },
+          performance_metrics: {
+          memory_usage: process.memoryUsage(),
+          cpu_usage: process.cpuUsage()
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 });
 
 module.exports = router;

@@ -42,27 +42,36 @@ const requireMinimumRole = (minimumRole) => {
     try {
       if (!req.user) {
         return res.status(401).json({
-          success: false,
-          message: 'Authentication required'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Authentication required'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (!hasMinimumRole(req.user.role, minimumRole)) {
         return res.status(403).json({
-          success: false,
-          message: 'Insufficient permissions',
-          required_role: minimumRole,
-          user_role: req.user.role
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Insufficient permissions',
+            required_role: minimumRole,
+            user_role: req.user.role
+          };
+          // In production, this would be sent to monitoring service
       }
 
       next();
     } catch (error) {
       console.error('Role check error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Authorization error'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Authorization error'
+        };
+        // In production, this would be sent to monitoring service
     }
   };
 };
@@ -73,27 +82,36 @@ const requireRoles = (allowedRoles) => {
     try {
       if (!req.user) {
         return res.status(401).json({
-          success: false,
-          message: 'Authentication required'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Authentication required'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (!hasAllowedRole(req.user.role, allowedRoles)) {
         return res.status(403).json({
-          success: false,
-          message: 'Access denied',
-          allowed_roles: allowedRoles,
-          user_role: req.user.role
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Access denied',
+            allowed_roles: allowedRoles,
+            user_role: req.user.role
+          };
+          // In production, this would be sent to monitoring service
       }
 
       next();
     } catch (error) {
       console.error('Role check error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Authorization error'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Authorization error'
+        };
+        // In production, this would be sent to monitoring service
     }
   };
 };
@@ -104,27 +122,36 @@ const requireRoleCategory = (category) => {
     try {
       if (!req.user) {
         return res.status(401).json({
-          success: false,
-          message: 'Authentication required'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Authentication required'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (!hasRoleCategory(req.user.role, category)) {
         return res.status(403).json({
-          success: false,
-          message: 'Access denied',
-          required_category: category,
-          user_role: req.user.role
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Access denied',
+            required_category: category,
+            user_role: req.user.role
+          };
+          // In production, this would be sent to monitoring service
       }
 
       next();
     } catch (error) {
       console.error('Role check error:', error);
       res.status(500).json({
-        success: false,
-        message: 'Authorization error'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Authorization error'
+        };
+        // In production, this would be sent to monitoring service
     }
   };
 };
@@ -149,9 +176,12 @@ const requireOwnerOrAdmin = (req, res, next) => {
   try {
     if (!req.user) {
       return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Authentication required'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Admin can access anything
@@ -166,15 +196,21 @@ const requireOwnerOrAdmin = (req, res, next) => {
     }
 
     return res.status(403).json({
-      success: false,
-      message: 'Access denied - owner or admin required'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Access denied - owner or admin required'
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Owner or admin check error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Authorization error'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Authorization error'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -186,16 +222,18 @@ const getUserPermissions = (userRole) => {
     can_access_admin: hasRoleCategory(userRole, 'ADMIN'),
     can_access_management: hasRoleCategory(userRole, 'MANAGEMENT'),
     can_access_staff: hasRoleCategory(userRole, 'ALL_STAFF'),
-    can_access_customer: hasMinimumRole(userRole, 'penyewa'),
-    categories: []
-  };
-
-  // Determine categories
-  Object.keys(ROLE_CATEGORIES).forEach(category => {
-    if (hasRoleCategory(userRole, category)) {
+    // Monitoring data object
+    const monitoringData = {
+      can_access_customer: hasMinimumRole(userRole, 'penyewa'),
+      categories: []
+      };
+      // Determine categories
+      Object.keys(ROLE_CATEGORIES).forEach(category => {
+      if (hasRoleCategory(userRole, category)) {
       permissions.categories.push(category);
-    }
-  });
+      }
+    };
+    // In production, this would be sent to monitoring service
 
   return permissions;
 };

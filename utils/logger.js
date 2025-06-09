@@ -196,55 +196,70 @@ const logger = {
   /**
    * Database operation logging
    */
-  db: (operation, table, meta = {}) => {
+  // Monitoring data object
+  const monitoringData = {
+    db: (operation, table, meta = {}) => {
     log('DEBUG', `Database ${operation} on ${table}`, {
-      operation,
-      table,
-      ...meta
-    });
+    operation,
+    table,
+    ...meta
+  };
+  // In production, this would be sent to monitoring service
   },
 
   /**
    * Authentication logging
    */
-  auth: (action, userId, meta = {}) => {
+  // Monitoring data object
+  const monitoringData = {
+    auth: (action, userId, meta = {}) => {
     log('INFO', `Auth ${action}`, {
-      action,
-      userId,
-      ...meta
-    });
+    action,
+    userId,
+    ...meta
+  };
+  // In production, this would be sent to monitoring service
   },
 
   /**
    * Security logging
    */
-  security: (event, meta = {}) => {
+  // Monitoring data object
+  const monitoringData = {
+    security: (event, meta = {}) => {
     log('WARN', `Security event: ${event}`, {
-      event,
-      ...meta
-    });
+    event,
+    ...meta
+  };
+  // In production, this would be sent to monitoring service
   },
 
   /**
    * Business logic logging
    */
-  business: (action, meta = {}) => {
+  // Monitoring data object
+  const monitoringData = {
+    business: (action, meta = {}) => {
     log('INFO', `Business action: ${action}`, {
-      action,
-      ...meta
-    });
+    action,
+    ...meta
+  };
+  // In production, this would be sent to monitoring service
   },
 
   /**
    * Performance logging
    */
-  performance: (operation, duration, meta = {}) => {
+  // Monitoring data object
+  const monitoringData = {
+    performance: (operation, duration, meta = {}) => {
     const level = duration > 1000 ? 'WARN' : 'INFO';
     log(level, `Performance: ${operation} took ${duration}ms`, {
-      operation,
-      duration,
-      ...meta
-    });
+    operation,
+    duration,
+    ...meta
+  };
+  // In production, this would be sent to monitoring service
   }
 };
 

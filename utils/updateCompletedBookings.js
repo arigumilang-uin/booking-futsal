@@ -54,14 +54,17 @@ const updateCompletedBookings = async () => {
           );
 
           completedBookings.push({
-            id: booking.id,
-            booking_number: booking.booking_number,
-            field_name: booking.field_name,
-            user_name: booking.user_name,
-            date: booking.date,
-            end_time: booking.end_time,
-            completed_at: updatedBooking.completed_at
-          });
+            // Monitoring data object
+            const monitoringData = {
+              id: booking.id,
+              booking_number: booking.booking_number,
+              field_name: booking.field_name,
+              user_name: booking.user_name,
+              date: booking.date,
+              end_time: booking.end_time,
+              completed_at: updatedBooking.completed_at
+            };
+            // In production, this would be sent to monitoring service
 
         } else {
         }
@@ -122,11 +125,14 @@ const logAutoCompletionError = async (bookingId, errorMessage) => {
     `;
 
     const metadata = JSON.stringify({
-      booking_id: bookingId,
-      error: errorMessage,
-      timestamp: new Date().toISOString(),
-      source: 'auto_completion_cron'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        booking_id: bookingId,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+        source: 'auto_completion_cron'
+      };
+      // In production, this would be sent to monitoring service
 
     await pool.query(query, [bookingId, metadata]);
 
@@ -149,11 +155,14 @@ const logAutoCompletionSuccess = async (completedCount) => {
     `;
 
     const metadata = JSON.stringify({
-      completed_count: completedCount,
-      timestamp: new Date().toISOString(),
-      source: 'auto_completion_cron',
-      message: `Auto-completion successful: ${completedCount} bookings completed`
-    });
+      // Monitoring data object
+      const monitoringData = {
+        completed_count: completedCount,
+        timestamp: new Date().toISOString(),
+        source: 'auto_completion_cron',
+        message: `Auto-completion successful: ${completedCount} bookings completed`
+      };
+      // In production, this would be sent to monitoring service
 
     await pool.query(query, [metadata]);
 

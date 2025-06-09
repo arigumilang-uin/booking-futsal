@@ -343,9 +343,12 @@ router.get('/users/:id', requireManagement, async (req, res) => {
     const user = await getUserByIdRaw(id);
     if (!user) {
       return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Role hierarchy validation
@@ -368,17 +371,23 @@ router.get('/users/:id', requireManagement, async (req, res) => {
     // Manager cannot access supervisor data
     if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Cannot access supervisor data'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Cannot access supervisor data'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Only allow access to users with lower or equal hierarchy level
     if (currentUserLevel < targetUserLevel) {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Insufficient role level'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Insufficient role level'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: user
@@ -386,9 +395,12 @@ router.get('/users/:id', requireManagement, async (req, res) => {
   } catch (error) {
     console.error('Get user detail error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get user detail'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get user detail'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -402,9 +414,12 @@ router.put('/users/:id', requireManagement, async (req, res) => {
     const existingUser = await getUserByIdRaw(id);
     if (!existingUser) {
       return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Role hierarchy validation
@@ -427,17 +442,23 @@ router.put('/users/:id', requireManagement, async (req, res) => {
     // Manager cannot update supervisor
     if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Cannot modify supervisor data'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Cannot modify supervisor data'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Only allow modification of users with lower hierarchy level
     if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Insufficient role level'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Insufficient role level'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // If trying to change role, validate new role
@@ -447,9 +468,12 @@ router.put('/users/:id', requireManagement, async (req, res) => {
       // Cannot assign role higher than or equal to current user's role
       if (newRoleLevel >= currentUserLevel) {
         return res.status(403).json({
-          success: false,
-          message: 'Access denied - Cannot assign higher or equal role'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Access denied - Cannot assign higher or equal role'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -472,22 +496,31 @@ router.put('/users/:id', requireManagement, async (req, res) => {
 
     if (!updatedUser) {
       return res.status(404).json({
-        success: false,
-        message: 'User not found or no changes made'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found or no changes made'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'User updated successfully',
-      data: updatedUser
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'User updated successfully',
+        data: updatedUser
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update user error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to update user'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to update user'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -500,9 +533,12 @@ router.delete('/users/:id', requireManagement, async (req, res) => {
     const existingUser = await getUserByIdRaw(id);
     if (!existingUser) {
       return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Role hierarchy validation
@@ -525,38 +561,53 @@ router.delete('/users/:id', requireManagement, async (req, res) => {
     // Manager cannot delete supervisor
     if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Cannot delete supervisor'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Cannot delete supervisor'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Only allow deletion of users with lower hierarchy level
     if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Insufficient role level'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Insufficient role level'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const updatedUser = await updateUserStatus(id, false);
     if (!updatedUser) {
       return res.status(404).json({
-        success: false,
-        message: 'Failed to deactivate user'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Failed to deactivate user'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'User deactivated successfully',
-      data: updatedUser
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'User deactivated successfully',
+        data: updatedUser
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Deactivate user error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to deactivate user'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to deactivate user'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -569,18 +620,24 @@ router.patch('/users/:id/status', requireManagement, async (req, res) => {
     // Validate input
     if (typeof is_active !== 'boolean') {
       return res.status(400).json({
-        success: false,
-        message: 'is_active must be a boolean value'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'is_active must be a boolean value'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate user exists
     const existingUser = await getUserByIdRaw(id);
     if (!existingUser) {
       return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Role hierarchy validation
@@ -603,38 +660,53 @@ router.patch('/users/:id/status', requireManagement, async (req, res) => {
     // Manager cannot modify supervisor
     if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Cannot modify supervisor'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Cannot modify supervisor'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Only allow modification of users with lower hierarchy level
     if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
       return res.status(403).json({
-        success: false,
-        message: 'Access denied - Insufficient role level'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Access denied - Insufficient role level'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const updatedUser = await updateUserStatus(id, is_active);
     if (!updatedUser) {
       return res.status(500).json({
-        success: false,
-        message: 'Failed to update user status'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Failed to update user status'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'User status updated successfully',
-      data: updatedUser
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'User status updated successfully',
+        data: updatedUser
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update user status error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to update user status'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to update user status'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -674,19 +746,25 @@ router.get('/fields', requireManagement, async (req, res) => {
     const paginatedFields = fields.slice(startIndex, endIndex);
 
     res.json({ success: true, data: paginatedFields,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
         total: fields.length,
         total_pages: Math.ceil(fields.length / limit)
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get admin fields error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get fields'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get fields'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -698,9 +776,12 @@ router.get('/fields/:id', requireManagement, async (req, res) => {
     const field = await getFieldById(id);
     if (!field) {
       return res.status(404).json({
-        success: false,
-        message: 'Field not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Field not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: field
@@ -708,9 +789,12 @@ router.get('/fields/:id', requireManagement, async (req, res) => {
   } catch (error) {
     console.error('Get field detail error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get field detail'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get field detail'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -728,9 +812,12 @@ router.post('/fields', requireManagement, async (req, res) => {
     // Validate required fields
     if (!name || !price) {
       return res.status(400).json({
-        success: false,
-        message: 'Name and price are required'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Name and price are required'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const fieldData = {
@@ -748,22 +835,26 @@ router.post('/fields', requireManagement, async (req, res) => {
       operating_hours: operating_hours || { start: '09:00', end: '24:00' },
       operating_days: operating_days || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
       assigned_operator: assigned_operator || null,
-      created_by: adminId
-    };
-
-    const newField = await createField(fieldData);
-
-    res.status(201).json({
-      success: true,
-      message: 'Field created successfully',
-      data: newField
-    });
+      // Monitoring data object
+      const monitoringData = {
+        created_by: adminId
+        };
+        const newField = await createField(fieldData);
+        res.status(201).json({
+        success: true,
+        message: 'Field created successfully',
+        data: newField
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Create field error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to create field'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to create field'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -775,28 +866,36 @@ router.put('/fields/:id', requireManagement, async (req, res) => {
 
     const updateData = {
       ...req.body,
-      updated_by: adminId
-    };
-
-    const updatedField = await updateField(id, updateData);
-    if (!updatedField) {
-      return res.status(404).json({
+      // Monitoring data object
+      const monitoringData = {
+        updated_by: adminId
+        };
+        const updatedField = await updateField(id, updateData);
+        if (!updatedField) {
+        return res.status(404).json({
         success: false,
         message: 'Field not found'
-      });
+      };
+      // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Field updated successfully',
-      data: updatedField
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Field updated successfully',
+        data: updatedField
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update field error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to update field'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to update field'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -809,36 +908,48 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
     const existingField = await getFieldById(id);
     if (!existingField) {
       return res.status(404).json({
-        success: false,
-        message: 'Field not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Field not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const deletedField = await deleteField(id);
     if (!deletedField) {
       return res.status(500).json({
-        success: false,
-        message: 'Failed to delete field'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Failed to delete field'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Field deleted successfully (set to inactive)',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Field deleted successfully (set to inactive)',
+        data: {
         id: deletedField.id,
         name: deletedField.name,
         status: deletedField.status,
         updated_at: deletedField.updated_at
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Delete field error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to delete field',
-      error: process.env.NODE_ENV === 'production' ? error.message : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to delete field',
+        error: process.env.NODE_ENV === 'production' ? error.message : undefined
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -854,9 +965,12 @@ router.put('/fields/:id/assign-operator', requireManagement, async (req, res) =>
     const existingField = await getFieldById(id);
     if (!existingField) {
       return res.status(404).json({
-        success: false,
-        message: 'Field not found'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Field not found'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // If operator_id is provided, validate the operator
@@ -864,43 +978,58 @@ router.put('/fields/:id/assign-operator', requireManagement, async (req, res) =>
       const operator = await getUserByIdRaw(operator_id);
       if (!operator) {
         return res.status(400).json({
-          success: false,
-          message: 'Operator not found'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Operator not found'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if (operator.role !== 'operator_lapangan') {
         return res.status(400).json({
-          success: false,
-          message: 'Invalid operator - must have operator_lapangan role'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Invalid operator - must have operator_lapangan role'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
     // Update field with assigned operator
     const updatedField = await updateField(id, {
-      assigned_operator: operator_id,
-      updated_by: adminId
-    });
+      // Monitoring data object
+      const monitoringData = {
+        assigned_operator: operator_id,
+        updated_by: adminId
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({
-      success: true,
-      message: operator_id ? 'Operator assigned to field successfully' : 'Operator unassigned from field successfully',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: operator_id ? 'Operator assigned to field successfully' : 'Operator unassigned from field successfully',
+        data: {
         field_id: updatedField.id,
         field_name: updatedField.name,
         assigned_operator: updatedField.assigned_operator,
         operator_name: updatedField.operator_name || null
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Assign operator to field error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to assign operator to field',
-      error: process.env.NODE_ENV === 'production' ? error.message : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to assign operator to field',
+        error: process.env.NODE_ENV === 'production' ? error.message : undefined
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -943,10 +1072,13 @@ router.get('/operators', requireManagement, async (req, res) => {
   } catch (error) {
     console.error('Get operators error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get operators',
-      error: process.env.NODE_ENV === 'production' ? error.message : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get operators',
+        error: process.env.NODE_ENV === 'production' ? error.message : undefined
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -1064,15 +1196,21 @@ router.get('/bookings/:id/history', requireManagement, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Get booking history error:', error);
-      message: error.message,
-      stack: error.stack,
-      bookingId: req.params.id
-    });
+      // Monitoring data object
+      const monitoringData = {
+        message: error.message,
+        stack: error.stack,
+        bookingId: req.params.id
+      };
+      // In production, this would be sent to monitoring service
     res.status(500).json({
-      success: false,
-      error: 'Failed to get booking history',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get booking history',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -1093,15 +1231,21 @@ router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Get booking timeline error:', error);
-      message: error.message,
-      stack: error.stack,
-      bookingId: req.params.id
-    });
+      // Monitoring data object
+      const monitoringData = {
+        message: error.message,
+        stack: error.stack,
+        bookingId: req.params.id
+      };
+      // In production, this would be sent to monitoring service
     res.status(500).json({
-      success: false,
-      error: 'Failed to get booking timeline',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get booking timeline',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -1122,15 +1266,21 @@ router.get('/payments/:id/logs', requireManagement, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Get payment logs error:', error);
-      message: error.message,
-      stack: error.stack,
-      paymentId: req.params.id
-    });
+      // Monitoring data object
+      const monitoringData = {
+        message: error.message,
+        stack: error.stack,
+        paymentId: req.params.id
+      };
+      // In production, this would be sent to monitoring service
     res.status(500).json({
-      success: false,
-      error: 'Failed to get payment logs',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get payment logs',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 

@@ -21,20 +21,26 @@ const getFieldReviewsList = async (req, res) => {
 
     res.json({ success: true, data: {
         reviews,
-        rating_summary: ratingSummary,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          rating_summary: ratingSummary,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: reviews.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get field reviews error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil review lapangan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil review lapangan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -49,19 +55,25 @@ const getUserReviewsList = async (req, res) => {
 
     res.json({ success: true, data: {
         reviews,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          pagination: {
           current_page: page,
           per_page: limit,
           total: reviews.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get user reviews error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil review Anda'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil review Anda'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -74,49 +86,67 @@ const createReview = async (req, res) => {
     // Validate required fields
     if (!field_id || !booking_id || !rating) {
       return res.status(400).json({
-        success: false,
-        message: 'Field ID, booking ID, dan rating wajib diisi'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Field ID, booking ID, dan rating wajib diisi'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate rating range
     if (rating < 1 || rating > 5) {
       return res.status(400).json({
-        success: false,
-        message: 'Rating harus antara 1-5'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Rating harus antara 1-5'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check if user can review this booking
     const canReview = await canUserReviewBooking(userId, booking_id);
     if (!canReview.canReview) {
       return res.status(400).json({
-        success: false,
-        message: canReview.reason
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: canReview.reason
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const newReview = await createFieldReview({
       field_id,
-      user_id: userId,
-      booking_id,
-      rating,
-      review,
-      images: images || [],
-      is_anonymous: is_anonymous || false
-    });
+      // Monitoring data object
+      const monitoringData = {
+        user_id: userId,
+        booking_id,
+        rating,
+        review,
+        images: images || [],
+        is_anonymous: is_anonymous || false
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Review berhasil dibuat',
-      data: newReview
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Review berhasil dibuat',
+        data: newReview
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Create review error:', error);
     res.status(500).json({
-      success: false,
-      message: error.message || 'Gagal membuat review'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: error.message || 'Gagal membuat review'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -130,9 +160,12 @@ const updateReview = async (req, res) => {
     // Validate rating if provided
     if (rating && (rating < 1 || rating > 5)) {
       return res.status(400).json({
-        success: false,
-        message: 'Rating harus antara 1-5'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Rating harus antara 1-5'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const updatedReview = await updateFieldReview(id, userId, {
@@ -144,22 +177,31 @@ const updateReview = async (req, res) => {
 
     if (!updatedReview) {
       return res.status(404).json({
-        success: false,
-        message: 'Review tidak ditemukan atau Anda tidak memiliki akses'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Review tidak ditemukan atau Anda tidak memiliki akses'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Review berhasil diperbarui',
-      data: updatedReview
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Review berhasil diperbarui',
+        data: updatedReview
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update review error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memperbarui review'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memperbarui review'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -173,21 +215,30 @@ const deleteReview = async (req, res) => {
 
     if (!deleted) {
       return res.status(404).json({
-        success: false,
-        message: 'Review tidak ditemukan atau Anda tidak memiliki akses'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Review tidak ditemukan atau Anda tidak memiliki akses'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Review berhasil dihapus'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Review berhasil dihapus'
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Delete review error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus review'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus review'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -199,9 +250,12 @@ const getReviewDetail = async (req, res) => {
 
     if (!review) {
       return res.status(404).json({
-        success: false,
-        message: 'Review tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Review tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: review
@@ -209,9 +263,12 @@ const getReviewDetail = async (req, res) => {
   } catch (error) {
     console.error('Get review detail error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil detail review'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil detail review'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -228,9 +285,12 @@ const checkCanReview = async (req, res) => {
   } catch (error) {
     console.error('Check can review error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memeriksa status review'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memeriksa status review'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -245,9 +305,12 @@ const getFieldRating = async (req, res) => {
   } catch (error) {
     console.error('Get field rating error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil rating lapangan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil rating lapangan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

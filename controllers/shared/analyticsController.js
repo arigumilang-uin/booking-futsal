@@ -45,23 +45,29 @@ const getBusinessAnalytics = async (req, res) => {
     ]);
 
     res.json({ success: true, data: {
-        period: {
+        // Monitoring data object
+        const monitoringData = {
+          period: {
           start_date: startDate,
           end_date: endDate,
           period_type: period
-        },
-        booking_analytics: bookingStats,
-        revenue_analytics: revenueStats,
-        payment_analytics: paymentStats
-      }
-    });
+          },
+          booking_analytics: bookingStats,
+          revenue_analytics: revenueStats,
+          payment_analytics: paymentStats
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get business analytics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil analitik bisnis'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil analitik bisnis'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -111,23 +117,29 @@ const getSystemAnalytics = async (req, res) => {
               acc[user.role] = (acc[user.role] || 0) + 1;
               return acc;
             }, {}),
-            active: allUsers.filter(u => u.is_active).length,
-            inactive: allUsers.filter(u => !u.is_active).length
-          },
-          bookings: bookingStats,
-          revenue: revenueStats,
-          payments: paymentStats,
-          fields: fieldStats
-        }
-      }
-    });
+            // Monitoring data object
+            const monitoringData = {
+              active: allUsers.filter(u => u.is_active).length,
+              inactive: allUsers.filter(u => !u.is_active).length
+              },
+              bookings: bookingStats,
+              revenue: revenueStats,
+              payments: paymentStats,
+              fields: fieldStats
+              }
+              }
+            };
+            // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get system analytics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil analitik sistem'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil analitik sistem'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -223,23 +235,29 @@ const getPerformanceMetrics = async (req, res) => {
         period: {
           start_date: startDate,
           end_date: endDate,
-          period_type: period
-        },
-        performance_metrics: metrics,
-        raw_statistics: {
-          bookings: bookingStats,
-          revenue: revenueStats,
-          fields: fieldStats
-        }
-      }
-    });
+          // Monitoring data object
+          const monitoringData = {
+            period_type: period
+            },
+            performance_metrics: metrics,
+            raw_statistics: {
+            bookings: bookingStats,
+            revenue: revenueStats,
+            fields: fieldStats
+            }
+            }
+          };
+          // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get performance metrics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil metrik performa'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil metrik performa'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

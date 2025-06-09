@@ -60,22 +60,28 @@ router.get('/today-schedule', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
 
     res.json({ success: true, data: {
-        date: today,
-        operator_info: {
+        // Monitoring data object
+        const monitoringData = {
+          date: today,
+          operator_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id
-        },
-        schedule_by_field: [],
-        total_bookings: 0
-      }
-    });
+          },
+          schedule_by_field: [],
+          total_bookings: 0
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get today schedule error:', error);
     res.status(500).json({
-      error: 'Failed to get today schedule',
-      code: 'TODAY_SCHEDULE_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get today schedule',
+        code: 'TODAY_SCHEDULE_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -92,22 +98,28 @@ router.get('/schedule/:date', async (req, res) => {
 
     // This would be implemented in controller
     res.json({ success: true, data: {
-        date: date,
-        operator_info: {
+        // Monitoring data object
+        const monitoringData = {
+          date: date,
+          operator_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id
-        },
-        schedule_by_field: [],
-        total_bookings: 0
-      }
-    });
+          },
+          schedule_by_field: [],
+          total_bookings: 0
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get schedule error:', error);
     res.status(500).json({
-      error: 'Failed to get schedule',
-      code: 'SCHEDULE_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get schedule',
+        code: 'SCHEDULE_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -130,9 +142,12 @@ router.get('/bookings/pending', async (req, res) => {
   } catch (error) {
     console.error('Get pending bookings error:', error);
     res.status(500).json({
-      error: 'Failed to get pending bookings',
-      code: 'PENDING_BOOKINGS_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get pending bookings',
+        code: 'PENDING_BOOKINGS_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -153,16 +168,19 @@ router.get('/field-statuses', (req, res) => {
         value: 'maintenance',
         label: 'Maintenance',
         description: 'Lapangan sedang maintenance',
-        color: 'orange'
-      },
-      {
-        value: 'inactive',
-        label: 'Inactive',
-        description: 'Lapangan tidak aktif sementara',
-        color: 'red'
-      }
-    ]
-  });
+        // Monitoring data object
+        const monitoringData = {
+          color: 'orange'
+          },
+          {
+          value: 'inactive',
+          label: 'Inactive',
+          description: 'Lapangan tidak aktif sementara',
+          color: 'red'
+          }
+          ]
+        };
+        // In production, this would be sent to monitoring service
 });
 
 /**
@@ -188,16 +206,19 @@ router.get('/booking-actions', (req, res) => {
         {
           action: 'complete',
           label: 'Complete Booking',
-          description: 'Selesaikan booking setelah dimainkan'
-        },
-        {
-          action: 'no_show',
-          label: 'Mark No Show',
-          description: 'Tandai customer tidak datang'
-        }
-      ]
-    }
-  });
+          // Monitoring data object
+          const monitoringData = {
+            description: 'Selesaikan booking setelah dimainkan'
+            },
+            {
+            action: 'no_show',
+            label: 'Mark No Show',
+            description: 'Tandai customer tidak datang'
+            }
+            ]
+            }
+          };
+          // In production, this would be sent to monitoring service
 });
 
 /**
@@ -216,23 +237,29 @@ router.get('/statistics', async (req, res) => {
           start_date: date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           end_date: date_to || new Date()
         },
-        statistics: {
+        // Monitoring data object
+        const monitoringData = {
+          statistics: {
           total_bookings_handled: 0,
           confirmed_bookings: 0,
           completed_bookings: 0,
           no_show_bookings: 0,
           fields_managed: 0,
           average_rating: 0
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get operator statistics error:', error);
     res.status(500).json({
-      error: 'Failed to get operator statistics',
-      code: 'OPERATOR_STATS_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get operator statistics',
+        code: 'OPERATOR_STATS_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 

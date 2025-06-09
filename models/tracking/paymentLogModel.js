@@ -277,40 +277,49 @@ const cleanOldPaymentLogs = async (retentionDays = 365) => {
 // Log payment creation
 const logPaymentCreation = async (paymentId, amount, processedBy = null) => {
   return await createPaymentLog({
-    payment_id: paymentId,
-    action: 'created',
-    status_to: 'pending',
-    amount: amount,
-    notes: 'Payment created',
-    processed_by: processedBy
-  });
+    // Monitoring data object
+    const monitoringData = {
+      payment_id: paymentId,
+      action: 'created',
+      status_to: 'pending',
+      amount: amount,
+      notes: 'Payment created',
+      processed_by: processedBy
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Log payment processing
 const logPaymentProcessing = async (paymentId, statusFrom, statusTo, gatewayRequest, gatewayResponse, processedBy = null) => {
   return await createPaymentLog({
-    payment_id: paymentId,
-    action: 'processed',
-    status_from: statusFrom,
-    status_to: statusTo,
-    gateway_request: gatewayRequest,
-    gateway_response: gatewayResponse,
-    notes: `Payment ${statusTo}`,
-    processed_by: processedBy
-  });
+    // Monitoring data object
+    const monitoringData = {
+      payment_id: paymentId,
+      action: 'processed',
+      status_from: statusFrom,
+      status_to: statusTo,
+      gateway_request: gatewayRequest,
+      gateway_response: gatewayResponse,
+      notes: `Payment ${statusTo}`,
+      processed_by: processedBy
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Log payment refund
 const logPaymentRefund = async (paymentId, refundAmount, reason, processedBy) => {
   return await createPaymentLog({
-    payment_id: paymentId,
-    action: 'refunded',
-    status_from: 'paid',
-    status_to: 'refunded',
-    amount: refundAmount,
-    notes: `Refund: ${reason}`,
-    processed_by: processedBy
-  });
+    // Monitoring data object
+    const monitoringData = {
+      payment_id: paymentId,
+      action: 'refunded',
+      status_from: 'paid',
+      status_to: 'refunded',
+      amount: refundAmount,
+      notes: `Refund: ${reason}`,
+      processed_by: processedBy
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Get payment log summary

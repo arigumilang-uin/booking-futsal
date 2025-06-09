@@ -22,20 +22,26 @@ const getFavoriteFields = async (req, res) => {
 
     res.json({ success: true, data: {
         favorites,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          pagination: {
           current_page: page,
           per_page: limit,
           total: totalCount,
           total_pages: Math.ceil(totalCount / limit)
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get favorites error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil daftar favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil daftar favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -49,37 +55,52 @@ const addFieldToFavorites = async (req, res) => {
 
     if (!result.success) {
       return res.status(400).json({
-        success: false,
-        message: 'Lapangan sudah ada di daftar favorit'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Lapangan sudah ada di daftar favorit'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.status(201).json({
-      success: true,
-      message: 'Lapangan berhasil ditambahkan ke favorit',
-      data: result.favorite
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Lapangan berhasil ditambahkan ke favorit',
+        data: result.favorite
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Add to favorites error:', error);
 
     if (error.message.includes('already in favorites')) {
       return res.status(400).json({
-        success: false,
-        message: 'Lapangan sudah ada di daftar favorit'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Lapangan sudah ada di daftar favorit'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (error.message.includes('not found')) {
       return res.status(404).json({
-        success: false,
-        message: 'Lapangan tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Lapangan tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.status(500).json({
-      success: false,
-      message: 'Gagal menambahkan ke favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menambahkan ke favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -93,21 +114,30 @@ const removeFieldFromFavorites = async (req, res) => {
 
     if (!removed) {
       return res.status(404).json({
-        success: false,
-        message: 'Lapangan tidak ditemukan di daftar favorit'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Lapangan tidak ditemukan di daftar favorit'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Lapangan berhasil dihapus dari favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Lapangan berhasil dihapus dari favorit'
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Remove from favorites error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus dari favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus dari favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -124,27 +154,36 @@ const toggleFieldFavorite = async (req, res) => {
       : 'Lapangan berhasil dihapus dari favorit';
 
     res.json({
-      success: true,
-      message,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message,
+        data: {
         action: result.action,
         is_favorite: result.isFavorite
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Toggle favorite error:', error);
 
     if (error.message.includes('not found')) {
       return res.status(404).json({
-        success: false,
-        message: 'Lapangan tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Lapangan tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengubah status favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengubah status favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -157,15 +196,21 @@ const checkFieldFavorite = async (req, res) => {
     const isFavorite = await isFieldFavorite(userId, parseInt(fieldId));
 
     res.json({ success: true, data: {
-        is_favorite: isFavorite
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          is_favorite: isFavorite
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Check favorite error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memeriksa status favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memeriksa status favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -183,9 +228,12 @@ const getFavoritesWithAvailabilityInfo = async (req, res) => {
   } catch (error) {
     console.error('Get favorites with booking history error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil favorit dengan riwayat booking'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil favorit dengan riwayat booking'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -199,9 +247,12 @@ const getFavoritesStatistics = async (req, res) => {
   } catch (error) {
     console.error('Get favorites stats error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil statistik favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil statistik favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -219,9 +270,12 @@ const getRecommendations = async (req, res) => {
   } catch (error) {
     console.error('Get recommendations error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil rekomendasi lapangan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil rekomendasi lapangan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -238,9 +292,12 @@ const getFavoritesCountOnly = async (req, res) => {
   } catch (error) {
     console.error('Get favorites count error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil jumlah favorit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil jumlah favorit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

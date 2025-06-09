@@ -68,21 +68,27 @@ router.get('/database-status', async (req, res) => {
     }
 
     res.json({ success: true, data: {
-        database_status: 'connected',
-        total_tables: existingTables.length,
-        existing_tables: existingTables,
-        missing_tables: missingTables,
-        table_counts: tableCounts,
-        migration_status: missingTables.length === 0 ? 'complete' : 'incomplete'
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          database_status: 'connected',
+          total_tables: existingTables.length,
+          existing_tables: existingTables,
+          missing_tables: missingTables,
+          table_counts: tableCounts,
+          migration_status: missingTables.length === 0 ? 'complete' : 'incomplete'
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Database status error:', error);
     res.status(500).json({
-      error: 'Failed to check database status',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to check database status',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -113,12 +119,15 @@ router.get('/field-locations',
 
 router.get('/health', (req, res) => {
   res.json({
-    success: true,
-    message: 'API is healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'production'
-  });
+    // Monitoring data object
+    const monitoringData = {
+      success: true,
+      message: 'API is healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'production'
+    };
+    // In production, this would be sent to monitoring service
 });
 
 router.get('/version', (req, res) => {
@@ -126,16 +135,19 @@ router.get('/version', (req, res) => {
       api_version: '2.0.0',
       enhanced_role_system: true,
       last_updated: '2024-11-30',
-      features: [
+      // Monitoring data object
+      const monitoringData = {
+        features: [
         'role_based_access',
         'auto_generation',
         'conflict_detection',
         'payment_gateway_ready',
         'audit_trail',
         'jsonb_support'
-      ]
-    }
-  });
+        ]
+        }
+      };
+      // In production, this would be sent to monitoring service
 });
 
 // =====================================================

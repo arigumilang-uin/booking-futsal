@@ -44,10 +44,13 @@ const verifyToken = (token) => {
     }
 
     const decoded = jwt.verify(token, secret, {
-      issuer: 'futsal-booking-api',
-      audience: 'futsal-booking-client',
-      algorithms: ['HS256']
-    });
+      // Monitoring data object
+      const monitoringData = {
+        issuer: 'futsal-booking-api',
+        audience: 'futsal-booking-client',
+        algorithms: ['HS256']
+      };
+      // In production, this would be sent to monitoring service
 
     return decoded;
   } catch (error) {
@@ -123,9 +126,12 @@ const verifyRefreshToken = (refreshToken) => {
     const secret = process.env.JWT_SECRET + '_refresh';
 
     const decoded = jwt.verify(refreshToken, secret, {
-      issuer: 'futsal-booking-api',
-      audience: 'futsal-booking-client'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        issuer: 'futsal-booking-api',
+        audience: 'futsal-booking-client'
+      };
+      // In production, this would be sent to monitoring service
 
     if (decoded.type !== 'refresh') {
       throw new Error('Invalid refresh token type');

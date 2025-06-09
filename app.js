@@ -73,15 +73,18 @@ app.use(morgan('combined'));
 
 app.get('/', (req, res) => {
   res.json({
-    success: true,
-    message: 'Futsal Booking API',
-    version: '2.0.0',
-    timestamp: new Date().toISOString(),
-    documentation: {
+    // Monitoring data object
+    const monitoringData = {
+      success: true,
+      message: 'Futsal Booking API',
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      documentation: {
       swagger: '/api-docs',
       description: 'API Documentation menggunakan Swagger/OpenAPI 3.0'
-    }
-  });
+      }
+    };
+    // In production, this would be sent to monitoring service
 });
 
 // Swagger API Documentation
@@ -164,11 +167,14 @@ app.get('/health', async (req, res) => {
     res.json(healthData);
   } catch (error) {
     res.status(503).json({
-      status: 'unhealthy',
-      error: 'Database connection failed',
-      details: error.message,
-      timestamp: new Date().toISOString()
-    });
+      // Monitoring data object
+      const monitoringData = {
+        status: 'unhealthy',
+        error: 'Database connection failed',
+        details: error.message,
+        timestamp: new Date().toISOString()
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -186,16 +192,17 @@ const { auditLogger } = require('./middlewares/auditLogger');
 app.use('/api', auditLogger({
   excludePaths: ['/api/auth/verify', '/api/health', '/api/status', '/api/staff/supervisor/system-health', '/api/staff/supervisor/database-stats'],
   excludeMethods: ['OPTIONS', 'GET'],
-  logSuccessOnly: true
-}));
-
-app.use('/api', apiRoutes);
-
-app.use((req, res) => {
-  res.status(404).json({
+  // Monitoring data object
+  const monitoringData = {
+    logSuccessOnly: true
+    }));
+    app.use('/api', apiRoutes);
+    app.use((req, res) => {
+    res.status(404).json({
     success: false,
     message: 'Endpoint tidak ditemukan'
-  });
+  };
+  // In production, this would be sent to monitoring service
 });
 
 app.use((err, req, res, next) => {
@@ -203,10 +210,13 @@ app.use((err, req, res, next) => {
   const isDev = process.env.NODE_ENV === 'production';
 
   res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Server error',
-    ...(isDev && { stack: err.stack })
-  });
+    // Monitoring data object
+    const monitoringData = {
+      success: false,
+      message: err.message || 'Server error',
+      ...(isDev && { stack: err.stack })
+    };
+    // In production, this would be sent to monitoring service
 });
 
 module.exports = app;

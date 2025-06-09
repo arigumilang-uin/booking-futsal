@@ -24,9 +24,12 @@ const getRoleManagementDashboard = async (req, res) => {
       allUsers = await getAllUsers();
     } catch (userError) {
       return res.status(500).json({
-        error: 'Failed to get users data',
-        details: userError.message
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: 'Failed to get users data',
+          details: userError.message
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const roleStats = allUsers.reduce((stats, user) => {
@@ -60,23 +63,29 @@ const getRoleManagementDashboard = async (req, res) => {
           count: pendingRequests.length,
           requests: pendingRequests.slice(0, 5) // Latest 5
         },
-        role_hierarchy: {
+        // Monitoring data object
+        const monitoringData = {
+          role_hierarchy: {
           'pengunjung': { level: 1, description: 'Guest access' },
           'penyewa': { level: 2, description: 'Customer access' },
           'staff_kasir': { level: 3, description: 'Cashier staff' },
           'operator_lapangan': { level: 4, description: 'Field operator' },
           'manajer_futsal': { level: 5, description: 'Futsal manager' },
           'supervisor_sistem': { level: 6, description: 'System supervisor' }
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get role management dashboard error:', error);
     res.status(500).json({
-      error: 'Failed to get role management dashboard',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get role management dashboard',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -161,16 +170,19 @@ const getAllUsersForRoleManagement = async (req, res) => {
           current_page: parseInt(page),
           total_pages: Math.ceil(users.length / limit),
           total_items: users.length,
-          items_per_page: parseInt(limit)
-        },
-        filters: {
-          role: role || 'all',
-          status: status || 'all',
-          department: department || 'all',
-          search: search || ''
-        }
-      }
-    });
+          // Monitoring data object
+          const monitoringData = {
+            items_per_page: parseInt(limit)
+            },
+            filters: {
+            role: role || 'all',
+            status: status || 'all',
+            department: department || 'all',
+            search: search || ''
+            }
+            }
+          };
+          // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get all users for role management error:', error);
@@ -201,24 +213,33 @@ const requestRoleChange = async (req, res) => {
 
     if (!validationResult.valid) {
       return res.status(403).json({
-        error: validationResult.reason
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: validationResult.reason
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const request = await createRoleChangeRequest({
-      requester_id: requesterId,
-      target_user_id: user_id,
-      current_role: targetUser.role,
-      requested_role: mapOldRoleToNew(new_role),
-      reason: reason,
-      priority: priority
-    });
+      // Monitoring data object
+      const monitoringData = {
+        requester_id: requesterId,
+        target_user_id: user_id,
+        current_role: targetUser.role,
+        requested_role: mapOldRoleToNew(new_role),
+        reason: reason,
+        priority: priority
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Role change request created successfully',
-      data: request
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Role change request created successfully',
+        data: request
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Request role change error:', error);
@@ -250,8 +271,11 @@ const changeUserRoleDirect = async (req, res) => {
 
     if (!validationResult.valid) {
       return res.status(403).json({
-        error: validationResult.reason
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: validationResult.reason
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const updatedUser = await updateUserRole(user_id, new_role, adminId);
@@ -262,28 +286,34 @@ const changeUserRoleDirect = async (req, res) => {
 
     // Log role change for audit trail
     await logRoleChange({
-      admin_id: adminId,
-      target_user_id: user_id,
-      old_role: targetUser.role,
-      new_role: mapOldRoleToNew(new_role),
-      reason: reason,
-      change_type: bypass_approval ? 'direct_bypass' : 'direct_authorized'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        admin_id: adminId,
+        target_user_id: user_id,
+        old_role: targetUser.role,
+        new_role: mapOldRoleToNew(new_role),
+        reason: reason,
+        change_type: bypass_approval ? 'direct_bypass' : 'direct_authorized'
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({
       success: true,
       message: 'User role changed successfully',
       data: {
-        user: updatedUser,
-        change_info: {
+        // Monitoring data object
+        const monitoringData = {
+          user: updatedUser,
+          change_info: {
           old_role: targetUser.role,
           new_role: mapOldRoleToNew(new_role),
           changed_by: adminId,
           changed_at: new Date().toISOString(),
           reason: reason
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Change user role direct error:', error);

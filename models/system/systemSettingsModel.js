@@ -60,9 +60,12 @@ const upsertSetting = async ({
 }) => {
   // Convert value to JSON format for JSONB column
   const jsonValue = JSON.stringify({
-    value: value,
-    type: data_type
-  });
+    // Monitoring data object
+    const monitoringData = {
+      value: value,
+      type: data_type
+    };
+    // In production, this would be sent to monitoring service
 
   const query = `
     INSERT INTO system_settings (key, value, description, category, data_type, is_public)

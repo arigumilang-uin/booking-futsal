@@ -63,11 +63,14 @@ router.post('/payments/debug', async (req, res) => {
 
     // Step 2: Create payment
     const payment = await createPayment({
-      booking_id: booking_id,
-      amount: booking.total_amount,
-      method: 'cash',
-      status: 'paid'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        booking_id: booking_id,
+        amount: booking.total_amount,
+        method: 'cash',
+        status: 'paid'
+      };
+      // In production, this would be sent to monitoring service
 
     // Step 3: Skip update payment status (has SQL issue)
 
@@ -75,21 +78,27 @@ router.post('/payments/debug', async (req, res) => {
     const updatedBooking = await updateBookingPaymentStatus(parseInt(booking_id), 'paid');
 
     res.json({
-      success: true,
-      debug_info: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        debug_info: {
         step1_booking: booking,
         step2_payment: payment,
         step3_skipped: 'updatePaymentStatus has SQL issue',
         step4_updated_booking: updatedBooking,
         staff_user: req.rawUser
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     res.status(500).json({
-      success: false,
-      error: error.message,
-      stack: error.stack
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: error.message,
+        stack: error.stack
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -124,22 +133,28 @@ router.get('/dashboard', async (req, res) => {
           cash_payments: 0,
           digital_payments: 0
         },
-        recent_transactions: [],
-        pending_payments: [],
-        quick_stats: {
+        // Monitoring data object
+        const monitoringData = {
+          recent_transactions: [],
+          pending_payments: [],
+          quick_stats: {
           this_week_revenue: 0,
           this_month_revenue: 0,
           average_transaction: 0
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Kasir dashboard error:', error);
     res.status(500).json({
-      error: 'Failed to get kasir dashboard',
-      code: 'KASIR_DASHBOARD_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get kasir dashboard',
+        code: 'KASIR_DASHBOARD_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -179,14 +194,17 @@ router.get('/payment-methods', (req, res) => {
           gateway: 'midtrans'
         },
         {
-          value: 'credit_card',
-          label: 'Credit Card',
-          description: 'Kartu kredit',
-          gateway: 'midtrans'
-        }
-      ]
-    }
-  });
+          // Monitoring data object
+          const monitoringData = {
+            value: 'credit_card',
+            label: 'Credit Card',
+            description: 'Kartu kredit',
+            gateway: 'midtrans'
+            }
+            ]
+            }
+          };
+          // In production, this would be sent to monitoring service
 });
 
 module.exports = router;

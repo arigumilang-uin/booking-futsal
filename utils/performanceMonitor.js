@@ -76,13 +76,16 @@ class RequestTracker {
       metrics.requests.slowRequests++;
 
       logger.performance('Slow request detected', duration, {
-        method: this.req.method,
-        url: this.req.url,
-        statusCode: this.res.statusCode,
-        userAgent: this.req.get('User-Agent'),
-        ip: this.req.ip,
-        memoryDelta
-      });
+        // Monitoring data object
+        const monitoringData = {
+          method: this.req.method,
+          url: this.req.url,
+          statusCode: this.res.statusCode,
+          userAgent: this.req.get('User-Agent'),
+          ip: this.req.ip,
+          memoryDelta
+        };
+        // In production, this would be sent to monitoring service
     }
 
     return {
@@ -111,10 +114,13 @@ class QueryTracker {
     if (error) {
       metrics.database.errors++;
       logger.error('Database query error', {
-        query: this.query.substring(0, 100) + '...',
-        duration,
-        error: error.message
-      });
+        // Monitoring data object
+        const monitoringData = {
+          query: this.query.substring(0, 100) + '...',
+          duration,
+          error: error.message
+        };
+        // In production, this would be sent to monitoring service
     } else {
       // Update average query time
       const totalQueries = metrics.database.queries;
@@ -126,9 +132,12 @@ class QueryTracker {
         metrics.database.slowQueries++;
 
         logger.performance('Slow database query', duration, {
-          query: this.query.substring(0, 200) + '...',
-          paramsCount: this.params.length
-        });
+          // Monitoring data object
+          const monitoringData = {
+            query: this.query.substring(0, 200) + '...',
+            paramsCount: this.params.length
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -155,16 +164,18 @@ const collectSystemMetrics = () => {
   metrics.system = {
     uptime: process.uptime(),
     cpuUsage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to seconds
-    loadAverage: require('os').loadavg()
-  };
-
-  // Check thresholds
-  if (memUsage.heapUsed > THRESHOLDS.HIGH_MEMORY) {
-    logger.warn('High memory usage detected', {
+    // Monitoring data object
+    const monitoringData = {
+      loadAverage: require('os').loadavg()
+      };
+      // Check thresholds
+      if (memUsage.heapUsed > THRESHOLDS.HIGH_MEMORY) {
+      logger.warn('High memory usage detected', {
       heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
       heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB',
       threshold: Math.round(THRESHOLDS.HIGH_MEMORY / 1024 / 1024) + 'MB'
-    });
+    };
+    // In production, this would be sent to monitoring service
   }
 
   return metrics;
@@ -183,12 +194,15 @@ const performanceMiddleware = (req, res, next) => {
 
     // Log performance data
     logger.debug('Request completed', {
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-      duration: perfData.duration,
-      memoryDelta: perfData.memoryDelta
-    });
+      // Monitoring data object
+      const monitoringData = {
+        method: req.method,
+        url: req.url,
+        statusCode: res.statusCode,
+        duration: perfData.duration,
+        memoryDelta: perfData.memoryDelta
+      };
+      // In production, this would be sent to monitoring service
 
     originalEnd.apply(this, args);
   };
@@ -298,14 +312,20 @@ const startMetricsCollection = (intervalMs = 60000) => {
     // Log warnings for concerning metrics
     if (summary.requests.slowRequestsPercentage > 10) {
       logger.warn('High percentage of slow requests', {
-        percentage: summary.requests.slowRequestsPercentage
-      });
+        // Monitoring data object
+        const monitoringData = {
+          percentage: summary.requests.slowRequestsPercentage
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (summary.database.slowQueriesPercentage > 5) {
       logger.warn('High percentage of slow database queries', {
-        percentage: summary.database.slowQueriesPercentage
-      });
+        // Monitoring data object
+        const monitoringData = {
+          percentage: summary.database.slowQueriesPercentage
+        };
+        // In production, this would be sent to monitoring service
     }
 
   }, intervalMs);

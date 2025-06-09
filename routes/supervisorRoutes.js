@@ -64,23 +64,29 @@ router.get('/system-config', async (req, res) => {
           'http://localhost:5173',
           'https://booking-futsal-frontend.vercel.app'
         ],
-        features: {
+        // Monitoring data object
+        const monitoringData = {
+          features: {
           enhanced_role_system: true,
           auto_generation: true,
           conflict_detection: true,
           payment_gateway: true,
           audit_trail: true,
           jsonb_support: true
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get system config error:', error);
     res.status(500).json({
-      error: 'Failed to get system config',
-      code: 'SYSTEM_CONFIG_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get system config',
+        code: 'SYSTEM_CONFIG_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -98,17 +104,23 @@ router.post('/system-maintenance', async (req, res) => {
 
     if (!type || !validTypes.includes(type)) {
       return res.status(400).json({
-        success: false,
-        message: 'Invalid maintenance type',
-        valid_types: validTypes
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Invalid maintenance type',
+          valid_types: validTypes
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (!description) {
       return res.status(400).json({
-        success: false,
-        message: 'Description is required'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Description is required'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Execute maintenance task based on type
@@ -134,7 +146,9 @@ router.post('/system-maintenance', async (req, res) => {
     res.json({
       success: true,
       message: `Maintenance task '${type}' executed successfully`,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        data: {
         type,
         description,
         scheduled_time,
@@ -142,16 +156,20 @@ router.post('/system-maintenance', async (req, res) => {
         executed_at: new Date().toISOString(),
         executed_by: req.rawUser.name,
         result
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('System maintenance error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to execute maintenance task',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to execute maintenance task',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -166,9 +184,12 @@ router.get('/database-stats', async (req, res) => {
   } catch (error) {
     console.error('Get database stats error:', error);
     res.status(500).json({
-      error: 'Failed to get database stats',
-      code: 'DATABASE_STATS_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get database stats',
+        code: 'DATABASE_STATS_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -178,21 +199,27 @@ router.get('/error-logs', async (req, res) => {
 
     // This would be implemented with proper logging system
     res.json({ success: true, data: {
-        logs: [],
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          logs: [],
+          pagination: {
           current_page: parseInt(page),
           per_page: parseInt(limit),
           total: 0
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get error logs error:', error);
     res.status(500).json({
-      error: 'Failed to get error logs',
-      code: 'ERROR_LOGS_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get error logs',
+        code: 'ERROR_LOGS_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 

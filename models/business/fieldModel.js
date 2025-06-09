@@ -346,11 +346,14 @@ const calculateAvailableSlots = async (fieldId, date, startHour, endHour, existi
 
     if (isAvailable) {
       availableSlots.push({
-        start_time: slotStart,
-        end_time: slotEnd,
-        available: true,
-        duration_minutes: slotDuration
-      });
+        // Monitoring data object
+        const monitoringData = {
+          start_time: slotStart,
+          end_time: slotEnd,
+          available: true,
+          duration_minutes: slotDuration
+        };
+        // In production, this would be sent to monitoring service
     }
   }
 

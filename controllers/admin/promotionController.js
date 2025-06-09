@@ -41,20 +41,26 @@ const getAllPromotionsAdmin = async (req, res) => {
     );
 
     res.json({ success: true, data: {
-        promotions: promotionsWithStats,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          promotions: promotionsWithStats,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: promotions.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get all promotions admin error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil daftar promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil daftar promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -76,33 +82,45 @@ const createPromotionAdmin = async (req, res) => {
     // Validate required fields
     if (!code || !name || !type || !value || !startDate || !endDate) {
       return res.status(400).json({
-        success: false,
-        message: 'Kode, nama, tipe, nilai, tanggal mulai, dan tanggal berakhir diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode, nama, tipe, nilai, tanggal mulai, dan tanggal berakhir diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate promotion type
     const validTypes = ['percentage', 'fixed_amount', 'free_hours', 'fixed'];
     if (!validTypes.includes(type)) {
       return res.status(400).json({
-        success: false,
-        message: 'Tipe promosi harus percentage, fixed_amount, fixed, atau free_hours'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Tipe promosi harus percentage, fixed_amount, fixed, atau free_hours'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate value based on type
     if (type === 'percentage' && (value <= 0 || value > 100)) {
       return res.status(400).json({
-        success: false,
-        message: 'Nilai persentase harus antara 1-100'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Nilai persentase harus antara 1-100'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if ((type === 'fixed_amount' || type === 'free_hours') && value <= 0) {
       return res.status(400).json({
-        success: false,
-        message: 'Nilai harus lebih besar dari 0'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Nilai harus lebih besar dari 0'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate dates
@@ -110,9 +128,12 @@ const createPromotionAdmin = async (req, res) => {
     const endDateObj = new Date(endDate);
     if (endDateObj <= startDateObj) {
       return res.status(400).json({
-        success: false,
-        message: 'Tanggal berakhir harus setelah tanggal mulai'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Tanggal berakhir harus setelah tanggal mulai'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check if code already exists
@@ -120,9 +141,12 @@ const createPromotionAdmin = async (req, res) => {
     const existingResult = await pool.query(existingQuery, [code]);
     if (existingResult.rows.length > 0) {
       return res.status(400).json({
-        success: false,
-        message: 'Kode promosi sudah digunakan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode promosi sudah digunakan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const promotionData = {
@@ -140,23 +164,27 @@ const createPromotionAdmin = async (req, res) => {
       applicable_times: applicable_hours,
       valid_from: startDate,
       valid_until: endDate,
-      created_by: req.rawUser?.id || req.user?.id
-    };
-
-    const promotion = await createPromotion(promotionData);
-
-    res.status(201).json({
-      success: true,
-      message: 'Promosi berhasil dibuat',
-      data: promotion
-    });
+      // Monitoring data object
+      const monitoringData = {
+        created_by: req.rawUser?.id || req.user?.id
+        };
+        const promotion = await createPromotion(promotionData);
+        res.status(201).json({
+        success: true,
+        message: 'Promosi berhasil dibuat',
+        data: promotion
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Create promotion admin error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal membuat promosi',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal membuat promosi',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -171,9 +199,12 @@ const updatePromotionAdmin = async (req, res) => {
       const validTypes = ['percentage', 'fixed_amount', 'free_hours'];
       if (!validTypes.includes(updateData.type)) {
         return res.status(400).json({
-          success: false,
-          message: 'Tipe promosi harus percentage, fixed_amount, atau free_hours'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Tipe promosi harus percentage, fixed_amount, atau free_hours'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -181,16 +212,22 @@ const updatePromotionAdmin = async (req, res) => {
     if (updateData.type && updateData.value) {
       if (updateData.type === 'percentage' && (updateData.value <= 0 || updateData.value > 100)) {
         return res.status(400).json({
-          success: false,
-          message: 'Nilai persentase harus antara 1-100'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Nilai persentase harus antara 1-100'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       if ((updateData.type === 'fixed_amount' || updateData.type === 'free_hours') && updateData.value <= 0) {
         return res.status(400).json({
-          success: false,
-          message: 'Nilai harus lebih besar dari 0'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Nilai harus lebih besar dari 0'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -200,9 +237,12 @@ const updatePromotionAdmin = async (req, res) => {
       const endDate = new Date(updateData.end_date);
       if (endDate <= startDate) {
         return res.status(400).json({
-          success: false,
-          message: 'Tanggal berakhir harus setelah tanggal mulai'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Tanggal berakhir harus setelah tanggal mulai'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -224,22 +264,31 @@ const updatePromotionAdmin = async (req, res) => {
 
     if (!updatedPromotion) {
       return res.status(404).json({
-        success: false,
-        message: 'Promosi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Promosi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Promosi berhasil diperbarui',
-      data: updatedPromotion
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Promosi berhasil diperbarui',
+        data: updatedPromotion
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update promotion admin error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memperbarui promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memperbarui promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -265,16 +314,22 @@ const deletePromotionAdmin = async (req, res) => {
 
       if (result.rowCount === 0) {
         return res.status(404).json({
-          success: false,
-          message: 'Promosi tidak ditemukan'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Promosi tidak ditemukan'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       res.json({
-        success: true,
-        message: 'Promosi telah dinonaktifkan karena sudah pernah digunakan',
-        data: result.rows[0]
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: true,
+          message: 'Promosi telah dinonaktifkan karena sudah pernah digunakan',
+          data: result.rows[0]
+        };
+        // In production, this would be sent to monitoring service
     } else {
       // Safe to delete
       const deleteQuery = `
@@ -286,23 +341,32 @@ const deletePromotionAdmin = async (req, res) => {
 
       if (result.rowCount === 0) {
         return res.status(404).json({
-          success: false,
-          message: 'Promosi tidak ditemukan'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Promosi tidak ditemukan'
+          };
+          // In production, this would be sent to monitoring service
       }
 
       res.json({
-        success: true,
-        message: 'Promosi berhasil dihapus',
-        data: result.rows[0]
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: true,
+          message: 'Promosi berhasil dihapus',
+          data: result.rows[0]
+        };
+        // In production, this would be sent to monitoring service
     }
   } catch (error) {
     console.error('Delete promotion admin error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -331,21 +395,27 @@ const getPromotionUsageHistoryAdmin = async (req, res) => {
     const usageHistory = result.rows;
 
     res.json({ success: true, data: {
-        promotion_id: parseInt(id),
-        usage_history: usageHistory,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          promotion_id: parseInt(id),
+          usage_history: usageHistory,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: usageHistory.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get promotion usage history error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil riwayat penggunaan promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil riwayat penggunaan promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -399,18 +469,24 @@ const getPromotionAnalytics = async (req, res) => {
     ]);
 
     res.json({ success: true, data: {
-        period_days: days,
-        overall_stats: overallStats.rows[0],
-        usage_stats: usageStats.rows[0],
-        top_promotions: topPromotions.rows
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          period_days: days,
+          overall_stats: overallStats.rows[0],
+          usage_stats: usageStats.rows[0],
+          top_promotions: topPromotions.rows
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get promotion analytics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil analitik promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil analitik promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -430,25 +506,34 @@ const togglePromotionStatus = async (req, res) => {
 
     if (result.rowCount === 0) {
       return res.status(404).json({
-        success: false,
-        message: 'Promosi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Promosi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const promotion = result.rows[0];
     const status = promotion.is_active ? 'diaktifkan' : 'dinonaktifkan';
 
     res.json({
-      success: true,
-      message: `Promosi berhasil ${status}`,
-      data: promotion
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: `Promosi berhasil ${status}`,
+        data: promotion
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Toggle promotion status error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengubah status promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengubah status promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

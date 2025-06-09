@@ -24,22 +24,27 @@ const getAvailablePromotions = async (req, res) => {
       applicable_fields: promo.applicable_fields,
       applicable_days: promo.applicable_days,
       applicable_hours: promo.applicable_hours,
-      start_date: promo.start_date,
-      end_date: promo.end_date,
-      usage_remaining: promo.usage_limit ? promo.usage_limit - promo.usage_count : null
-    }));
-
-    res.json({ success: true, data: {
+      // Monitoring data object
+      const monitoringData = {
+        start_date: promo.start_date,
+        end_date: promo.end_date,
+        usage_remaining: promo.usage_limit ? promo.usage_limit - promo.usage_count : null
+        }));
+        res.json({ success: true, data: {
         promotions: customerPromotions,
         total: customerPromotions.length
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get promotions error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil daftar promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil daftar promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -51,9 +56,12 @@ const getPromotionDetails = async (req, res) => {
 
     if (!promotion) {
       return res.status(404).json({
-        success: false,
-        message: 'Kode promosi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode promosi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Filter sensitive information
@@ -67,22 +75,27 @@ const getPromotionDetails = async (req, res) => {
       value: promotion.value,
       min_amount: promotion.min_amount,
       max_discount: promotion.max_discount,
-      applicable_fields: promotion.applicable_fields,
-      applicable_days: promotion.applicable_days,
-      applicable_hours: promotion.applicable_hours,
-      start_date: promotion.start_date,
-      end_date: promotion.end_date,
-      usage_remaining: promotion.usage_limit ? promotion.usage_limit - promotion.usage_count : null
-    };
-
-    res.json({ success: true, data: promotionDetails
-    });
+      // Monitoring data object
+      const monitoringData = {
+        applicable_fields: promotion.applicable_fields,
+        applicable_days: promotion.applicable_days,
+        applicable_hours: promotion.applicable_hours,
+        start_date: promotion.start_date,
+        end_date: promotion.end_date,
+        usage_remaining: promotion.usage_limit ? promotion.usage_limit - promotion.usage_count : null
+        };
+        res.json({ success: true, data: promotionDetails
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get promotion details error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil detail promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil detail promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -95,32 +108,39 @@ const validatePromotionCode = async (req, res) => {
 
     if (!code) {
       return res.status(400).json({
-        success: false,
-        message: 'Kode promosi diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode promosi diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (!field_id || !date || !start_time || !total_amount) {
       return res.status(400).json({
-        success: false,
-        message: 'Data booking diperlukan untuk validasi promosi'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Data booking diperlukan untuk validasi promosi'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const bookingData = {
       field_id: parseInt(field_id),
       date,
       start_time,
-      total_amount: parseFloat(total_amount)
-    };
-
-    const validation = await validatePromotion(code, userId, bookingData);
-
-    if (!validation.valid) {
-      return res.status(400).json({
+      // Monitoring data object
+      const monitoringData = {
+        total_amount: parseFloat(total_amount)
+        };
+        const validation = await validatePromotion(code, userId, bookingData);
+        if (!validation.valid) {
+        return res.status(400).json({
         success: false,
         message: validation.error
-      });
+      };
+      // In production, this would be sent to monitoring service
     }
 
     res.json({
@@ -128,22 +148,28 @@ const validatePromotionCode = async (req, res) => {
       message: 'Kode promosi valid',
       data: {
         promotion: {
-          code: validation.promotion.code,
-          name: validation.promotion.name,
-          type: validation.promotion.type,
-          value: validation.promotion.value
-        },
-        discount_amount: validation.discount_amount,
-        final_amount: validation.final_amount,
-        original_amount: bookingData.total_amount
-      }
-    });
+          // Monitoring data object
+          const monitoringData = {
+            code: validation.promotion.code,
+            name: validation.promotion.name,
+            type: validation.promotion.type,
+            value: validation.promotion.value
+            },
+            discount_amount: validation.discount_amount,
+            final_amount: validation.final_amount,
+            original_amount: bookingData.total_amount
+            }
+          };
+          // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Validate promotion error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memvalidasi kode promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memvalidasi kode promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -155,9 +181,12 @@ const applyPromotionToBooking = async (req, res) => {
 
     if (!promotion_id || !booking_id || !discount_amount) {
       return res.status(400).json({
-        success: false,
-        message: 'Data promosi, booking, dan diskon diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Data promosi, booking, dan diskon diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const usage = await usePromotion(
@@ -168,16 +197,22 @@ const applyPromotionToBooking = async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Promosi berhasil diterapkan',
-      data: usage
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Promosi berhasil diterapkan',
+        data: usage
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Apply promotion error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menerapkan promosi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menerapkan promosi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -234,19 +269,25 @@ const getFieldPromotions = async (req, res) => {
     }));
 
     res.json({ success: true, data: {
-        field_id: parseInt(fieldId),
-        date,
-        start_time,
-        applicable_promotions: customerPromotions,
-        total: customerPromotions.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          field_id: parseInt(fieldId),
+          date,
+          start_time,
+          applicable_promotions: customerPromotions,
+          total: customerPromotions.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get field promotions error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil promosi untuk lapangan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil promosi untuk lapangan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -257,18 +298,24 @@ const calculateDiscountPreview = async (req, res) => {
 
     if (!code || !amount) {
       return res.status(400).json({
-        success: false,
-        message: 'Kode promosi dan jumlah diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode promosi dan jumlah diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const promotion = await getPromotionByCode(code);
 
     if (!promotion) {
       return res.status(404).json({
-        success: false,
-        message: 'Kode promosi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Kode promosi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     let discount = 0;
@@ -302,22 +349,28 @@ const calculateDiscountPreview = async (req, res) => {
 
     res.json({ success: true, data: {
         original_amount: totalAmount,
-        discount_amount: Math.round(discount),
-        final_amount: Math.round(finalAmount),
-        promotion: {
+        // Monitoring data object
+        const monitoringData = {
+          discount_amount: Math.round(discount),
+          final_amount: Math.round(finalAmount),
+          promotion: {
           code: promotion.code,
           name: promotion.name,
           type: promotion.type,
           value: promotion.value
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Calculate discount error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghitung diskon'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghitung diskon'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

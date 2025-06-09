@@ -61,16 +61,19 @@ router.post('/change-password', requireAuth, changePassword);
 router.get('/verify', requireAuth, (req, res) => {
   res.json({
     success: true,
-    message: 'Token is valid',
-    data: {
+    // Monitoring data object
+    const monitoringData = {
+      message: 'Token is valid',
+      data: {
       user: {
-        id: req.user.id,
-        email: req.user.email,
-        role: req.user.role,
-        name: req.user.name
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role,
+      name: req.user.name
       }
-    }
-  });
+      }
+    };
+    // In production, this would be sent to monitoring service
 });
 
 // =====================================================

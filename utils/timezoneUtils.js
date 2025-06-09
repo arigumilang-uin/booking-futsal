@@ -13,9 +13,12 @@ const getSafeTimezoneConfig = () => {
     // Gunakan UTC di production untuk menghindari masalah timezone
     logger.info('Production environment detected - using UTC timezone for safety', {
       requestedTimezone,
-      actualTimezone: 'UTC',
-      reason: 'Avoiding node-cron timezone parsing issues'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        actualTimezone: 'UTC',
+        reason: 'Avoiding node-cron timezone parsing issues'
+      };
+      // In production, this would be sent to monitoring service
 
     return {
       timezone: 'UTC',
@@ -51,9 +54,12 @@ const convertUTCToJakarta = (utcTime) => {
     return jakartaTime.toISOString().replace('T', ' ').substring(0, 19) + ' WIB';
   } catch (error) {
     logger.error('Error converting UTC to Jakarta time', {
-      error: error.message,
-      utcTime
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: error.message,
+        utcTime
+      };
+      // In production, this would be sent to monitoring service
     return new Date().toISOString();
   }
 };
@@ -73,9 +79,12 @@ const convertJakartaToUTC = (jakartaTime) => {
     return utcTime;
   } catch (error) {
     logger.error('Error converting Jakarta to UTC time', {
-      error: error.message,
-      jakartaTime
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: error.message,
+        jakartaTime
+      };
+      // In production, this would be sent to monitoring service
     return new Date();
   }
 };
@@ -122,8 +131,11 @@ const isTimezoneSafeForCron = (timezone) => {
   if (process.env.NODE_ENV === 'production') {
     logger.warn('Potentially unsafe timezone for production cron job', {
       timezone,
-      recommendation: 'Use UTC for production safety'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        recommendation: 'Use UTC for production safety'
+      };
+      // In production, this would be sent to monitoring service
     return false;
   }
 
@@ -162,9 +174,12 @@ const formatTimeForLogging = (time = new Date(), options = {}) => {
     return formatted;
   } catch (error) {
     logger.error('Error formatting time for logging', {
-      error: error.message,
-      time
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: error.message,
+        time
+      };
+      // In production, this would be sent to monitoring service
     return new Date().toISOString();
   }
 };

@@ -69,32 +69,40 @@ const getCustomerPayments = async (req, res) => {
       paid: allPaymentData.filter(p => p.status === 'paid').length,
       pending: allPaymentData.filter(p => p.status === 'pending').length,
       failed: allPaymentData.filter(p => p.status === 'failed').length,
-      total_amount: allPaymentData
+      // Monitoring data object
+      const monitoringData = {
+        total_amount: allPaymentData
         .filter(p => p.status === 'paid')
         .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-    };
-
-      totalPayments: allPaymentData.length,
-      actualPayments: filteredPayments.length,
-      pendingBookings: pendingPaymentObjects.length,
-      stats
-    });
+        };
+        totalPayments: allPaymentData.length,
+        actualPayments: filteredPayments.length,
+        pendingBookings: pendingPaymentObjects.length,
+        stats
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({ success: true, data: allPaymentData,
       stats,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total: allPaymentData.length
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('❌ Get customer payments error:', error);
     res.status(500).json({
-      error: 'Failed to get customer payments',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get customer payments',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -105,8 +113,11 @@ const getCustomerPaymentDetail = async (req, res) => {
     const { id } = req.params;
 
       userId,
-      paymentId: id
-    });
+      // Monitoring data object
+      const monitoringData = {
+        paymentId: id
+      };
+      // In production, this would be sent to monitoring service
 
     // Handle booking payment format
     if (id.startsWith('booking_')) {
@@ -124,16 +135,18 @@ const getCustomerPaymentDetail = async (req, res) => {
         booking_number: booking.booking_number,
         amount: booking.total_amount,
         method: 'pending',
-        status: 'pending',
-        user_name: booking.customer_name || req.user.name,
-        field_name: booking.field_name,
-        created_at: booking.created_at,
-        is_booking_payment: true,
-        booking_details: booking
-      };
-
-      return res.json({ success: true, data: paymentLikeObject
-      });
+        // Monitoring data object
+        const monitoringData = {
+          status: 'pending',
+          user_name: booking.customer_name || req.user.name,
+          field_name: booking.field_name,
+          created_at: booking.created_at,
+          is_booking_payment: true,
+          booking_details: booking
+          };
+          return res.json({ success: true, data: paymentLikeObject
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Handle regular payment
@@ -148,11 +161,14 @@ const getCustomerPaymentDetail = async (req, res) => {
       return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
-      paymentId: payment.id,
-      bookingId: payment.booking_id,
-      amount: payment.amount,
-      status: payment.status
-    });
+      // Monitoring data object
+      const monitoringData = {
+        paymentId: payment.id,
+        bookingId: payment.booking_id,
+        amount: payment.amount,
+        status: payment.status
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({ success: true, data: payment
     });
@@ -160,9 +176,12 @@ const getCustomerPaymentDetail = async (req, res) => {
   } catch (error) {
     console.error('❌ Get customer payment detail error:', error);
     res.status(500).json({
-      error: 'Failed to get payment detail',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get payment detail',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -206,29 +225,36 @@ const createCustomerPayment = async (req, res) => {
       amount: amount || booking.total_amount,
       method: method,
       status: 'pending',
-      currency: currency
-    };
-
-    const newPayment = await createPayment(paymentData);
-
-      paymentId: newPayment.id,
-      bookingId,
-      amount: paymentData.amount,
-      method: paymentData.method
-    });
+      // Monitoring data object
+      const monitoringData = {
+        currency: currency
+        };
+        const newPayment = await createPayment(paymentData);
+        paymentId: newPayment.id,
+        bookingId,
+        amount: paymentData.amount,
+        method: paymentData.method
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Payment created successfully',
-      data: newPayment
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Payment created successfully',
+        data: newPayment
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('❌ Create customer payment error:', error);
     res.status(500).json({
-      error: 'Failed to create payment',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to create payment',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -239,9 +265,12 @@ const uploadPaymentProof = async (req, res) => {
     const { id } = req.params;
 
       userId,
-      paymentId: id,
-      hasFile: !!req.file
-    });
+      // Monitoring data object
+      const monitoringData = {
+        paymentId: id,
+        hasFile: !!req.file
+      };
+      // In production, this would be sent to monitoring service
 
     // Get payment and verify ownership
     const payment = await getPaymentById(id);
@@ -261,28 +290,40 @@ const uploadPaymentProof = async (req, res) => {
     // For now, just update payment status to indicate proof uploaded
     // In production, you would save the file and update payment record
     const updatedPayment = await updatePaymentStatus(id, 'pending', {
-      proof_uploaded: true,
-      proof_filename: req.file.filename,
-      uploaded_at: new Date().toISOString()
-    });
+      // Monitoring data object
+      const monitoringData = {
+        proof_uploaded: true,
+        proof_filename: req.file.filename,
+        uploaded_at: new Date().toISOString()
+      };
+      // In production, this would be sent to monitoring service
 
-      paymentId: id,
-      filename: req.file.filename,
-      size: req.file.size
-    });
+      // Monitoring data object
+      const monitoringData = {
+        paymentId: id,
+        filename: req.file.filename,
+        size: req.file.size
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({
-      success: true,
-      message: 'Payment proof uploaded successfully',
-      data: updatedPayment
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Payment proof uploaded successfully',
+        data: updatedPayment
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('❌ Upload payment proof error:', error);
     res.status(500).json({
-      error: 'Failed to upload payment proof',
-      details: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to upload payment proof',
+        details: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

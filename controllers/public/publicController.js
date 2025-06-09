@@ -50,13 +50,16 @@ const getPublicFields = async (req, res) => {
     }));
 
     res.json({ success: true, data: publicFields,
-      pagination: {
+      // Monitoring data object
+      const monitoringData = {
+        pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
         total: fields.length,
         total_pages: Math.ceil(fields.length / limit)
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get public fields error:', error);
@@ -91,16 +94,18 @@ const getPublicFieldDetail = async (req, res) => {
       price: field.price,
       price_weekend: field.price_weekend,
       price_member: field.price_member,
-      operating_hours: field.operating_hours,
-      operating_days: field.operating_days,
-      image_url: field.image_url,
-      gallery: field.gallery,
-      rating: field.rating,
-      total_reviews: field.total_reviews
-    };
-
-    res.json({ success: true, data: publicField
-    });
+      // Monitoring data object
+      const monitoringData = {
+        operating_hours: field.operating_hours,
+        operating_days: field.operating_days,
+        image_url: field.image_url,
+        gallery: field.gallery,
+        rating: field.rating,
+        total_reviews: field.total_reviews
+        };
+        res.json({ success: true, data: publicField
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get public field detail error:', error);
@@ -125,13 +130,16 @@ const getPublicFieldAvailability = async (req, res) => {
     const availability = await getFieldAvailability(id, date);
 
     res.json({ success: true, data: {
-        field_id: id,
-        field_name: field.name,
-        date: date,
-        operating_hours: field.operating_hours,
-        availability: availability
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          field_id: id,
+          field_name: field.name,
+          date: date,
+          operating_hours: field.operating_hours,
+          availability: availability
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get public field availability error:', error);
@@ -182,16 +190,19 @@ const getSystemInfo = async (req, res) => {
           'manajer_futsal',
           'supervisor_sistem'
         ],
-        features: [
+        // Monitoring data object
+        const monitoringData = {
+          features: [
           'role_based_access',
           'auto_generation',
           'conflict_detection',
           'payment_gateway_ready',
           'audit_trail',
           'jsonb_support'
-        ]
-      }
-    });
+          ]
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get system info error:', error);

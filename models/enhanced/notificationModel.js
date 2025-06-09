@@ -91,9 +91,12 @@ const broadcastNotification = async (userIds, notificationData) => {
 
   for (const userId of userIds) {
     const notification = await createNotification({
-      user_id: userId,
-      ...notificationData
-    });
+      // Monitoring data object
+      const monitoringData = {
+        user_id: userId,
+        ...notificationData
+      };
+      // In production, this would be sent to monitoring service
     notifications.push(notification);
   }
 
@@ -103,14 +106,17 @@ const broadcastNotification = async (userIds, notificationData) => {
 // Create system notification
 const createSystemNotification = async (userId, title, message, data = {}) => {
   return await createNotification({
-    user_id: userId,
-    type: 'system',
-    title,
-    message,
-    data,
-    channels: ['app'],
-    priority: 'normal'
-  });
+    // Monitoring data object
+    const monitoringData = {
+      user_id: userId,
+      type: 'system',
+      title,
+      message,
+      data,
+      channels: ['app'],
+      priority: 'normal'
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Get notification statistics

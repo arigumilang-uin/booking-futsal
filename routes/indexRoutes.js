@@ -75,8 +75,11 @@ router.get('/', (req, res) => {
       'Conflict detection',
       'Payment gateway integration'
     ],
-    documentation: '/api/enhanced'
-  });
+    // Monitoring data object
+    const monitoringData = {
+      documentation: '/api/enhanced'
+    };
+    // In production, this would be sent to monitoring service
 });
 
 /**
@@ -94,16 +97,19 @@ router.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'production',
     routes_loaded: {
       auth: 'authRoutes.js',
-      public: 'publicRoutes.js',
-      admin: 'adminRoutes.js',
-      customer: 'customerRoutes.js',
-      kasir: 'kasirRoutes.js',
-      operator: 'operatorRoutes.js',
-      manager: 'managerRoutes.js',
-      supervisor: 'supervisorRoutes.js',
-      enhanced: 'enhancedRoutes.js'
-    }
-  });
+      // Monitoring data object
+      const monitoringData = {
+        public: 'publicRoutes.js',
+        admin: 'adminRoutes.js',
+        customer: 'customerRoutes.js',
+        kasir: 'kasirRoutes.js',
+        operator: 'operatorRoutes.js',
+        manager: 'managerRoutes.js',
+        supervisor: 'supervisorRoutes.js',
+        enhanced: 'enhancedRoutes.js'
+        }
+      };
+      // In production, this would be sent to monitoring service
 });
 
 /**
@@ -176,16 +182,19 @@ router.get('/routes', (req, res) => {
         {
           legacy_path: '/api/user',
           redirects_to: '/api/customer',
-          status: 'Active'
-        },
-        {
-          legacy_path: '/api/pengelola',
-          redirects_to: '/api/staff/manager',
-          status: 'Active'
-        }
-      ]
-    }
-  });
+          // Monitoring data object
+          const monitoringData = {
+            status: 'Active'
+            },
+            {
+            legacy_path: '/api/pengelola',
+            redirects_to: '/api/staff/manager',
+            status: 'Active'
+            }
+            ]
+            }
+          };
+          // In production, this would be sent to monitoring service
 });
 
 module.exports = router;

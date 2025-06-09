@@ -17,16 +17,18 @@ const getAllAuditLogs = async (req, res) => {
       user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
       action: req.query.action,
       table_name: req.query.table_name,
-      date_from: req.query.date_from,
-      date_to: req.query.date_to
-    };
-
-    // Remove null filters
-    Object.keys(filters).forEach(key => {
-      if (filters[key] === null || filters[key] === undefined) {
+      // Monitoring data object
+      const monitoringData = {
+        date_from: req.query.date_from,
+        date_to: req.query.date_to
+        };
+        // Remove null filters
+        Object.keys(filters).forEach(key => {
+        if (filters[key] === null || filters[key] === undefined) {
         delete filters[key];
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
     const result = await getAuditLogs(page, limit, filters);
 
@@ -35,22 +37,28 @@ const getAllAuditLogs = async (req, res) => {
         total: result.total,
         pages: result.pages,
         current_page: result.current_page,
-        per_page: result.per_page,
-        filters: filters,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          per_page: result.per_page,
+          filters: filters,
+          pagination: {
           current_page: result.current_page,
           per_page: result.per_page,
           total: result.total,
           pages: result.pages
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get audit logs error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil log audit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil log audit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -62,9 +70,12 @@ const getAuditLogDetail = async (req, res) => {
 
     if (!log) {
       return res.status(404).json({
-        success: false,
-        message: 'Log audit tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Log audit tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: log
@@ -72,9 +83,12 @@ const getAuditLogDetail = async (req, res) => {
   } catch (error) {
     console.error('Get audit log detail error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil detail log audit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil detail log audit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -85,18 +99,24 @@ const getRecordAuditHistory = async (req, res) => {
     const logs = await getRecordAuditLogs(tableName, parseInt(recordId));
 
     res.json({ success: true, data: {
-        table_name: tableName,
-        record_id: parseInt(recordId),
-        logs,
-        total: logs.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          table_name: tableName,
+          record_id: parseInt(recordId),
+          logs,
+          total: logs.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get record audit history error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil riwayat audit record'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil riwayat audit record'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -109,32 +129,41 @@ const getAuditStatisticsData = async (req, res) => {
     try {
       const stats = await getAuditStatistics(days);
       res.json({ success: true, data: {
-          period_days: days,
-          statistics: stats
-        }
-      });
+          // Monitoring data object
+          const monitoringData = {
+            period_days: days,
+            statistics: stats
+            }
+          };
+          // In production, this would be sent to monitoring service
     } catch (modelError) {
 
       // Fallback response
       res.json({ success: true, data: {
           period_days: days,
-          statistics: {
+          // Monitoring data object
+          const monitoringData = {
+            statistics: {
             total_actions: 0,
             by_action: {},
             by_table: {},
             by_user: {},
             daily_activity: []
-          },
-          note: 'Audit statistics temporarily unavailable'
-        }
-      });
+            },
+            note: 'Audit statistics temporarily unavailable'
+            }
+          };
+          // In production, this would be sent to monitoring service
     }
   } catch (error) {
     console.error('Get audit statistics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil statistik audit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil statistik audit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -147,17 +176,23 @@ const getMostActiveUsersData = async (req, res) => {
     const activeUsers = await getMostActiveUsers(days, limit);
 
     res.json({ success: true, data: {
-        period_days: days,
-        active_users: activeUsers,
-        total: activeUsers.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          period_days: days,
+          active_users: activeUsers,
+          total: activeUsers.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get most active users error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil pengguna paling aktif'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil pengguna paling aktif'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -172,35 +207,43 @@ const getUserActivityLogs = async (req, res) => {
       user_id: parseInt(userId),
       action: req.query.action,
       table_name: req.query.table_name,
-      date_from: req.query.date_from,
-      date_to: req.query.date_to
-    };
-
-    // Remove null filters
-    Object.keys(filters).forEach(key => {
-      if (filters[key] === null || filters[key] === undefined) {
+      // Monitoring data object
+      const monitoringData = {
+        date_from: req.query.date_from,
+        date_to: req.query.date_to
+        };
+        // Remove null filters
+        Object.keys(filters).forEach(key => {
+        if (filters[key] === null || filters[key] === undefined) {
         delete filters[key];
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
     const logs = await getAuditLogs(page, limit, filters);
 
     res.json({ success: true, data: {
-        user_id: parseInt(userId),
-        logs,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          user_id: parseInt(userId),
+          logs,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: logs.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get user activity logs error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil log aktivitas pengguna'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil log aktivitas pengguna'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -215,35 +258,43 @@ const getTableActivityLogs = async (req, res) => {
       table_name: tableName,
       action: req.query.action,
       user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
-      date_from: req.query.date_from,
-      date_to: req.query.date_to
-    };
-
-    // Remove null filters
-    Object.keys(filters).forEach(key => {
-      if (filters[key] === null || filters[key] === undefined) {
+      // Monitoring data object
+      const monitoringData = {
+        date_from: req.query.date_from,
+        date_to: req.query.date_to
+        };
+        // Remove null filters
+        Object.keys(filters).forEach(key => {
+        if (filters[key] === null || filters[key] === undefined) {
         delete filters[key];
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
     const logs = await getAuditLogs(page, limit, filters);
 
     res.json({ success: true, data: {
-        table_name: tableName,
-        logs,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          table_name: tableName,
+          logs,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: logs.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get table activity logs error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil log aktivitas tabel'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil log aktivitas tabel'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -255,9 +306,12 @@ const cleanOldAuditLogsData = async (req, res) => {
     // For testing purposes, allow smaller retention periods
     if (daysToKeep < 1) {
       return res.status(400).json({
-        success: false,
-        message: 'Minimal 1 hari data harus disimpan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Minimal 1 hari data harus disimpan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Show what would be deleted before actual deletion
@@ -284,21 +338,27 @@ const cleanOldAuditLogsData = async (req, res) => {
     }
 
     res.json({
-      success: true,
-      message: `${deletedCount} log audit lama berhasil dihapus`,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: `${deletedCount} log audit lama berhasil dihapus`,
+        data: {
         deleted_count: deletedCount,
         days_kept: daysToKeep,
         preview: previewResult.rows.slice(0, 5) // Return first 5 for debugging
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('❌ Clean old audit logs error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal membersihkan log audit lama',
-      error: process.env.NODE_ENV === 'production' ? error.message : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal membersihkan log audit lama',
+        error: process.env.NODE_ENV === 'production' ? error.message : undefined
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -309,16 +369,18 @@ const exportAuditLogs = async (req, res) => {
       user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
       action: req.query.action,
       table_name: req.query.table_name,
-      date_from: req.query.date_from,
-      date_to: req.query.date_to
-    };
-
-    // Remove null filters
-    Object.keys(filters).forEach(key => {
-      if (filters[key] === null || filters[key] === undefined) {
+      // Monitoring data object
+      const monitoringData = {
+        date_from: req.query.date_from,
+        date_to: req.query.date_to
+        };
+        // Remove null filters
+        Object.keys(filters).forEach(key => {
+        if (filters[key] === null || filters[key] === undefined) {
         delete filters[key];
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
     // Get all logs without pagination for export
     const logs = await getAuditLogs(1, 10000, filters);
@@ -341,9 +403,12 @@ const exportAuditLogs = async (req, res) => {
   } catch (error) {
     console.error('Export audit logs error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengekspor log audit'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengekspor log audit'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

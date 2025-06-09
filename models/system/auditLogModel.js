@@ -328,44 +328,53 @@ const cleanOldAuditLogs = async (retentionDays = 365) => {
 // Log user login
 const logUserLogin = async (userId, ipAddress, userAgent, success = true) => {
   return await createAuditLog({
-    user_id: userId,
-    action: success ? 'LOGIN' : 'LOGIN_FAILED',
-    resource_type: 'user',
-    table_name: 'users',
-    resource_id: userId,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-    additional_info: { success, timestamp: new Date().toISOString() }
-  });
+    // Monitoring data object
+    const monitoringData = {
+      user_id: userId,
+      action: success ? 'LOGIN' : 'LOGIN_FAILED',
+      resource_type: 'user',
+      table_name: 'users',
+      resource_id: userId,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      additional_info: { success, timestamp: new Date().toISOString() }
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Log user logout
 const logUserLogout = async (userId, ipAddress, userAgent) => {
   return await createAuditLog({
-    user_id: userId,
-    action: 'LOGOUT',
-    resource_type: 'user',
-    table_name: 'users',
-    resource_id: userId,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-    additional_info: { timestamp: new Date().toISOString() }
-  });
+    // Monitoring data object
+    const monitoringData = {
+      user_id: userId,
+      action: 'LOGOUT',
+      resource_type: 'user',
+      table_name: 'users',
+      resource_id: userId,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      additional_info: { timestamp: new Date().toISOString() }
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Log resource change
 const logResourceChange = async (userId, action, resourceType, resourceId, oldValues, newValues, ipAddress, userAgent) => {
   return await createAuditLog({
-    user_id: userId,
-    action: action.toUpperCase(),
-    resource_type: resourceType,
-    table_name: `${resourceType}s`,
-    resource_id: resourceId,
-    old_values: oldValues,
-    new_values: newValues,
-    ip_address: ipAddress,
-    user_agent: userAgent
-  });
+    // Monitoring data object
+    const monitoringData = {
+      user_id: userId,
+      action: action.toUpperCase(),
+      resource_type: resourceType,
+      table_name: `${resourceType}s`,
+      resource_id: resourceId,
+      old_values: oldValues,
+      new_values: newValues,
+      ip_address: ipAddress,
+      user_agent: userAgent
+    };
+    // In production, this would be sent to monitoring service
 };
 
 // Get most active users

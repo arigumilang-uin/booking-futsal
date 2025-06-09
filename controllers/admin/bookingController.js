@@ -55,23 +55,29 @@ const getAllBookingsAdmin = async (req, res) => {
           total: bookings.length,
           total_pages: Math.ceil(bookings.length / limit)
         },
-        filters: {
+        // Monitoring data object
+        const monitoringData = {
+          filters: {
           status,
           user_id,
           field_id,
           date_from,
           date_to
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get all bookings admin error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to get bookings',
-      code: 'ADMIN_BOOKINGS_FETCH_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get bookings',
+        code: 'ADMIN_BOOKINGS_FETCH_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -87,10 +93,13 @@ const getBookingDetailAdmin = async (req, res) => {
     const booking = await getBookingById(id);
     if (!booking) {
       return res.status(404).json({
-        success: false,
-        error: 'Booking not found',
-        code: 'BOOKING_NOT_FOUND'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Booking not found',
+          code: 'BOOKING_NOT_FOUND'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: booking
@@ -99,10 +108,13 @@ const getBookingDetailAdmin = async (req, res) => {
   } catch (error) {
     console.error('Get booking detail admin error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to get booking detail',
-      code: 'ADMIN_BOOKING_DETAIL_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get booking detail',
+        code: 'ADMIN_BOOKING_DETAIL_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -119,44 +131,56 @@ const updateBookingStatusAdmin = async (req, res) => {
 
     if (!status) {
       return res.status(400).json({
-        success: false,
-        error: 'Status is required',
-        code: 'MISSING_STATUS'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Status is required',
+          code: 'MISSING_STATUS'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
-        success: false,
-        error: 'Invalid status',
-        code: 'INVALID_STATUS'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Invalid status',
+          code: 'INVALID_STATUS'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const booking = await getBookingById(id);
     if (!booking) {
       return res.status(404).json({
-        success: false,
-        error: 'Booking not found',
-        code: 'BOOKING_NOT_FOUND'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Booking not found',
+          code: 'BOOKING_NOT_FOUND'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // BUSINESS RULE: Payment must be completed before booking can be confirmed
     // Admin can override this rule by providing override_payment_check: true
     if (status === 'confirmed' && booking.payment_status !== 'paid' && !req.body.override_payment_check) {
       return res.status(400).json({
-        success: false,
-        error: 'Booking cannot be confirmed. Payment must be completed first',
-        code: 'PAYMENT_NOT_COMPLETED',
-        details: {
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          error: 'Booking cannot be confirmed. Payment must be completed first',
+          code: 'PAYMENT_NOT_COMPLETED',
+          details: {
           current_payment_status: booking.payment_status,
           required_payment_status: 'paid',
           message: 'Please ensure payment is processed by kasir before confirming booking',
           admin_override: 'Set override_payment_check: true to bypass this validation'
-        }
-      });
+          }
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const updatedBooking = await updateBookingStatus(
@@ -167,18 +191,24 @@ const updateBookingStatusAdmin = async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Booking status updated successfully',
-      data: updatedBooking
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Booking status updated successfully',
+        data: updatedBooking
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Update booking status admin error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to update booking status',
-      code: 'ADMIN_BOOKING_UPDATE_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to update booking status',
+        code: 'ADMIN_BOOKING_UPDATE_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -222,20 +252,26 @@ const getBookingStatisticsAdmin = async (req, res) => {
     res.json({ success: true, data: {
         statistics,
         period,
-        date_range: {
+        // Monitoring data object
+        const monitoringData = {
+          date_range: {
           from: date_from,
           to: date_to
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get booking statistics admin error:', error);
     res.status(500).json({
-      success: false,
-      error: 'Failed to get booking statistics',
-      code: 'ADMIN_BOOKING_STATS_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        error: 'Failed to get booking statistics',
+        code: 'ADMIN_BOOKING_STATS_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

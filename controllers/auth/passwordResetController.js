@@ -15,9 +15,12 @@ const requestPasswordReset = async (req, res) => {
 
     if (!email) {
       return res.status(400).json({
-        success: false,
-        message: 'Email diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Email diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check if user exists
@@ -27,27 +30,36 @@ const requestPasswordReset = async (req, res) => {
     if (userResult.rows.length === 0) {
       // Don't reveal if email exists or not for security
       return res.json({
-        success: true,
-        message: 'Jika email terdaftar, link reset password akan dikirim'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: true,
+          message: 'Jika email terdaftar, link reset password akan dikirim'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const user = userResult.rows[0];
 
     if (!user.is_active) {
       return res.status(400).json({
-        success: false,
-        message: 'Akun tidak aktif'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Akun tidak aktif'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check rate limiting
     const recentAttempts = await checkRecentPasswordResetAttempts(email);
     if (!recentAttempts.canRequest) {
       return res.status(429).json({
-        success: false,
-        message: 'Terlalu banyak permintaan reset password. Coba lagi dalam 5 menit.'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Terlalu banyak permintaan reset password. Coba lagi dalam 5 menit.'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Create reset token
@@ -65,34 +77,46 @@ const requestPasswordReset = async (req, res) => {
     );
 
     const emailResult = await emailService.sendEmail({
-      to: email,
-      subject: 'Reset Password - Futsal Booking System',
-      html: emailTemplate.html,
-      text: emailTemplate.text
-    });
+      // Monitoring data object
+      const monitoringData = {
+        to: email,
+        subject: 'Reset Password - Futsal Booking System',
+        html: emailTemplate.html,
+        text: emailTemplate.text
+      };
+      // In production, this would be sent to monitoring service
 
     if (!emailResult.success) {
       return res.status(500).json({
-        success: false,
-        message: 'Gagal mengirim email reset password'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Gagal mengirim email reset password'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Link reset password telah dikirim ke email Anda',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Link reset password telah dikirim ke email Anda',
+        data: {
         email: email,
         expires_in: '1 hour'
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Request password reset error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memproses permintaan reset password'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memproses permintaan reset password'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -103,36 +127,48 @@ const validateResetToken = async (req, res) => {
 
     if (!token) {
       return res.status(400).json({
-        success: false,
-        message: 'Token diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Token diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const validation = await validatePasswordResetToken(token);
 
     if (!validation.valid) {
       return res.status(400).json({
-        success: false,
-        message: validation.error
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: validation.error
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Token valid',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Token valid',
+        data: {
         email: validation.data.email,
         user_name: validation.data.user_name,
         expires_at: validation.data.expires_at
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Validate reset token error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memvalidasi token'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memvalidasi token'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -143,23 +179,32 @@ const resetPassword = async (req, res) => {
 
     if (!token || !new_password || !confirm_password) {
       return res.status(400).json({
-        success: false,
-        message: 'Token, password baru, dan konfirmasi password diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Token, password baru, dan konfirmasi password diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (new_password !== confirm_password) {
       return res.status(400).json({
-        success: false,
-        message: 'Password dan konfirmasi password tidak cocok'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Password dan konfirmasi password tidak cocok'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (new_password.length < 6) {
       return res.status(400).json({
-        success: false,
-        message: 'Password minimal 6 karakter'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Password minimal 6 karakter'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate token
@@ -167,9 +212,12 @@ const resetPassword = async (req, res) => {
 
     if (!validation.valid) {
       return res.status(400).json({
-        success: false,
-        message: validation.error
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: validation.error
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const { email, user_id } = validation.data;
@@ -190,29 +238,38 @@ const resetPassword = async (req, res) => {
 
     if (updateResult.rows.length === 0) {
       return res.status(400).json({
-        success: false,
-        message: 'User tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Mark token as used
     await markPasswordResetAsUsed(token);
 
     res.json({
-      success: true,
-      message: 'Password berhasil direset',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Password berhasil direset',
+        data: {
         email: email,
         reset_at: new Date().toISOString()
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Reset password error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mereset password'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mereset password'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

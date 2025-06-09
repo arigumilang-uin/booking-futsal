@@ -14,9 +14,12 @@ const sendEmailVerification = async (req, res) => {
 
     if (!email) {
       return res.status(400).json({
-        success: false,
-        message: 'Email diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Email diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check if user exists
@@ -28,25 +31,34 @@ const sendEmailVerification = async (req, res) => {
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
-        success: false,
-        message: 'User tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const user = userResult.rows[0];
 
     if (!user.is_active) {
       return res.status(400).json({
-        success: false,
-        message: 'Akun tidak aktif'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Akun tidak aktif'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (user.is_verified && user.email_verified_at) {
       return res.status(400).json({
-        success: false,
-        message: 'Email sudah terverifikasi'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Email sudah terverifikasi'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Generate verification token
@@ -91,34 +103,46 @@ const sendEmailVerification = async (req, res) => {
     );
 
     const emailResult = await emailService.sendEmail({
-      to: email,
-      subject: 'Verifikasi Email - Futsal Booking System',
-      html: emailTemplate.html,
-      text: emailTemplate.text
-    });
+      // Monitoring data object
+      const monitoringData = {
+        to: email,
+        subject: 'Verifikasi Email - Futsal Booking System',
+        html: emailTemplate.html,
+        text: emailTemplate.text
+      };
+      // In production, this would be sent to monitoring service
 
     if (!emailResult.success) {
       return res.status(500).json({
-        success: false,
-        message: 'Gagal mengirim email verifikasi'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Gagal mengirim email verifikasi'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Email verifikasi telah dikirim',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Email verifikasi telah dikirim',
+        data: {
         email: email,
         expires_in: '24 hours'
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Send email verification error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengirim email verifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengirim email verifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -129,9 +153,12 @@ const verifyEmail = async (req, res) => {
 
     if (!token) {
       return res.status(400).json({
-        success: false,
-        message: 'Token diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Token diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Find verification token in system_settings
@@ -144,9 +171,12 @@ const verifyEmail = async (req, res) => {
 
     if (tokenResult.rows.length === 0) {
       return res.status(400).json({
-        success: false,
-        message: 'Token tidak valid'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Token tidak valid'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const tokenData = JSON.parse(tokenResult.rows[0].value.value || tokenResult.rows[0].value);
@@ -155,9 +185,12 @@ const verifyEmail = async (req, res) => {
 
     if (now > expiresAt) {
       return res.status(400).json({
-        success: false,
-        message: 'Token sudah expired'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Token sudah expired'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Update user verification status
@@ -172,9 +205,12 @@ const verifyEmail = async (req, res) => {
 
     if (updateResult.rows.length === 0) {
       return res.status(400).json({
-        success: false,
-        message: 'User tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Delete verification token
@@ -184,22 +220,28 @@ const verifyEmail = async (req, res) => {
     const user = updateResult.rows[0];
 
     res.json({
-      success: true,
-      message: 'Email berhasil diverifikasi',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Email berhasil diverifikasi',
+        data: {
         user_id: user.id,
         email: user.email,
         name: user.name,
         verified_at: user.email_verified_at
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Verify email error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memverifikasi email'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memverifikasi email'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -216,26 +258,35 @@ const checkVerificationStatus = async (req, res) => {
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
-        success: false,
-        message: 'User tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const user = userResult.rows[0];
 
     res.json({ success: true, data: {
-        email: user.email,
-        is_verified: user.is_verified,
-        verified_at: user.email_verified_at
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          email: user.email,
+          is_verified: user.is_verified,
+          verified_at: user.email_verified_at
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Check verification status error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengecek status verifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengecek status verifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

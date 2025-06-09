@@ -19,20 +19,26 @@ const getNotifications = async (req, res) => {
 
     res.json({ success: true, data: {
         notifications,
-        unread_count: unreadCount,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          unread_count: unreadCount,
+          pagination: {
           current_page: page,
           per_page: limit,
           total_unread: unreadCount
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get notifications error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -43,15 +49,21 @@ const getUnreadNotificationsCount = async (req, res) => {
     const count = await getUnreadCount(userId);
 
     res.json({ success: true, data: {
-        unread_count: count
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          unread_count: count
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get unread count error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil jumlah notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil jumlah notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -65,22 +77,31 @@ const markNotificationAsRead = async (req, res) => {
 
     if (!notification) {
       return res.status(404).json({
-        success: false,
-        message: 'Notifikasi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Notifikasi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Notifikasi berhasil ditandai sebagai dibaca',
-      data: notification
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Notifikasi berhasil ditandai sebagai dibaca',
+        data: notification
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Mark as read error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menandai notifikasi sebagai dibaca'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menandai notifikasi sebagai dibaca'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -91,18 +112,24 @@ const markAllNotificationsAsRead = async (req, res) => {
     const result = await markAllAsRead(userId);
 
     res.json({
-      success: true,
-      message: 'Semua notifikasi berhasil ditandai sebagai dibaca',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Semua notifikasi berhasil ditandai sebagai dibaca',
+        data: {
         updated_count: result.updated_count
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Mark all as read error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menandai semua notifikasi sebagai dibaca'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menandai semua notifikasi sebagai dibaca'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -116,21 +143,30 @@ const deleteUserNotification = async (req, res) => {
 
     if (!deleted) {
       return res.status(404).json({
-        success: false,
-        message: 'Notifikasi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Notifikasi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Notifikasi berhasil dihapus'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Notifikasi berhasil dihapus'
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Delete notification error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -145,9 +181,12 @@ const getNotificationStatistics = async (req, res) => {
   } catch (error) {
     console.error('Get notification stats error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil statistik notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil statistik notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

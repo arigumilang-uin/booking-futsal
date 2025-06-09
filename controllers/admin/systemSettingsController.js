@@ -16,15 +16,21 @@ const getAllSystemSettings = async (req, res) => {
 
     res.json({ success: true, data: {
         settings,
-        total: settings.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          total: settings.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get all settings error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil pengaturan sistem'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil pengaturan sistem'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -35,15 +41,21 @@ const getPublicSystemSettings = async (req, res) => {
 
     res.json({ success: true, data: {
         settings,
-        total: settings.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          total: settings.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get public settings error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil pengaturan publik'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil pengaturan publik'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -55,9 +67,12 @@ const getSystemSetting = async (req, res) => {
 
     if (!setting) {
       return res.status(404).json({
-        success: false,
-        message: 'Pengaturan tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Pengaturan tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({ success: true, data: setting
@@ -65,9 +80,12 @@ const getSystemSetting = async (req, res) => {
   } catch (error) {
     console.error('Get setting error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil pengaturan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil pengaturan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -79,9 +97,12 @@ const updateSystemSetting = async (req, res) => {
 
     if (value === undefined) {
       return res.status(400).json({
-        success: false,
-        message: 'Nilai pengaturan diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Nilai pengaturan diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const setting = await upsertSetting({
@@ -92,16 +113,22 @@ const updateSystemSetting = async (req, res) => {
     });
 
     res.json({
-      success: true,
-      message: 'Pengaturan berhasil diperbarui',
-      data: setting
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Pengaturan berhasil diperbarui',
+        data: setting
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Update setting error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memperbarui pengaturan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memperbarui pengaturan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -112,9 +139,12 @@ const createSystemSetting = async (req, res) => {
 
     if (!key || value === undefined) {
       return res.status(400).json({
-        success: false,
-        message: 'Key dan value pengaturan diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Key dan value pengaturan diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Check if setting already exists
@@ -122,36 +152,51 @@ const createSystemSetting = async (req, res) => {
 
     if (existing) {
       return res.status(400).json({
-        success: false,
-        message: 'Pengaturan dengan key ini sudah ada'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Pengaturan dengan key ini sudah ada'
+        };
+        // In production, this would be sent to monitoring service
     }
 
       key,
       value,
       description,
-      is_public: is_public || false
-    });
+      // Monitoring data object
+      const monitoringData = {
+        is_public: is_public || false
+      };
+      // In production, this would be sent to monitoring service
 
     const setting = await upsertSetting({
       key,
       value,
       description,
-      is_public: is_public || false
-    });
+      // Monitoring data object
+      const monitoringData = {
+        is_public: is_public || false
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Pengaturan berhasil dibuat',
-      data: setting
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Pengaturan berhasil dibuat',
+        data: setting
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Create setting error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal membuat pengaturan',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal membuat pengaturan',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -164,21 +209,30 @@ const deleteSystemSetting = async (req, res) => {
 
     if (!deleted) {
       return res.status(404).json({
-        success: false,
-        message: 'Pengaturan tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Pengaturan tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Pengaturan berhasil dihapus'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Pengaturan berhasil dihapus'
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Delete setting error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus pengaturan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus pengaturan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -191,15 +245,21 @@ const getSettingsByCategoryController = async (req, res) => {
     res.json({ success: true, data: {
         category,
         settings,
-        total: settings.length
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          total: settings.length
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get settings by category error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil pengaturan kategori'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil pengaturan kategori'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -210,37 +270,49 @@ const bulkUpdateSystemSettings = async (req, res) => {
 
     if (!Array.isArray(settings) || settings.length === 0) {
       return res.status(400).json({
-        success: false,
-        message: 'Array pengaturan diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Array pengaturan diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate settings format
     for (const setting of settings) {
       if (!setting.key || setting.value === undefined) {
         return res.status(400).json({
-          success: false,
-          message: 'Setiap pengaturan harus memiliki key dan value'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'Setiap pengaturan harus memiliki key dan value'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
     const updatedSettings = await bulkUpdateSettings(settings);
 
     res.json({
-      success: true,
-      message: `${updatedSettings.length} pengaturan berhasil diperbarui`,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: `${updatedSettings.length} pengaturan berhasil diperbarui`,
+        data: {
         updated_settings: updatedSettings,
         total_updated: updatedSettings.length
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Bulk update settings error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal memperbarui pengaturan secara massal'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal memperbarui pengaturan secara massal'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -250,19 +322,25 @@ const initializeDefaults = async (req, res) => {
     const defaultSettings = await initializeDefaultSettings();
 
     res.json({
-      success: true,
-      message: 'Pengaturan default berhasil diinisialisasi',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Pengaturan default berhasil diinisialisasi',
+        data: {
         initialized_settings: defaultSettings,
         total: defaultSettings.length
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Initialize defaults error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menginisialisasi pengaturan default'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menginisialisasi pengaturan default'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -270,19 +348,24 @@ const initializeDefaults = async (req, res) => {
 const getApplicationConfig = async (req, res) => {
   try {
     const config = {
-      app_name: 'Enhanced Futsal Booking System',
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'production'
-    };
-
-    res.json({ success: true, data: config
-    });
+      // Monitoring data object
+      const monitoringData = {
+        app_name: 'Enhanced Futsal Booking System',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'production'
+        };
+        res.json({ success: true, data: config
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get app config error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil konfigurasi aplikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil konfigurasi aplikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -303,29 +386,41 @@ const resetSettingToDefault = async (req, res) => {
 
     if (!defaults.hasOwnProperty(key)) {
       return res.status(400).json({
-        success: false,
-        message: 'Tidak ada nilai default untuk pengaturan ini'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Tidak ada nilai default untuk pengaturan ini'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const setting = await upsertSetting({
       key,
-      value: defaults[key],
-      description: null,
-      is_public: true
-    });
+      // Monitoring data object
+      const monitoringData = {
+        value: defaults[key],
+        description: null,
+        is_public: true
+      };
+      // In production, this would be sent to monitoring service
 
     res.json({
-      success: true,
-      message: 'Pengaturan berhasil direset ke default',
-      data: setting
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Pengaturan berhasil direset ke default',
+        data: setting
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Reset setting error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mereset pengaturan'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mereset pengaturan'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

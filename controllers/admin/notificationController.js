@@ -72,20 +72,26 @@ const getAllNotifications = async (req, res) => {
     const result = await pool.query(query, values);
 
     res.json({ success: true, data: {
-        notifications: result.rows,
-        pagination: {
+        // Monitoring data object
+        const monitoringData = {
+          notifications: result.rows,
+          pagination: {
           current_page: page,
           per_page: limit,
           total: result.rows.length
-        }
-      }
-    });
+          }
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get all notifications error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil daftar notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil daftar notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -97,9 +103,12 @@ const createSystemNotificationAdmin = async (req, res) => {
     // Validation
     if (!title || !message) {
       return res.status(400).json({
-        success: false,
-        message: 'Judul dan pesan diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Judul dan pesan diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     // Validate user_id if provided
@@ -108,34 +117,46 @@ const createSystemNotificationAdmin = async (req, res) => {
       const user = await getUserByIdRaw(user_id);
       if (!user) {
         return res.status(400).json({
-          success: false,
-          message: 'User ID tidak valid'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            success: false,
+            message: 'User ID tidak valid'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
     const notification = await createNotification({
-      user_id: user_id ? parseInt(user_id) : null,
-      type: type || 'system',
-      title,
-      message,
-      data: data || {},
-      channels: channels || ['app'],
-      priority: priority || 'normal'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        user_id: user_id ? parseInt(user_id) : null,
+        type: type || 'system',
+        title,
+        message,
+        data: data || {},
+        channels: channels || ['app'],
+        priority: priority || 'normal'
+      };
+      // In production, this would be sent to monitoring service
 
     res.status(201).json({
-      success: true,
-      message: 'Notifikasi sistem berhasil dibuat',
-      data: notification
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Notifikasi sistem berhasil dibuat',
+        data: notification
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Create system notification error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal membuat notifikasi sistem',
-      error: process.env.NODE_ENV === 'production' ? error.message : undefined
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal membuat notifikasi sistem',
+        error: process.env.NODE_ENV === 'production' ? error.message : undefined
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -146,9 +167,12 @@ const broadcastNotificationAdmin = async (req, res) => {
 
     if (!title || !message) {
       return res.status(400).json({
-        success: false,
-        message: 'Judul dan pesan diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Judul dan pesan diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     let targetUserIds = [];
@@ -174,16 +198,22 @@ const broadcastNotificationAdmin = async (req, res) => {
       targetUserIds = userResult.rows.map(row => row.id);
     } else {
       return res.status(400).json({
-        success: false,
-        message: 'User IDs atau filter pengguna diperlukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'User IDs atau filter pengguna diperlukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     if (targetUserIds.length === 0) {
       return res.status(400).json({
-        success: false,
-        message: 'Tidak ada pengguna yang memenuhi kriteria'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Tidak ada pengguna yang memenuhi kriteria'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const notificationData = {
@@ -198,20 +228,26 @@ const broadcastNotificationAdmin = async (req, res) => {
     const notifications = await broadcastNotification(targetUserIds, notificationData);
 
     res.status(201).json({
-      success: true,
-      message: `Notifikasi berhasil dikirim ke ${notifications.length} pengguna`,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: `Notifikasi berhasil dikirim ke ${notifications.length} pengguna`,
+        data: {
         sent_count: notifications.length,
         target_users: targetUserIds.length,
         notifications: notifications.slice(0, 5) // Show first 5 for preview
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Broadcast notification error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengirim broadcast notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengirim broadcast notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -255,17 +291,23 @@ const getNotificationStatistics = async (req, res) => {
     const dailyStatsResult = await pool.query(dailyStatsQuery);
 
     res.json({ success: true, data: {
-        period_days: days,
-        overall_stats: statsResult.rows[0],
-        daily_stats: dailyStatsResult.rows
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          period_days: days,
+          overall_stats: statsResult.rows[0],
+          daily_stats: dailyStatsResult.rows
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get notification statistics error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil statistik notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil statistik notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -288,9 +330,12 @@ const getNotificationDeliveryStatus = async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        success: false,
-        message: 'Notifikasi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Notifikasi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     const notification = result.rows[0];
@@ -313,9 +358,12 @@ const getNotificationDeliveryStatus = async (req, res) => {
   } catch (error) {
     console.error('Get notification delivery status error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil status pengiriman notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil status pengiriman notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -334,22 +382,31 @@ const deleteNotificationAdmin = async (req, res) => {
 
     if (result.rowCount === 0) {
       return res.status(404).json({
-        success: false,
-        message: 'Notifikasi tidak ditemukan'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          success: false,
+          message: 'Notifikasi tidak ditemukan'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     res.json({
-      success: true,
-      message: 'Notifikasi berhasil dihapus',
-      data: result.rows[0]
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Notifikasi berhasil dihapus',
+        data: result.rows[0]
+      };
+      // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Delete notification error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus notifikasi'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal menghapus notifikasi'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -361,16 +418,22 @@ const getUserNotificationSummary = async (req, res) => {
     const stats = await getNotificationStats(parseInt(userId));
 
     res.json({ success: true, data: {
-        user_id: parseInt(userId),
-        statistics: stats
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          user_id: parseInt(userId),
+          statistics: stats
+          }
+        };
+        // In production, this would be sent to monitoring service
   } catch (error) {
     console.error('Get user notification summary error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil ringkasan notifikasi pengguna'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Gagal mengambil ringkasan notifikasi pengguna'
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

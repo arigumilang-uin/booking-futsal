@@ -35,23 +35,29 @@ const triggerAutoCompletion = async (req, res) => {
     ]);
 
     res.json({
-      success: true,
-      message: `Auto-completion process completed`,
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: `Auto-completion process completed`,
+        data: {
         completed_count: completed.length,
         completed_bookings: completed,
         triggered_by: req.rawUser.name,
         timestamp: new Date().toISOString()
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Manual auto-completion trigger error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to trigger auto-completion',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to trigger auto-completion',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -65,19 +71,25 @@ const getEligibleBookings = async (req, res) => {
     const eligibleBookings = await getEligibleBookingsForCompletion();
 
     res.json({ success: true, data: {
-        eligible_count: eligibleBookings.length,
-        eligible_bookings: eligibleBookings,
-        checked_at: new Date().toISOString()
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          eligible_count: eligibleBookings.length,
+          eligible_bookings: eligibleBookings,
+          checked_at: new Date().toISOString()
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get eligible bookings error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get eligible bookings',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get eligible bookings',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -113,20 +125,26 @@ const getCompletionStats = async (req, res) => {
     const overallStats = await pool.query(overallStatsQuery);
 
     res.json({ success: true, data: {
-        period_days: parseInt(days),
-        overall_stats: overallStats.rows[0],
-        daily_stats: stats,
-        generated_at: new Date().toISOString()
-      }
-    });
+        // Monitoring data object
+        const monitoringData = {
+          period_days: parseInt(days),
+          overall_stats: overallStats.rows[0],
+          daily_stats: stats,
+          generated_at: new Date().toISOString()
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get completion stats error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get completion statistics',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get completion statistics',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -148,23 +166,29 @@ const manualCompleteBooking = async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Booking completed manually',
-      data: {
+      // Monitoring data object
+      const monitoringData = {
+        success: true,
+        message: 'Booking completed manually',
+        data: {
         booking: completedBooking,
         completed_by: req.rawUser.name,
         reason: reason || `Manual completion by admin: ${req.rawUser.name}`,
         timestamp: new Date().toISOString()
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Manual complete booking error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to complete booking manually',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to complete booking manually',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 
@@ -180,24 +204,29 @@ const getAutoCompletionConfig = async (req, res) => {
       schedule: process.env.AUTO_COMPLETION_SCHEDULE || '*/30 * * * *',
       timezone: process.env.TZ || 'Asia/Jakarta',
       grace_period_minutes: 15,
-      environment: process.env.NODE_ENV || 'production'
-    };
-
-    res.json({ success: true, data: {
+      // Monitoring data object
+      const monitoringData = {
+        environment: process.env.NODE_ENV || 'production'
+        };
+        res.json({ success: true, data: {
         auto_completion_config: config,
         status: config.enabled ? 'active' : 'disabled',
         next_run_info: config.enabled ? 'Every 30 minutes' : 'Disabled',
         checked_at: new Date().toISOString()
-      }
-    });
+        }
+      };
+      // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get auto-completion config error:', error);
     res.status(500).json({
-      success: false,
-      message: 'Failed to get auto-completion configuration',
-      error: error.message
-    });
+      // Monitoring data object
+      const monitoringData = {
+        success: false,
+        message: 'Failed to get auto-completion configuration',
+        error: error.message
+      };
+      // In production, this would be sent to monitoring service
   }
 };
 

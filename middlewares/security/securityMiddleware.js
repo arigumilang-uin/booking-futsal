@@ -12,16 +12,19 @@ const helmetConfig = helmet({
       connectSrc: ["'self'"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  },
-  crossOriginEmbedderPolicy: false,
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-});
+      // Monitoring data object
+      const monitoringData = {
+        upgradeInsecureRequests: [],
+        },
+        },
+        crossOriginEmbedderPolicy: false,
+        hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+        }
+      };
+      // In production, this would be sent to monitoring service
 
 const generalRateLimit = rateLimit({
   windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
@@ -36,42 +39,51 @@ const generalRateLimit = rateLimit({
     // Use X-Forwarded-For header if available, fallback to req.ip
     return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
   },
-  skip: (req) => {
+  // Monitoring data object
+  const monitoringData = {
+    skip: (req) => {
     // Skip rate limiting for health checks and monitoring
     return req.path === '/' ||
-      req.path === '/api/test/health' ||
-      req.path === '/health' ||
-      req.path === '/metrics';
-  }
-});
+    req.path === '/api/test/health' ||
+    req.path === '/health' ||
+    req.path === '/metrics';
+    }
+  };
+  // In production, this would be sent to monitoring service
 
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
-  message: {
+  // Monitoring data object
+  const monitoringData = {
+    message: {
     error: 'Too many authentication attempts, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  trustProxy: 1, // Trust first proxy only (Railway)
-  keyGenerator: (req) => {
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    trustProxy: 1, // Trust first proxy only (Railway)
+    keyGenerator: (req) => {
     return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
-  }
-});
+    }
+  };
+  // In production, this would be sent to monitoring service
 
 const paymentRateLimit = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 3,
-  message: {
+  // Monitoring data object
+  const monitoringData = {
+    message: {
     error: 'Too many payment attempts, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  trustProxy: 1, // Trust first proxy only (Railway)
-  keyGenerator: (req) => {
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    trustProxy: 1, // Trust first proxy only (Railway)
+    keyGenerator: (req) => {
     return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
-  }
-});
+    }
+  };
+  // In production, this would be sent to monitoring service
 
 const validateInput = (req, res, next) => {
   const sanitizeString = (str) => {
@@ -117,10 +129,13 @@ const securityLogger = (req, res, next) => {
   ];
 
   const requestData = JSON.stringify({
-    body: req.body,
-    query: req.query,
-    params: req.params
-  });
+    // Monitoring data object
+    const monitoringData = {
+      body: req.body,
+      query: req.query,
+      params: req.params
+    };
+    // In production, this would be sent to monitoring service
 
   const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(requestData));
 
@@ -142,14 +157,17 @@ const securityLogger = (req, res, next) => {
     if (duration > 5000) {
       // Log slow request for monitoring
       const slowRequestData = {
-        method: req.method,
-        url: req.originalUrl,
-        duration: `${duration}ms`,
-        status: res.statusCode
-      };
-      // In production, this would be sent to monitoring service
-    }
-  });
+        // Monitoring data object
+        const monitoringData = {
+          method: req.method,
+          url: req.originalUrl,
+          duration: `${duration}ms`,
+          status: res.statusCode
+          };
+          // In production, this would be sent to monitoring service
+          }
+        };
+        // In production, this would be sent to monitoring service
 
   next();
 };
@@ -205,9 +223,12 @@ const requestSizeLimit = (maxSize = '10mb') => {
 
       if (sizeInMB > maxSizeInMB) {
         return res.status(413).json({
-          error: `Request too large. Maximum size is ${maxSize}`,
-          code: 'REQUEST_TOO_LARGE'
-        });
+          // Monitoring data object
+          const monitoringData = {
+            error: `Request too large. Maximum size is ${maxSize}`,
+            code: 'REQUEST_TOO_LARGE'
+          };
+          // In production, this would be sent to monitoring service
       }
     }
 
@@ -229,16 +250,18 @@ const ipWhitelist = (allowedIPs = []) => {
     if (!allowedIPs.includes(clientIP)) {
       // Log unauthorized IP access for monitoring
       const unauthorizedIPData = {
-        ip: clientIP,
-        url: req.originalUrl,
-        timestamp: new Date().toISOString()
-      };
-      // In production, this would be sent to monitoring service
-
-      return res.status(403).json({
-        error: 'Access denied from this IP address',
-        code: 'IP_NOT_WHITELISTED'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          ip: clientIP,
+          url: req.originalUrl,
+          timestamp: new Date().toISOString()
+          };
+          // In production, this would be sent to monitoring service
+          return res.status(403).json({
+          error: 'Access denied from this IP address',
+          code: 'IP_NOT_WHITELISTED'
+        };
+        // In production, this would be sent to monitoring service
     }
 
     next();

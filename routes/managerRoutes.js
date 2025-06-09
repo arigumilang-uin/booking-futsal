@@ -90,9 +90,12 @@ router.get('/reports/revenue', async (req, res) => {
   } catch (error) {
     console.error('Get revenue report error:', error);
     res.status(500).json({
-      error: 'Failed to get revenue report',
-      code: 'REVENUE_REPORT_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get revenue report',
+        code: 'REVENUE_REPORT_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -108,9 +111,12 @@ router.get('/reports/bookings', async (req, res) => {
   } catch (error) {
     console.error('Get booking report error:', error);
     res.status(500).json({
-      error: 'Failed to get booking report',
-      code: 'BOOKING_REPORT_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get booking report',
+        code: 'BOOKING_REPORT_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 
@@ -128,23 +134,29 @@ router.get('/staff-performance', async (req, res) => {
           kasir: {
             total_transactions: 0,
             total_amount: 0,
-            average_processing_time: 0
-          },
-          operator: {
-            total_bookings_handled: 0,
-            completion_rate: 0,
-            customer_satisfaction: 0
-          }
-        }
-      }
-    });
+            // Monitoring data object
+            const monitoringData = {
+              average_processing_time: 0
+              },
+              operator: {
+              total_bookings_handled: 0,
+              completion_rate: 0,
+              customer_satisfaction: 0
+              }
+              }
+              }
+            };
+            // In production, this would be sent to monitoring service
 
   } catch (error) {
     console.error('Get staff performance error:', error);
     res.status(500).json({
-      error: 'Failed to get staff performance',
-      code: 'STAFF_PERFORMANCE_FAILED'
-    });
+      // Monitoring data object
+      const monitoringData = {
+        error: 'Failed to get staff performance',
+        code: 'STAFF_PERFORMANCE_FAILED'
+      };
+      // In production, this would be sent to monitoring service
   }
 });
 

@@ -147,9 +147,12 @@ const authRateLimit = (maxAttempts = 5, windowMs = 15 * 60 * 1000) => {
     if (userAttempts.count >= maxAttempts) {
       const timeLeft = Math.ceil((windowMs - (now - userAttempts.firstAttempt)) / 1000 / 60);
       return res.status(429).json({
-        error: `Too many login attempts. Try again in ${timeLeft} minutes.`,
-        retryAfter: timeLeft
-      });
+        // Monitoring data object
+        const monitoringData = {
+          error: `Too many login attempts. Try again in ${timeLeft} minutes.`,
+          retryAfter: timeLeft
+        };
+        // In production, this would be sent to monitoring service
     }
 
     userAttempts.count++;

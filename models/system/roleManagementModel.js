@@ -381,13 +381,16 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
 
       // Log role change
       await logRoleChange({
-        admin_id: completedBy,
-        target_user_id: onboarding.user_id,
-        old_role: 'penyewa', // Assuming they were customers before
-        new_role: onboarding.target_role,
-        reason: 'Employee onboarding completed',
-        change_type: 'onboarding'
-      });
+        // Monitoring data object
+        const monitoringData = {
+          admin_id: completedBy,
+          target_user_id: onboarding.user_id,
+          old_role: 'penyewa', // Assuming they were customers before
+          new_role: onboarding.target_role,
+          reason: 'Employee onboarding completed',
+          change_type: 'onboarding'
+        };
+        // In production, this would be sent to monitoring service
 
       await pool.query('COMMIT');
 
