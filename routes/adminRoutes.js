@@ -362,6 +362,66 @@ router.get('/audit-logs/table/:tableName', requireAdmin, getTableActivityLogs);
 router.delete('/audit-logs/cleanup', requireAdmin, cleanOldAuditLogsData);
 
 /**
+ * @route   POST /api/admin/audit-logs/test-cleanup
+ * @desc    Test cleanup preview (shows what would be deleted)
+ * @access  Admin (supervisor_sistem only)
+ * @body    { days_to_keep }
+ */
+router.post('/audit-logs/test-cleanup', requireAdmin, async (req, res) => {
+  try {
+    const daysToKeep = parseInt(req.body.days_to_keep) || 2;
+    console.log('🧪 TEST CLEANUP - Days to keep:', daysToKeep);
+
+    const pool = require('../config/db');
+
+    // Show what would be deleted
+    const previewQuery = `
+      SELECT
+        id, action, created_at, user_id,
+        AGE(NOW(), created_at) as age,
+        EXTRACT(EPOCH FROM (NOW() - created_at))/86400 as days_old,
+        (created_at < NOW() - INTERVAL '1 day' * $1) as will_be_deleted
+      FROM audit_logs
+      ORDER BY created_at ASC
+    `;
+    const previewResult = await pool.query(previewQuery, [daysToKeep]);
+
+    // Count what would be deleted
+    const countQuery = `
+      SELECT COUNT(*) as count_to_delete
+      FROM audit_logs
+      WHERE created_at < NOW() - INTERVAL '1 day' * $1
+    `;
+    const countResult = await pool.query(countQuery, [daysToKeep]);
+    const countToDelete = parseInt(countResult.rows[0].count_to_delete);
+
+    console.log('📊 Records that would be deleted:', countToDelete);
+    previewResult.rows.forEach(row => {
+      console.log(`  ID: ${row.id}, Action: ${row.action}, Date: ${row.created_at}, Days Old: ${row.days_old?.toFixed(2)}, Will Delete: ${row.will_be_deleted}`);
+    });
+
+    res.json({
+      success: true,
+      message: `Test cleanup preview - ${countToDelete} records would be deleted with ${daysToKeep} days retention`,
+      data: {
+        days_to_keep: daysToKeep,
+        count_to_delete: countToDelete,
+        records_preview: previewResult.rows,
+        current_time: new Date().toISOString(),
+        cutoff_time: new Date(Date.now() - (daysToKeep * 24 * 60 * 60 * 1000)).toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('❌ Test cleanup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test cleanup failed',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/admin/audit-logs/export
  * @desc    Export audit logs
  * @access  Admin (supervisor_sistem only)
