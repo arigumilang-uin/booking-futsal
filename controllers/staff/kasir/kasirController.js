@@ -75,7 +75,6 @@ const getAllPaymentsForKasir = async (req, res) => {
     // Sort by created_at desc
     allPaymentData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    console.log('🔍 KASIR PAYMENT DATA SUMMARY:', {
       actualPayments: actualPayments.length,
       pendingBookings: pendingBookings.length,
       totalPaymentData: allPaymentData.length,
@@ -85,9 +84,7 @@ const getAllPaymentsForKasir = async (req, res) => {
       }, {})
     });
 
-    res.json({
-      success: true,
-      data: allPaymentData,
+    res.json({ success: true, data: allPaymentData,
       pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
@@ -99,9 +96,7 @@ const getAllPaymentsForKasir = async (req, res) => {
 
   } catch (error) {
     console.error('Get all payments for kasir error:', error);
-    res.status(500).json({
-      error: 'Failed to get payments'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -111,21 +106,15 @@ const getPaymentDetailForKasir = async (req, res) => {
 
     const payment = await getPaymentById(id);
     if (!payment) {
-      return res.status(404).json({
-        error: 'Payment not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
-    res.json({
-      success: true,
-      data: payment
+    res.json({ success: true, data: payment
     });
 
   } catch (error) {
     console.error('Get payment detail for kasir error:', error);
-    res.status(500).json({
-      error: 'Failed to get payment detail'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -141,22 +130,16 @@ const processManualPayment = async (req, res) => {
     } = req.body;
 
     if (!booking_id || !method || !amount) {
-      return res.status(400).json({
-        error: 'Missing required fields'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const booking = await getBookingById(booking_id);
     if (!booking) {
-      return res.status(404).json({
-        error: 'Booking not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.payment_status === 'paid') {
-      return res.status(400).json({
-        error: 'Booking already paid'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Create payment directly with 'paid' status to avoid updatePaymentStatus issue
@@ -168,7 +151,6 @@ const processManualPayment = async (req, res) => {
     });
 
     // Skip updatePaymentStatus call due to SQL issue - payment already created as 'paid'
-    // const updatedPayment = await updatePaymentStatus(payment.id, 'paid', gatewayResponse);
 
     // Update booking payment status
     await updateBookingPaymentStatus(booking_id, 'paid');
@@ -176,13 +158,11 @@ const processManualPayment = async (req, res) => {
     // OPTIONAL: Auto-confirm booking when payment is completed
     try {
       if (booking.status === 'pending') {
-        console.log(`[AUTO-CONFIRM] Manual payment processed for booking ${booking.booking_number}, auto-confirmation opportunity available`);
         // Note: This would require operator assignment validation
         // For now, we just log the opportunity for auto-confirmation
         // await updateBookingStatus(booking_id, 'confirmed', 'system', 'Auto-confirmed after manual payment');
       }
     } catch (autoConfirmError) {
-      console.log('[AUTO-CONFIRM] Error during auto-confirmation attempt:', autoConfirmError.message);
       // Don't fail the payment processing if auto-confirm fails
     }
 
@@ -201,9 +181,7 @@ const processManualPayment = async (req, res) => {
 
   } catch (error) {
     console.error('Process manual payment error:', error);
-    res.status(500).json({
-      error: 'Failed to process manual payment'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -213,7 +191,6 @@ const confirmPayment = async (req, res) => {
     const { id } = req.params;
     const { notes, method = 'cash', amount } = req.body;
 
-    console.log('🔍 KASIR CONFIRM PAYMENT:', {
       paymentId: id,
       method,
       amount,
@@ -263,7 +240,6 @@ const confirmPayment = async (req, res) => {
         // Update booking payment status
         await updateBookingPaymentStatus(bookingId, 'paid');
 
-        console.log('✅ BOOKING PAYMENT CONFIRMED:', {
           bookingId,
           paymentId: newPayment.id,
           amount: paymentData.amount,
@@ -318,7 +294,6 @@ const confirmPayment = async (req, res) => {
       // Update booking payment status
       await updateBookingPaymentStatus(payment.booking_id, 'paid');
 
-      console.log('✅ REGULAR PAYMENT CONFIRMED:', {
         paymentId: id,
         method: payment.method,
         amount: payment.amount,
@@ -346,9 +321,7 @@ const getPendingPayments = async (req, res) => {
   try {
     const pendingPayments = await getPaymentsByStatus('pending');
 
-    res.json({
-      success: true,
-      data: pendingPayments
+    res.json({ success: true, data: pendingPayments
     });
 
   } catch (error) {
@@ -369,9 +342,7 @@ const getPaymentStatsForKasir = async (req, res) => {
 
     const stats = await getPaymentStatistics(startDate, endDate);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: startDate,
           end_date: endDate
@@ -382,9 +353,7 @@ const getPaymentStatsForKasir = async (req, res) => {
 
   } catch (error) {
     console.error('Get payment stats for kasir error:', error);
-    res.status(500).json({
-      error: 'Failed to get payment statistics'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -416,9 +385,7 @@ const getDailyCashReport = async (req, res) => {
       return acc;
     }, {});
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         date: date,
         summary: stats,
         method_breakdown: methodBreakdown,
@@ -428,9 +395,7 @@ const getDailyCashReport = async (req, res) => {
 
   } catch (error) {
     console.error('Get daily cash report error:', error);
-    res.status(500).json({
-      error: 'Failed to get daily cash report'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -465,9 +430,7 @@ const getAllBookingsForKasir = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         bookings: paginatedBookings,
         pagination: {
           current_page: parseInt(page),
@@ -502,9 +465,7 @@ const getBookingDetailForKasir = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: booking
+    res.json({ success: true, data: booking
     });
 
   } catch (error) {

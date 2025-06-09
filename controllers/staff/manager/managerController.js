@@ -18,9 +18,7 @@ const getManagerDashboard = async (req, res) => {
     const managerId = req.rawUser.id;
     const dashboardData = await getDashboardOverview('manajer_futsal', managerId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         manager_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id,
@@ -47,9 +45,7 @@ const getAllFieldsForManager = async (req, res) => {
   try {
     const fields = await getAllFields();
 
-    res.json({
-      success: true,
-      data: fields
+    res.json({ success: true, data: fields
     });
 
   } catch (error) {
@@ -137,9 +133,7 @@ const updateFieldByManager = async (req, res) => {
 const getAllUsersForManager = async (req, res) => {
   try {
     // This would be implemented with proper user management
-    res.json({
-      success: true,
-      data: [],
+    res.json({ success: true, data: [],
       message: 'User management moved to role management endpoints'
     });
   } catch (error) {
@@ -186,9 +180,7 @@ const updateUserStatusByManager = async (req, res) => {
 const getBusinessAnalytics = async (req, res) => {
   try {
     // This would be implemented with proper analytics
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: req.query.date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           end_date: req.query.date_to || new Date()
@@ -244,9 +236,7 @@ const getAllBookingsForManager = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         bookings: paginatedBookings,
         pagination: {
           current_page: parseInt(page),
@@ -281,9 +271,7 @@ const getBookingDetailForManager = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: booking
+    res.json({ success: true, data: booking
     });
 
   } catch (error) {

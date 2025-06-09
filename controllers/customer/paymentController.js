@@ -21,7 +21,6 @@ const getCustomerPayments = async (req, res) => {
     const userId = req.user.id;
     const { page = 1, limit = 20, status } = req.query;
 
-    console.log('🔍 CUSTOMER PAYMENTS REQUEST:', {
       userId,
       page,
       limit,
@@ -30,7 +29,7 @@ const getCustomerPayments = async (req, res) => {
 
     // Get customer payments by user ID
     const payments = await getPaymentsByUserId(userId, parseInt(page), parseInt(limit));
-    
+
     // Filter by status if provided
     let filteredPayments = payments;
     if (status) {
@@ -39,8 +38,8 @@ const getCustomerPayments = async (req, res) => {
 
     // Get customer bookings to include pending payments
     const bookings = await getBookingsByUserId(userId);
-    const pendingBookings = bookings.filter(booking => 
-      booking.payment_status === 'pending' && 
+    const pendingBookings = bookings.filter(booking =>
+      booking.payment_status === 'pending' &&
       !payments.find(payment => payment.booking_id === booking.id)
     );
 
@@ -75,16 +74,13 @@ const getCustomerPayments = async (req, res) => {
         .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
     };
 
-    console.log('✅ CUSTOMER PAYMENTS SUCCESS:', {
       totalPayments: allPaymentData.length,
       actualPayments: filteredPayments.length,
       pendingBookings: pendingPaymentObjects.length,
       stats
     });
 
-    res.json({
-      success: true,
-      data: allPaymentData,
+    res.json({ success: true, data: allPaymentData,
       stats,
       pagination: {
         page: parseInt(page),
@@ -108,7 +104,6 @@ const getCustomerPaymentDetail = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
 
-    console.log('🔍 CUSTOMER PAYMENT DETAIL REQUEST:', {
       userId,
       paymentId: id
     });
@@ -117,11 +112,9 @@ const getCustomerPaymentDetail = async (req, res) => {
     if (id.startsWith('booking_')) {
       const bookingId = id.replace('booking_', '');
       const booking = await getBookingById(bookingId);
-      
+
       if (!booking || booking.user_id !== userId) {
-        return res.status(404).json({
-          error: 'Booking not found or access denied'
-        });
+        return res.status(500).json({ success: false, message: "Internal server error" });
       }
 
       // Return booking as payment-like object
@@ -139,38 +132,29 @@ const getCustomerPaymentDetail = async (req, res) => {
         booking_details: booking
       };
 
-      return res.json({
-        success: true,
-        data: paymentLikeObject
+      return res.json({ success: true, data: paymentLikeObject
       });
     }
 
     // Handle regular payment
     const payment = await getPaymentById(id);
     if (!payment) {
-      return res.status(404).json({
-        error: 'Payment not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Verify payment belongs to user
     const booking = await getBookingById(payment.booking_id);
     if (!booking || booking.user_id !== userId) {
-      return res.status(403).json({
-        error: 'Access denied'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
-    console.log('✅ CUSTOMER PAYMENT DETAIL SUCCESS:', {
       paymentId: payment.id,
       bookingId: payment.booking_id,
       amount: payment.amount,
       status: payment.status
     });
 
-    res.json({
-      success: true,
-      data: payment
+    res.json({ success: true, data: payment
     });
 
   } catch (error) {
@@ -189,7 +173,6 @@ const createCustomerPayment = async (req, res) => {
     const { bookingId } = req.params;
     const { method, amount, currency = 'IDR' } = req.body;
 
-    console.log('🔍 CREATE CUSTOMER PAYMENT REQUEST:', {
       userId,
       bookingId,
       method,
@@ -200,29 +183,21 @@ const createCustomerPayment = async (req, res) => {
     // Validate booking
     const booking = await getBookingById(bookingId);
     if (!booking) {
-      return res.status(404).json({
-        error: 'Booking not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.user_id !== userId) {
-      return res.status(403).json({
-        error: 'Access denied'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.payment_status === 'paid') {
-      return res.status(400).json({
-        error: 'Booking already paid'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Check if payment already exists
     const existingPayments = await getPaymentsByBookingId(bookingId);
     if (existingPayments.length > 0) {
-      return res.status(400).json({
-        error: 'Payment already exists for this booking'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Create payment
@@ -236,7 +211,6 @@ const createCustomerPayment = async (req, res) => {
 
     const newPayment = await createPayment(paymentData);
 
-    console.log('✅ CUSTOMER PAYMENT CREATED:', {
       paymentId: newPayment.id,
       bookingId,
       amount: paymentData.amount,
@@ -264,7 +238,6 @@ const uploadPaymentProof = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
 
-    console.log('🔍 UPLOAD PAYMENT PROOF REQUEST:', {
       userId,
       paymentId: id,
       hasFile: !!req.file
@@ -273,22 +246,16 @@ const uploadPaymentProof = async (req, res) => {
     // Get payment and verify ownership
     const payment = await getPaymentById(id);
     if (!payment) {
-      return res.status(404).json({
-        error: 'Payment not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const booking = await getBookingById(payment.booking_id);
     if (!booking || booking.user_id !== userId) {
-      return res.status(403).json({
-        error: 'Access denied'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (!req.file) {
-      return res.status(400).json({
-        error: 'No file uploaded'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // For now, just update payment status to indicate proof uploaded
@@ -299,7 +266,6 @@ const uploadPaymentProof = async (req, res) => {
       uploaded_at: new Date().toISOString()
     });
 
-    console.log('✅ PAYMENT PROOF UPLOADED:', {
       paymentId: id,
       filename: req.file.filename,
       size: req.file.size

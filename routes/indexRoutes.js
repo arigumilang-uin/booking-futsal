@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 
 // Import test routes
-const testRoutes = require('./testRoutes');
 
 // Import all route modules
 const authRoutes = require('./authRoutes');
@@ -21,32 +20,8 @@ const enhancedRoutes = require('./enhancedRoutes');
 // =====================================================
 
 // Test routes
-router.use('/test', testRoutes);
-
-// All routes enabled
-router.use('/public', publicRoutes);
-router.use('/auth', authRoutes);
-router.use('/customer', customerRoutes);
-router.use('/admin', adminRoutes);
-router.use('/staff/kasir', kasirRoutes);
-router.use('/staff/operator', operatorRoutes);
-router.use('/staff/manager', managerRoutes);
-router.use('/staff/supervisor', supervisorRoutes);
-router.use('/enhanced', enhancedRoutes);
-
-// =====================================================
-// LEGACY COMPATIBILITY ROUTES
-// =====================================================
-
-// Legacy routes (commented out for testing)
-// router.use('/user', (req, res, next) => {
-//   console.log('Legacy /user route accessed, redirecting to /customer');
-//   req.url = req.url.replace('/user', '/customer');
-//   customerRoutes(req, res, next);
-// });
 
 // router.use('/pengelola', (req, res, next) => {
-//   console.log('Legacy /pengelola route accessed, redirecting to /staff/manager');
 //   req.url = req.url.replace('/pengelola', '/staff/manager');
 //   managerRoutes(req, res, next);
 // });
@@ -116,7 +91,7 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || 'production',
     routes_loaded: {
       auth: 'authRoutes.js',
       public: 'publicRoutes.js',
@@ -137,9 +112,7 @@ router.get('/health', (req, res) => {
  * @access  Public
  */
 router.get('/routes', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       route_structure: 'Simplified flat structure',
       naming_convention: 'Consistent Routes.js suffix',
       total_route_files: 9,

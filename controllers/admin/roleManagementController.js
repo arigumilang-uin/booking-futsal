@@ -23,7 +23,6 @@ const getRoleManagementDashboard = async (req, res) => {
     try {
       allUsers = await getAllUsers();
     } catch (userError) {
-      console.error('Error getting users:', userError);
       return res.status(500).json({
         error: 'Failed to get users data',
         details: userError.message
@@ -41,14 +40,11 @@ const getRoleManagementDashboard = async (req, res) => {
     try {
       pendingRequests = await getRoleChangeRequests('pending');
     } catch (requestError) {
-      console.error('Error getting role change requests:', requestError);
       // Continue without pending requests if there's an error
       pendingRequests = [];
     }
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         admin_info: {
           id: adminId,
           role: adminRole,
@@ -159,9 +155,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
       }
     }));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         users: usersWithRoleInfo,
         pagination: {
           current_page: parseInt(page),
@@ -180,9 +174,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
 
   } catch (error) {
     console.error('Get all users for role management error:', error);
-    res.status(500).json({
-      error: 'Failed to get users for role management'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -193,16 +185,12 @@ const requestRoleChange = async (req, res) => {
     const { user_id, new_role, reason, priority = 'normal' } = req.body;
 
     if (!user_id || !new_role || !reason) {
-      return res.status(400).json({
-        error: 'User ID, new role, and reason are required'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const targetUser = await getUserByIdRaw(user_id);
     if (!targetUser) {
-      return res.status(404).json({
-        error: 'Target user not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const validationResult = await validateRoleChangeRequest(
@@ -234,9 +222,7 @@ const requestRoleChange = async (req, res) => {
 
   } catch (error) {
     console.error('Request role change error:', error);
-    res.status(500).json({
-      error: 'Failed to create role change request'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -247,16 +233,12 @@ const changeUserRoleDirect = async (req, res) => {
     const { user_id, new_role, reason, bypass_approval = false } = req.body;
 
     if (!user_id || !new_role || !reason) {
-      return res.status(400).json({
-        error: 'User ID, new role, and reason are required'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const targetUser = await getUserByIdRaw(user_id);
     if (!targetUser) {
-      return res.status(404).json({
-        error: 'Target user not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const validationResult = validateDirectRoleChange(
@@ -275,9 +257,7 @@ const changeUserRoleDirect = async (req, res) => {
     const updatedUser = await updateUserRole(user_id, new_role, adminId);
 
     if (!updatedUser) {
-      return res.status(500).json({
-        error: 'Failed to update user role'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Log role change for audit trail
@@ -307,9 +287,7 @@ const changeUserRoleDirect = async (req, res) => {
 
   } catch (error) {
     console.error('Change user role direct error:', error);
-    res.status(500).json({
-      error: 'Failed to change user role'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

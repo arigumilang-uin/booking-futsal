@@ -54,10 +54,8 @@ router.get('/audit-logs', getAuditLogs);
 
 router.get('/system-config', async (req, res) => {
   try {
-    res.json({
-      success: true,
-      data: {
-        environment: process.env.NODE_ENV || 'development',
+    res.json({ success: true, data: {
+        environment: process.env.NODE_ENV || 'production',
         database_url: process.env.DATABASE_URL ? 'Connected' : 'Not configured',
         jwt_secret: process.env.JWT_SECRET ? 'Configured' : 'Not configured',
         port: process.env.PORT || 5000,
@@ -133,8 +131,6 @@ router.post('/system-maintenance', async (req, res) => {
         result = { message: 'Task scheduled for execution' };
     }
 
-    console.log(`✅ Maintenance task executed: ${type} by ${req.rawUser.name}`);
-
     res.json({
       success: true,
       message: `Maintenance task '${type}' executed successfully`,
@@ -164,9 +160,7 @@ router.get('/database-stats', async (req, res) => {
     const { getDatabaseStats } = require('../config/db');
     const dbStats = await getDatabaseStats();
 
-    res.json({
-      success: true,
-      data: dbStats
+    res.json({ success: true, data: dbStats
     });
 
   } catch (error) {
@@ -183,10 +177,7 @@ router.get('/error-logs', async (req, res) => {
     const { page = 1, limit = 50, level = 'error' } = req.query;
 
     // This would be implemented with proper logging system
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         logs: [],
         pagination: {
           current_page: parseInt(page),

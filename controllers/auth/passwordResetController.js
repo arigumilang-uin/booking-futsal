@@ -23,7 +23,7 @@ const requestPasswordReset = async (req, res) => {
     // Check if user exists
     const userQuery = `SELECT id, name, email, is_active FROM users WHERE email = $1`;
     const userResult = await pool.query(userQuery, [email]);
-    
+
     if (userResult.rows.length === 0) {
       // Don't reveal if email exists or not for security
       return res.json({
@@ -52,7 +52,7 @@ const requestPasswordReset = async (req, res) => {
 
     // Create reset token
     const resetData = await createPasswordResetToken(email);
-    
+
     // Generate reset link
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetLink = `${frontendUrl}/reset-password?token=${resetData.token}`;
@@ -72,7 +72,6 @@ const requestPasswordReset = async (req, res) => {
     });
 
     if (!emailResult.success) {
-      console.error('Failed to send password reset email:', emailResult.error);
       return res.status(500).json({
         success: false,
         message: 'Gagal mengirim email reset password'
@@ -181,12 +180,12 @@ const resetPassword = async (req, res) => {
 
     // Update user password
     const updateQuery = `
-      UPDATE users 
+      UPDATE users
       SET password = $1, updated_at = NOW()
       WHERE id = $2
       RETURNING id, email, name
     `;
-    
+
     const updateResult = await pool.query(updateQuery, [hashedPassword, user_id]);
 
     if (updateResult.rows.length === 0) {

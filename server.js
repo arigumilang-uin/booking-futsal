@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 
 // Load environment variables
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.production';
 dotenv.config({ path: envFile });
 
 // Validasi environment variables sebelum memulai aplikasi
@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   logger.info('Server started successfully', {
     port: PORT,
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || 'production',
     pid: process.pid,
     timestamp: new Date().toISOString()
   });
@@ -32,16 +32,6 @@ const server = app.listen(PORT, () => {
   const baseUrl = isProduction
     ? 'https://booking-futsal-production.up.railway.app'
     : `http://localhost:${PORT}`;
-
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📊 Available endpoints:`);
-  console.log(`   - Health Check: ${baseUrl}/health`);
-  console.log(`   - Enhanced Health: ${baseUrl}/health`);
-  console.log(`   - API Documentation: ${baseUrl}/api-docs`);
-  console.log(`   - Database Test: ${baseUrl}/api/test/database`);
-  console.log(`   - System Info: ${baseUrl}/api/public/system-info`);
-  console.log(`   - Database Status: ${baseUrl}/api/public/database-status`);
 
   // Start performance monitoring
   startMetricsCollection(60000); // Collect metrics every minute
@@ -66,13 +56,11 @@ if (enableAutoCron) {
     timezone: timezoneConfig.timezone,
     displayTimezone: timezoneConfig.displayTimezone,
     offset: timezoneConfig.offset,
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || 'production',
     isProduction: timezoneConfig.isProduction
   });
-  console.log(`🕒 Auto-completion cron job scheduled: ${cronSchedule} (${timezoneConfig.timezone})`);
 
   if (timezoneConfig.isProduction) {
-    console.log(`📍 Display timezone: ${timezoneConfig.displayTimezone} (${timezoneConfig.offset})`);
   }
 
   try {
@@ -95,13 +83,11 @@ if (enableAutoCron) {
             bookingIds: updated.map(b => b.id),
             timestamp: new Date().toISOString()
           });
-          console.log(`[CRON] ✅ ${updated.length} booking(s) auto-completed successfully`);
         } else {
           logger.info('Auto-completion check completed - no bookings to complete', {
             duration,
             timestamp: new Date().toISOString()
           });
-          console.log('[CRON] ℹ️ No bookings to complete at this time');
         }
       } catch (err) {
         const duration = Date.now() - startTime;
@@ -130,15 +116,12 @@ if (enableAutoCron) {
       schedule: cronSchedule,
       timezone: timezoneConfig.timezone
     });
-    console.error('❌ Failed to initialize cron job:', cronError.message);
 
     // Fallback: disable auto-completion if cron fails
     logger.warn('Auto-completion disabled due to cron initialization failure');
-    console.log('⚠️ Auto-completion disabled due to cron initialization failure');
   }
 } else {
   logger.warn('Auto-completion cron job disabled via environment variable');
-  console.log('⏸️ Auto-completion cron job disabled via environment variable');
 }
 
 // =====================================================
@@ -155,7 +138,6 @@ const gracefulShutdown = (signal) => {
     pid: process.pid,
     uptime: process.uptime()
   });
-  console.log(`\n🛑 Menerima signal ${signal}. Memulai graceful shutdown...`);
 
   // Stop accepting new connections
   server.close((err) => {
@@ -164,12 +146,10 @@ const gracefulShutdown = (signal) => {
         error: err.message,
         stack: err.stack
       });
-      console.error('❌ Error saat menutup server:', err);
       process.exit(1);
     }
 
     logger.info('HTTP server closed successfully');
-    console.log('✅ Server HTTP ditutup');
 
     // Close database connections
     const pool = require('./config/db');
@@ -179,14 +159,11 @@ const gracefulShutdown = (signal) => {
           error: err.message,
           stack: err.stack
         });
-        console.error('❌ Error saat menutup koneksi database:', err);
         process.exit(1);
       }
 
       logger.info('Database connections closed successfully');
       logger.info('Graceful shutdown completed');
-      console.log('✅ Koneksi database ditutup');
-      console.log('🎯 Graceful shutdown selesai');
       process.exit(0);
     });
   });
@@ -197,7 +174,6 @@ const gracefulShutdown = (signal) => {
       signal,
       timeoutSeconds: 30
     });
-    console.error('⚠️  Timeout graceful shutdown (30s). Force exit...');
     process.exit(1);
   }, 30000);
 };
@@ -213,7 +189,6 @@ process.on('uncaughtException', (err) => {
     stack: err.stack,
     pid: process.pid
   });
-  console.error('💥 Uncaught Exception:', err);
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
@@ -225,9 +200,7 @@ process.on('unhandledRejection', (reason, promise) => {
     promise: promise.toString(),
     pid: process.pid
   });
-  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
   gracefulShutdown('UNHANDLED_REJECTION');
 });
 
 logger.info('Graceful shutdown handlers installed');
-console.log('🛡️  Graceful shutdown handlers terpasang');

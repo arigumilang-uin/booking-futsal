@@ -29,51 +29,51 @@ module.exports = {
   // Core
   userModel,
   roleManagementModel,
-  
+
   // Business
   bookingModel,
   fieldModel,
   paymentModel,
-  
+
   // Enhanced
   notificationModel,
   reviewModel,
   favoritesModel,
   promotionModel,
-  
+
   // System
   systemSettingsModel,
   auditLogModel,
-  
+
   // Tracking
   bookingHistoryModel,
   paymentLogModel,
-  
+
   // Domain-based exports for new imports
   core: {
     user: userModel,
     roleManagement: roleManagementModel
   },
-  
+
   business: {
     booking: bookingModel,
     field: fieldModel,
     payment: paymentModel
   },
-  
+
   enhanced: {
     notification: notificationModel,
     review: reviewModel,
     favorites: favoritesModel,
     promotion: promotionModel
   },
-  
+
   system: {
     settings: systemSettingsModel,
     auditLog: auditLogModel,
     roleManagement: roleManagementModel
   },
-  
+
   tracking: {
     bookingHistory: bookingHistoryModel,
     paymentLog: paymentLogModel

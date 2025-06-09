@@ -19,7 +19,7 @@ const LOG_LEVELS = {
 const getLogConfig = () => {
   const env = process.env.NODE_ENV || 'development';
   const logLevel = process.env.LOG_LEVEL || (env === 'production' ? 'INFO' : 'DEBUG');
-  
+
   return {
     level: LOG_LEVELS[logLevel]?.level ?? LOG_LEVELS.INFO.level,
     enableConsole: env !== 'test',
@@ -55,7 +55,7 @@ const formatTimestamp = () => {
 const formatMessage = (level, message, meta = {}) => {
   const timestamp = formatTimestamp();
   const levelInfo = LOG_LEVELS[level];
-  
+
   // Base log object
   const logObj = {
     timestamp,
@@ -63,14 +63,14 @@ const formatMessage = (level, message, meta = {}) => {
     message,
     ...meta
   };
-  
+
   // Add process info untuk production
   if (config.enableFile) {
     logObj.pid = process.pid;
     logObj.hostname = require('os').hostname();
     logObj.environment = process.env.NODE_ENV;
   }
-  
+
   return logObj;
 };
 
@@ -81,20 +81,20 @@ const formatConsoleMessage = (logObj) => {
   const levelInfo = LOG_LEVELS[logObj.level];
   const color = config.enableColors ? levelInfo.color : '';
   const reset = config.enableColors ? '\x1b[0m' : '';
-  
+
   let output = `${color}[${logObj.timestamp}] ${levelInfo.emoji} ${logObj.level}${reset}: ${logObj.message}`;
-  
+
   // Tambahkan metadata jika ada
-  const metaKeys = Object.keys(logObj).filter(key => 
+  const metaKeys = Object.keys(logObj).filter(key =>
     !['timestamp', 'level', 'message', 'pid', 'hostname', 'environment'].includes(key)
   );
-  
+
   if (metaKeys.length > 0) {
     const meta = {};
     metaKeys.forEach(key => meta[key] = logObj[key]);
     output += `\n${color}   Meta: ${JSON.stringify(meta, null, 2)}${reset}`;
   }
-  
+
   return output;
 };
 
@@ -103,16 +103,15 @@ const formatConsoleMessage = (logObj) => {
  */
 const writeToFile = (logObj) => {
   if (!config.enableFile) return;
-  
+
   ensureLogDir();
-  
+
   const logFile = path.join(config.logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
   const logLine = JSON.stringify(logObj) + '\n';
-  
+
   try {
     fs.appendFileSync(logFile, logLine);
   } catch (error) {
-    console.error('Failed to write to log file:', error);
   }
 };
 
@@ -121,19 +120,18 @@ const writeToFile = (logObj) => {
  */
 const log = (level, message, meta = {}) => {
   const levelInfo = LOG_LEVELS[level];
-  
+
   // Skip jika level terlalu rendah
   if (levelInfo.level > config.level) {
     return;
   }
-  
+
   const logObj = formatMessage(level, message, meta);
-  
+
   // Console output
   if (config.enableConsole) {
-    console.log(formatConsoleMessage(logObj));
   }
-  
+
   // File output
   writeToFile(logObj);
 };
@@ -148,35 +146,35 @@ const logger = {
   error: (message, meta = {}) => {
     log('ERROR', message, meta);
   },
-  
+
   /**
    * Warning logging - untuk kondisi yang perlu perhatian
    */
   warn: (message, meta = {}) => {
     log('WARN', message, meta);
   },
-  
+
   /**
    * Info logging - untuk informasi umum
    */
   info: (message, meta = {}) => {
     log('INFO', message, meta);
   },
-  
+
   /**
    * Debug logging - untuk debugging development
    */
   debug: (message, meta = {}) => {
     log('DEBUG', message, meta);
   },
-  
+
   /**
    * Trace logging - untuk detailed tracing
    */
   trace: (message, meta = {}) => {
     log('TRACE', message, meta);
   },
-  
+
   /**
    * HTTP request logging
    */
@@ -190,11 +188,11 @@ const logger = {
       ip: req.ip || req.connection.remoteAddress,
       userId: req.user?.id || null
     };
-    
+
     const level = res.statusCode >= 400 ? 'WARN' : 'INFO';
     log(level, `${req.method} ${req.url} ${res.statusCode}`, meta);
   },
-  
+
   /**
    * Database operation logging
    */
@@ -205,7 +203,7 @@ const logger = {
       ...meta
     });
   },
-  
+
   /**
    * Authentication logging
    */
@@ -216,7 +214,7 @@ const logger = {
       ...meta
     });
   },
-  
+
   /**
    * Security logging
    */
@@ -226,7 +224,7 @@ const logger = {
       ...meta
     });
   },
-  
+
   /**
    * Business logic logging
    */
@@ -236,7 +234,7 @@ const logger = {
       ...meta
     });
   },
-  
+
   /**
    * Performance logging
    */
@@ -255,7 +253,7 @@ const logger = {
  */
 const httpLoggerMiddleware = (req, res, next) => {
   const start = Date.now();
-  
+
   // Override res.end untuk capture response time
   const originalEnd = res.end;
   res.end = function(...args) {
@@ -263,7 +261,7 @@ const httpLoggerMiddleware = (req, res, next) => {
     logger.http(req, res, responseTime);
     originalEnd.apply(this, args);
   };
-  
+
   next();
 };
 

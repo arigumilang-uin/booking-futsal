@@ -29,9 +29,7 @@ const getAvailablePromotions = async (req, res) => {
       usage_remaining: promo.usage_limit ? promo.usage_limit - promo.usage_count : null
     }));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         promotions: customerPromotions,
         total: customerPromotions.length
       }
@@ -77,9 +75,7 @@ const getPromotionDetails = async (req, res) => {
       usage_remaining: promotion.usage_limit ? promotion.usage_limit - promotion.usage_count : null
     };
 
-    res.json({
-      success: true,
-      data: promotionDetails
+    res.json({ success: true, data: promotionDetails
     });
   } catch (error) {
     console.error('Get promotion details error:', error);
@@ -192,7 +188,7 @@ const getFieldPromotions = async (req, res) => {
     const { date, start_time } = req.query;
 
     const allPromotions = await getActivePromotions();
-    
+
     // Filter promotions applicable for this field
     const applicablePromotions = allPromotions.filter(promo => {
       // Check field applicability
@@ -237,9 +233,7 @@ const getFieldPromotions = async (req, res) => {
       usage_remaining: promo.usage_limit ? promo.usage_limit - promo.usage_count : null
     }));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         field_id: parseInt(fieldId),
         date,
         start_time,
@@ -269,7 +263,7 @@ const calculateDiscountPreview = async (req, res) => {
     }
 
     const promotion = await getPromotionByCode(code);
-    
+
     if (!promotion) {
       return res.status(404).json({
         success: false,
@@ -306,9 +300,7 @@ const calculateDiscountPreview = async (req, res) => {
 
     const finalAmount = totalAmount - discount;
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         original_amount: totalAmount,
         discount_amount: Math.round(discount),
         final_amount: Math.round(finalAmount),

@@ -18,9 +18,9 @@ const {
 const getBusinessAnalytics = async (req, res) => {
   try {
     const { date_from, date_to, period = 'month' } = req.query;
-    
+
     let startDate, endDate;
-    
+
     if (date_from && date_to) {
       startDate = new Date(date_from);
       endDate = new Date(date_to);
@@ -37,16 +37,14 @@ const getBusinessAnalytics = async (req, res) => {
         endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       }
     }
-    
+
     const [bookingStats, revenueStats, paymentStats] = await Promise.all([
       getBookingStatistics(startDate, endDate),
       getRevenueStatistics(startDate, endDate),
       getPaymentStatistics(startDate, endDate)
     ]);
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         period: {
           start_date: startDate,
           end_date: endDate,
@@ -71,9 +69,9 @@ const getBusinessAnalytics = async (req, res) => {
 const getSystemAnalytics = async (req, res) => {
   try {
     const { date_from, date_to, period = 'month' } = req.query;
-    
+
     let startDate, endDate;
-    
+
     if (date_from && date_to) {
       startDate = new Date(date_from);
       endDate = new Date(date_to);
@@ -90,19 +88,17 @@ const getSystemAnalytics = async (req, res) => {
         endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       }
     }
-    
+
     const [bookingStats, revenueStats, paymentStats, fieldStats] = await Promise.all([
       getBookingStatistics(startDate, endDate),
       getRevenueStatistics(startDate, endDate),
       getPaymentStatistics(startDate, endDate),
       getFieldStatistics()
     ]);
-    
+
     const allUsers = await getAllUsers();
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         period: {
           start_date: startDate,
           end_date: endDate,
@@ -128,7 +124,7 @@ const getSystemAnalytics = async (req, res) => {
 
   } catch (error) {
     console.error('Get system analytics error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: 'Gagal mengambil analitik sistem'
     });
@@ -191,10 +187,10 @@ const getDashboardOverview = async (userRole, userId) => {
 const getPerformanceMetrics = async (req, res) => {
   try {
     const { period = 'month' } = req.query;
-    
+
     const today = new Date();
     let startDate, endDate;
-    
+
     if (period === 'week') {
       startDate = new Date(today.setDate(today.getDate() - 7));
       endDate = new Date();
@@ -214,18 +210,16 @@ const getPerformanceMetrics = async (req, res) => {
 
     // Calculate performance metrics
     const metrics = {
-      occupancy_rate: fieldStats.total_fields > 0 ? 
+      occupancy_rate: fieldStats.total_fields > 0 ?
         (bookingStats.total_bookings / (fieldStats.total_fields * 30)) * 100 : 0,
-      revenue_per_booking: bookingStats.total_bookings > 0 ? 
+      revenue_per_booking: bookingStats.total_bookings > 0 ?
         revenueStats.total_revenue / bookingStats.total_bookings : 0,
       average_booking_value: revenueStats.average_booking_value || 0,
       customer_retention: bookingStats.returning_customers || 0,
       field_utilization: fieldStats.utilization_rate || 0
     };
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: startDate,
           end_date: endDate,

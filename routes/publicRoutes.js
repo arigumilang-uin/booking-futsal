@@ -67,9 +67,7 @@ router.get('/database-status', async (req, res) => {
       }
     }
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         database_status: 'connected',
         total_tables: existingTables.length,
         existing_tables: existingTables,
@@ -119,14 +117,12 @@ router.get('/health', (req, res) => {
     message: 'API is healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'production'
   });
 });
 
 router.get('/version', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       api_version: '2.0.0',
       enhanced_role_system: true,
       last_updated: '2024-11-30',
@@ -174,118 +170,12 @@ router.get('/fields/:fieldId/promotions',
 );
 
 // Debug endpoint for table structure
-router.get('/debug/table/:tableName', async (req, res) => {
-  try {
-    const { tableName } = req.params;
-    const pool = require('../config/db');
-
-    // Get table structure
-    const structureQuery = `
-      SELECT
-        column_name,
-        data_type,
-        is_nullable,
-        column_default,
-        character_maximum_length
-      FROM information_schema.columns
-      WHERE table_name = $1 AND table_schema = 'public'
-      ORDER BY ordinal_position
-    `;
-
-    const structureResult = await pool.query(structureQuery, [tableName]);
-
-    // Check if table exists
-    if (structureResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: `Table '${tableName}' not found`
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        table_name: tableName,
-        columns: structureResult.rows
-      }
-    });
-
-  } catch (error) {
-    console.error('Table structure error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get table structure',
-      error: error.message
-    });
-  }
 });
 
 // Test system settings insert
-router.get('/debug/test-settings', async (req, res) => {
-  try {
-    const pool = require('../config/db');
-
-    // Test with simple JSON format
-    const testQuery = `
-      INSERT INTO system_settings (key, value, description, is_public)
-      VALUES ('debug_test', '"debug_value"', 'Debug test setting', false)
-      RETURNING *
-    `;
-
-    const result = await pool.query(testQuery);
-
-    res.json({
-      success: true,
-      message: 'System settings insert test successful',
-      data: result.rows[0]
-    });
-
-  } catch (error) {
-    console.error('System settings test error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'System settings test failed',
-      error: error.message
-    });
-  }
 });
 
 // Test promotion insert
-router.get('/debug/test-promotion', async (req, res) => {
-  try {
-    const pool = require('../config/db');
-
-    // Include all required columns including start_date_old and end_date_old
-    const testQuery = `
-      INSERT INTO promotions (
-        name, description, code, type, value, min_booking_amount,
-        valid_from, valid_until, applicable_fields, applicable_days,
-        is_active, created_by, start_date_old, end_date_old
-      )
-      VALUES (
-        'Debug Test', 'Debug test promotion', 'DEBUGTEST', 'percentage', 10, 0,
-        '2025-06-01', '2025-12-31', '[]', '[]',
-        true, 1, '2025-06-01', '2025-12-31'
-      )
-      RETURNING *
-    `;
-
-    const result = await pool.query(testQuery);
-
-    res.json({
-      success: true,
-      message: 'Promotion insert test successful',
-      data: result.rows[0]
-    });
-
-  } catch (error) {
-    console.error('Promotion test error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Promotion test failed',
-      error: error.message
-    });
-  }
 });
 
 module.exports = router;

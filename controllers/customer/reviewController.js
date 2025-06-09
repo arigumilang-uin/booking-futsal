@@ -19,9 +19,7 @@ const getFieldReviewsList = async (req, res) => {
     const reviews = await getFieldReviews(fieldId, page, limit);
     const ratingSummary = await getFieldRatingSummary(fieldId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         reviews,
         rating_summary: ratingSummary,
         pagination: {
@@ -49,9 +47,7 @@ const getUserReviewsList = async (req, res) => {
 
     const reviews = await getUserReviews(userId, page, limit);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         reviews,
         pagination: {
           current_page: page,
@@ -208,9 +204,7 @@ const getReviewDetail = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: review
+    res.json({ success: true, data: review
     });
   } catch (error) {
     console.error('Get review detail error:', error);
@@ -229,9 +223,7 @@ const checkCanReview = async (req, res) => {
 
     const canReview = await canUserReviewBooking(userId, bookingId);
 
-    res.json({
-      success: true,
-      data: canReview
+    res.json({ success: true, data: canReview
     });
   } catch (error) {
     console.error('Check can review error:', error);
@@ -248,9 +240,7 @@ const getFieldRating = async (req, res) => {
     const { fieldId } = req.params;
     const ratingSummary = await getFieldRatingSummary(fieldId);
 
-    res.json({
-      success: true,
-      data: ratingSummary
+    res.json({ success: true, data: ratingSummary
     });
   } catch (error) {
     console.error('Get field rating error:', error);

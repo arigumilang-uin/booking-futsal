@@ -26,7 +26,6 @@ const createFieldReview = async ({
     // Update field rating in background (don't wait for it)
     setImmediate(() => {
       updateFieldRating(field_id).catch(err =>
-        console.error('Background field rating update failed:', err)
       );
     });
 

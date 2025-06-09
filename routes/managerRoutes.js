@@ -119,10 +119,7 @@ router.get('/staff-performance', async (req, res) => {
     const { date_from, date_to } = req.query;
 
     // This would be implemented with staff performance tracking
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           end_date: date_to || new Date()

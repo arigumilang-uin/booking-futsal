@@ -20,9 +20,7 @@ const getFavoriteFields = async (req, res) => {
     const favorites = await getUserFavorites(userId, page, limit);
     const totalCount = await getUserFavoriteCount(userId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         favorites,
         pagination: {
           current_page: page,
@@ -121,7 +119,7 @@ const toggleFieldFavorite = async (req, res) => {
 
     const result = await toggleFavorite(userId, parseInt(fieldId));
 
-    const message = result.action === 'added' 
+    const message = result.action === 'added'
       ? 'Lapangan berhasil ditambahkan ke favorit'
       : 'Lapangan berhasil dihapus dari favorit';
 
@@ -135,7 +133,7 @@ const toggleFieldFavorite = async (req, res) => {
     });
   } catch (error) {
     console.error('Toggle favorite error:', error);
-    
+
     if (error.message.includes('not found')) {
       return res.status(404).json({
         success: false,
@@ -158,9 +156,7 @@ const checkFieldFavorite = async (req, res) => {
 
     const isFavorite = await isFieldFavorite(userId, parseInt(fieldId));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         is_favorite: isFavorite
       }
     });
@@ -180,9 +176,7 @@ const getFavoritesWithAvailabilityInfo = async (req, res) => {
 
     const favorites = await getUserFavoritesWithBookings(userId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         favorites
       }
     });
@@ -200,9 +194,7 @@ const getFavoritesStatistics = async (req, res) => {
   try {
     const stats = await getFavoriteStatistics();
 
-    res.json({
-      success: true,
-      data: stats
+    res.json({ success: true, data: stats
     });
   } catch (error) {
     console.error('Get favorites stats error:', error);
@@ -220,9 +212,7 @@ const getRecommendations = async (req, res) => {
 
     const recommendations = await getPopularFields(limit);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         recommendations
       }
     });
@@ -241,9 +231,7 @@ const getFavoritesCountOnly = async (req, res) => {
     const userId = req.user.id;
     const count = await getUserFavoriteCount(userId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         count
       }
     });

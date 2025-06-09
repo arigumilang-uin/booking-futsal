@@ -51,9 +51,7 @@ router.post('/refresh', requireAuth, refreshToken);
 
 // GET /api/auth/roles - Get system roles
 router.get('/roles', (_, res) => {
-  res.json({
-    success: true,
-    data: roleService.getAllRoles()
+  res.json({ success: true, data: roleService.getAllRoles()
   });
 });
 
@@ -133,7 +131,5 @@ router.get('/health', (_, res) => {
     ]
   });
 });
-
-
 
 module.exports = router;

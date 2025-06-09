@@ -59,9 +59,7 @@ router.get('/today-schedule', async (req, res) => {
     const operatorId = req.rawUser.id;
     const today = new Date().toISOString().split('T')[0];
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         date: today,
         operator_info: {
           name: req.rawUser.name,
@@ -93,10 +91,7 @@ router.get('/schedule/:date', async (req, res) => {
     const operatorId = req.rawUser.id;
 
     // This would be implemented in controller
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         date: date,
         operator_info: {
           name: req.rawUser.name,
@@ -129,10 +124,7 @@ router.get('/bookings/pending', async (req, res) => {
     const operatorId = req.rawUser.id;
 
     // This would filter pending bookings for assigned fields
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: []
+    res.json({ success: true, data: []
     });
 
   } catch (error) {
@@ -150,9 +142,7 @@ router.get('/bookings/pending', async (req, res) => {
  * @access  Private (Operator, Manager, Supervisor)
  */
 router.get('/field-statuses', (req, res) => {
-  res.json({
-    success: true,
-    data: [
+  res.json({ success: true, data: [
       {
         value: 'active',
         label: 'Active',
@@ -181,9 +171,7 @@ router.get('/field-statuses', (req, res) => {
  * @access  Private (Operator, Manager, Supervisor)
  */
 router.get('/booking-actions', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       pending_actions: [
         {
           action: 'confirm',
@@ -223,10 +211,7 @@ router.get('/statistics', async (req, res) => {
     const { date_from, date_to } = req.query;
 
     // This would calculate operator statistics
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           end_date: date_to || new Date()

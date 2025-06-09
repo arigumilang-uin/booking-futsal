@@ -123,7 +123,7 @@ app.get('/health', async (req, res) => {
     const healthData = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
+      environment: process.env.NODE_ENV || 'production',
       version: '2.0.0',
       uptime: {
         seconds: Math.floor(process.uptime()),
@@ -172,7 +172,6 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Helper function untuk format uptime
 function formatUptime(seconds) {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
@@ -200,9 +199,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
 
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === 'production';
 
   res.status(err.status || 500).json({
     success: false,

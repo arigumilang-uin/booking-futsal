@@ -70,7 +70,6 @@ router.post('/payments/debug', async (req, res) => {
     });
 
     // Step 3: Skip update payment status (has SQL issue)
-    // const updatedPayment = await updatePaymentStatus(payment.id, 'paid', null);
 
     // Step 4: Update booking payment status
     const updatedBooking = await updateBookingPaymentStatus(parseInt(booking_id), 'paid');
@@ -110,10 +109,7 @@ router.get('/dashboard', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
 
     // This would call multiple functions to get dashboard data
-    // For now, return basic structure
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         staff_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id,
@@ -148,9 +144,7 @@ router.get('/dashboard', async (req, res) => {
 });
 
 router.get('/payment-methods', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       manual_methods: [
         {
           value: 'cash',

@@ -21,26 +21,20 @@ const {
 const getCustomerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const user = await getUserById(userId);
     if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const { password: _, ...userProfile } = user;
 
-    res.json({
-      success: true,
-      data: userProfile
+    res.json({ success: true, data: userProfile
     });
 
   } catch (error) {
     console.error('Get customer profile error:', error);
-    res.status(500).json({
-      error: 'Failed to get profile'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -49,22 +43,15 @@ const updateCustomerProfile = async (req, res) => {
     const userId = req.user.id;
     const { name, email, phone } = req.body;
 
-    console.log('Update profile request:', { userId, name, email, phone });
-
     // Validate at least one field is provided
     if (!name && !email && !phone) {
-      return res.status(400).json({
-        error: 'At least one field (name, email, or phone) must be provided'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const updatedUser = await updateUserProfile(userId, { name, email, phone });
-    console.log('Update profile result:', updatedUser);
 
     if (!updatedUser) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     res.json({
@@ -109,9 +96,7 @@ const getCustomerFields = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedFields = fields.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: paginatedFields,
+    res.json({ success: true, data: paginatedFields,
       pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
@@ -122,9 +107,7 @@ const getCustomerFields = async (req, res) => {
 
   } catch (error) {
     console.error('Get customer fields error:', error);
-    res.status(500).json({
-      error: 'Failed to get fields'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -137,16 +120,12 @@ const createCustomerBooking = async (req, res) => {
     } = req.body;
 
     if (!field_id || !date || !start_time || !end_time || !name || !phone) {
-      return res.status(400).json({
-        error: 'Missing required fields'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const field = await getFieldById(field_id);
     if (!field || field.status !== 'active') {
-      return res.status(404).json({
-        error: 'Field not found or not available'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const conflict = await checkBookingConflict({
@@ -187,9 +166,7 @@ const createCustomerBooking = async (req, res) => {
 
   } catch (error) {
     console.error('Create customer booking error:', error);
-    res.status(500).json({
-      error: 'Failed to create booking'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -197,7 +174,7 @@ const getCustomerBookings = async (req, res) => {
   try {
     const userId = req.user.id;
     const { status, page = 1, limit = 10 } = req.query;
-    
+
     let bookings = await getBookingsByUserId(userId);
 
     if (status) {
@@ -208,9 +185,7 @@ const getCustomerBookings = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: paginatedBookings,
+    res.json({ success: true, data: paginatedBookings,
       pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
@@ -221,9 +196,7 @@ const getCustomerBookings = async (req, res) => {
 
   } catch (error) {
     console.error('Get customer bookings error:', error);
-    res.status(500).json({
-      error: 'Failed to get bookings'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -234,22 +207,16 @@ const getCustomerBookingDetail = async (req, res) => {
 
     const booking = await getBookingById(id);
     if (!booking) {
-      return res.status(404).json({
-        error: 'Booking not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.user_id !== userId) {
-      return res.status(403).json({
-        error: 'Access denied'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const payments = await getPaymentsByBookingId(id);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         ...booking,
         payments
       }
@@ -257,9 +224,7 @@ const getCustomerBookingDetail = async (req, res) => {
 
   } catch (error) {
     console.error('Get customer booking detail error:', error);
-    res.status(500).json({
-      error: 'Failed to get booking detail'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -271,21 +236,15 @@ const cancelCustomerBooking = async (req, res) => {
 
     const booking = await getBookingById(id);
     if (!booking) {
-      return res.status(404).json({
-        error: 'Booking not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.user_id !== userId) {
-      return res.status(403).json({
-        error: 'Access denied'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (booking.status !== 'pending') {
-      return res.status(400).json({
-        error: 'Booking cannot be cancelled'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Cek batas waktu pembatalan (2 jam sebelum booking)
@@ -295,9 +254,7 @@ const cancelCustomerBooking = async (req, res) => {
     const hoursDiff = timeDiff / (1000 * 3600);
 
     if (hoursDiff < 2) {
-      return res.status(400).json({
-        error: 'Cannot cancel booking less than 2 hours before start time'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const updatedBooking = await updateBookingStatus(
@@ -315,9 +272,7 @@ const cancelCustomerBooking = async (req, res) => {
 
   } catch (error) {
     console.error('Cancel customer booking error:', error);
-    res.status(500).json({
-      error: 'Failed to cancel booking'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -349,9 +304,7 @@ const getCustomerDashboard = async (req, res) => {
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 5);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         user_info: {
           name: req.user.name,
           email: req.user.email,

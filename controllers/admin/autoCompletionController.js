@@ -1,8 +1,8 @@
-const { 
-  updateCompletedBookings, 
+const {
+  updateCompletedBookings,
   getEligibleBookingsForCompletion,
   triggerManualCompletion,
-  getAutoCompletionStats 
+  getAutoCompletionStats
 } = require('../../utils/updateCompletedBookings');
 
 /**
@@ -13,11 +13,9 @@ const {
 const triggerAutoCompletion = async (req, res) => {
   try {
     const adminId = req.rawUser.id;
-    
-    console.log(`[MANUAL-TRIGGER] Auto-completion triggered by admin: ${req.rawUser.name}`);
-    
+
     const completed = await updateCompletedBookings();
-    
+
     // Log manual trigger
     const pool = require('../../config/db');
     await pool.query(`
@@ -35,7 +33,7 @@ const triggerAutoCompletion = async (req, res) => {
         timestamp: new Date().toISOString()
       })
     ]);
-    
+
     res.json({
       success: true,
       message: `Auto-completion process completed`,
@@ -46,7 +44,7 @@ const triggerAutoCompletion = async (req, res) => {
         timestamp: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Manual auto-completion trigger error:', error);
     res.status(500).json({
@@ -65,16 +63,14 @@ const triggerAutoCompletion = async (req, res) => {
 const getEligibleBookings = async (req, res) => {
   try {
     const eligibleBookings = await getEligibleBookingsForCompletion();
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         eligible_count: eligibleBookings.length,
         eligible_bookings: eligibleBookings,
         checked_at: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Get eligible bookings error:', error);
     res.status(500).json({
@@ -93,9 +89,9 @@ const getEligibleBookings = async (req, res) => {
 const getCompletionStats = async (req, res) => {
   try {
     const { days = 7 } = req.query;
-    
+
     const stats = await getAutoCompletionStats(parseInt(days));
-    
+
     // Get overall completion stats
     const pool = require('../../config/db');
     const overallStatsQuery = `
@@ -113,19 +109,17 @@ const getCompletionStats = async (req, res) => {
       WHERE status = 'completed'
         AND completed_at >= CURRENT_DATE - INTERVAL '${parseInt(days)} days'
     `;
-    
+
     const overallStats = await pool.query(overallStatsQuery);
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         period_days: parseInt(days),
         overall_stats: overallStats.rows[0],
         daily_stats: stats,
         generated_at: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Get completion stats error:', error);
     res.status(500).json({
@@ -146,13 +140,13 @@ const manualCompleteBooking = async (req, res) => {
     const adminId = req.rawUser.id;
     const { id } = req.params;
     const { reason } = req.body;
-    
+
     const completedBooking = await triggerManualCompletion(
       parseInt(id),
       adminId,
       reason || `Manual completion by admin: ${req.rawUser.name}`
     );
-    
+
     res.json({
       success: true,
       message: 'Booking completed manually',
@@ -163,7 +157,7 @@ const manualCompleteBooking = async (req, res) => {
         timestamp: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Manual complete booking error:', error);
     res.status(500).json({
@@ -186,19 +180,17 @@ const getAutoCompletionConfig = async (req, res) => {
       schedule: process.env.AUTO_COMPLETION_SCHEDULE || '*/30 * * * *',
       timezone: process.env.TZ || 'Asia/Jakarta',
       grace_period_minutes: 15,
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'production'
     };
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         auto_completion_config: config,
         status: config.enabled ? 'active' : 'disabled',
         next_run_info: config.enabled ? 'Every 30 minutes' : 'Disabled',
         checked_at: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Get auto-completion config error:', error);
     res.status(500).json({

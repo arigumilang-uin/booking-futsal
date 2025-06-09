@@ -53,15 +53,12 @@ const createPayment = async (paymentData) => {
     // Log payment creation to payment_logs
     try {
       await logPaymentCreation(newPayment.id, amount);
-      console.log(`✅ Payment creation logged: ${newPayment.payment_number} - ${amount}`);
     } catch (logError) {
-      console.error('❌ Failed to log payment creation:', logError);
       // Don't fail the main operation if logging fails
     }
 
     return newPayment;
   } catch (error) {
-    console.error('❌ Error creating payment:', error);
     throw error;
   }
 };
@@ -95,16 +92,13 @@ const updatePaymentStatus = async (id, status, gatewayResponse = null) => {
           null, // gatewayRequest - not available here
           gatewayResponse
         );
-        console.log(`✅ Payment status change logged: ${currentStatus} → ${status} for payment ${id}`);
       } catch (logError) {
-        console.error('❌ Failed to log payment status change:', logError);
         // Don't fail the main operation if logging fails
       }
     }
 
     return updatedPayment;
   } catch (error) {
-    console.error('❌ Error updating payment status:', error);
     throw error;
   }
 };

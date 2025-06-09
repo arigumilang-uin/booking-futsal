@@ -47,9 +47,7 @@ const getAllBookingsAdmin = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         bookings: paginatedBookings,
         pagination: {
           current_page: parseInt(page),
@@ -95,9 +93,7 @@ const getBookingDetailAdmin = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: booking
+    res.json({ success: true, data: booking
     });
 
   } catch (error) {
@@ -223,9 +219,7 @@ const getBookingStatisticsAdmin = async (req, res) => {
       statistics.average_booking_value = statistics.total_revenue / statistics.completed_bookings;
     }
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         statistics,
         period,
         date_range: {

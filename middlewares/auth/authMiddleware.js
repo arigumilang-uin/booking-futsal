@@ -10,28 +10,21 @@ const authMiddleware = async (req, res, next) => {
         : null);
 
     if (!token) {
-      return res.status(401).json({
-        error: 'Access denied. No token provided.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const rawUser = await getUserByIdRaw(decoded.id);
 
     if (!rawUser) {
-      return res.status(401).json({
-        error: 'Invalid token. User not found.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (!rawUser.is_active) {
-      return res.status(401).json({
-        error: 'Account is deactivated.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     updateLastLogin(rawUser.id).catch(err => {
-      console.error('Failed to update last login:', err);
     });
 
     req.user = rawUser;  // Use raw user with correct role
@@ -40,21 +33,15 @@ const authMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        error: 'Token expired.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        error: 'Invalid token.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     console.error('Auth middleware error:', error);
-    res.status(500).json({
-      error: 'Authentication error.'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -104,9 +91,7 @@ const guestOnly = (req, res, next) => {
   if (token) {
     try {
       jwt.verify(token, process.env.JWT_SECRET);
-      return res.status(403).json({
-        error: 'Access denied. Already authenticated.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     } catch (error) {
       // Token invalid, lanjutkan sebagai guest
     }
@@ -124,9 +109,7 @@ const verifyTokenOnly = (req, res, next) => {
         : null);
 
     if (!token) {
-      return res.status(401).json({
-        error: 'Token tidak ditemukan'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -134,14 +117,10 @@ const verifyTokenOnly = (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        error: 'Token expired.'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
-    return res.status(401).json({
-      error: 'Token tidak valid atau kedaluwarsa'
-    });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

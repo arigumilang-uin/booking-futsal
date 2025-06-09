@@ -212,13 +212,13 @@ module.exports = {
   // Role constants
   ROLE_LEVELS,
   ROLE_CATEGORIES,
-  
+
   // Utility functions
   hasMinimumRole,
   hasAllowedRole,
   hasRoleCategory,
   getUserPermissions,
-  
+
   // Middleware functions
   requireMinimumRole,
   requireRoles,

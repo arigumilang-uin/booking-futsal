@@ -18,9 +18,7 @@ const getSupervisorDashboard = async (req, res) => {
     const dbStats = await getDatabaseStats();
     const dashboardData = await getDashboardOverview('supervisor_sistem', supervisorId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         supervisor_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id,
@@ -47,9 +45,7 @@ const getSystemHealth = async (req, res) => {
     const systemHealth = await healthCheck();
     const dbStats = await getDatabaseStats();
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         timestamp: new Date().toISOString(),
         system_health: systemHealth,
         database_stats: dbStats,
@@ -58,16 +54,14 @@ const getSystemHealth = async (req, res) => {
           memory_usage: process.memoryUsage(),
           cpu_usage: process.cpuUsage(),
           node_version: process.version,
-          environment: process.env.NODE_ENV || 'development'
+          environment: process.env.NODE_ENV || 'production'
         }
       }
     });
 
   } catch (error) {
     console.error('Get system health error:', error);
-    res.status(500).json({
-      error: 'Failed to get system health'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -78,9 +72,7 @@ const createStaffUser = async (req, res) => {
 
     const validStaffRoles = ['staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
     if (!validStaffRoles.includes(role)) {
-      return res.status(400).json({
-        error: 'Invalid staff role'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const newUser = await createUser({
@@ -112,9 +104,7 @@ const createStaffUser = async (req, res) => {
 const getAllUsersForSupervisor = async (req, res) => {
   try {
     // This would be implemented with proper user management
-    res.json({
-      success: true,
-      data: [],
+    res.json({ success: true, data: [],
       message: 'User management moved to role management endpoints'
     });
   } catch (error) {
@@ -145,9 +135,7 @@ const forceUpdateUserRole = async (req, res) => {
 const getSystemAnalytics = async (req, res) => {
   try {
     // This would be implemented with proper analytics
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period: {
           start_date: req.query.date_from || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           end_date: req.query.date_to || new Date()
@@ -195,9 +183,7 @@ const getAuditLogs = async (req, res) => {
 
     const logs = await getAuditLogsModel(page, limit, filters);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         logs,
         filters: filters,
         pagination: {

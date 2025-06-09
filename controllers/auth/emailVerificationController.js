@@ -21,11 +21,11 @@ const sendEmailVerification = async (req, res) => {
 
     // Check if user exists
     const userQuery = `
-      SELECT id, name, email, is_verified, email_verified_at, is_active 
+      SELECT id, name, email, is_verified, email_verified_at, is_active
       FROM users WHERE email = $1
     `;
     const userResult = await pool.query(userQuery, [email]);
-    
+
     if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -98,7 +98,6 @@ const sendEmailVerification = async (req, res) => {
     });
 
     if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
       return res.status(500).json({
         success: false,
         message: 'Gagal mengirim email verifikasi'
@@ -137,10 +136,10 @@ const verifyEmail = async (req, res) => {
 
     // Find verification token in system_settings
     const tokenQuery = `
-      SELECT key, value FROM system_settings 
+      SELECT key, value FROM system_settings
       WHERE key LIKE 'email_verification_%' AND value::text LIKE '%"${token}"%'
     `;
-    
+
     const tokenResult = await pool.query(tokenQuery);
 
     if (tokenResult.rows.length === 0) {
@@ -163,12 +162,12 @@ const verifyEmail = async (req, res) => {
 
     // Update user verification status
     const updateQuery = `
-      UPDATE users 
+      UPDATE users
       SET is_verified = true, email_verified_at = NOW(), updated_at = NOW()
       WHERE id = $1 AND email = $2
       RETURNING id, email, name, is_verified, email_verified_at
     `;
-    
+
     const updateResult = await pool.query(updateQuery, [tokenData.user_id, tokenData.email]);
 
     if (updateResult.rows.length === 0) {
@@ -210,11 +209,11 @@ const checkVerificationStatus = async (req, res) => {
     const { email } = req.params;
 
     const userQuery = `
-      SELECT id, email, name, is_verified, email_verified_at 
+      SELECT id, email, name, is_verified, email_verified_at
       FROM users WHERE email = $1
     `;
     const userResult = await pool.query(userQuery, [email]);
-    
+
     if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -224,9 +223,7 @@ const checkVerificationStatus = async (req, res) => {
 
     const user = userResult.rows[0];
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         email: user.email,
         is_verified: user.is_verified,
         verified_at: user.email_verified_at

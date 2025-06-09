@@ -200,58 +200,6 @@ router.get('/audit-logs/table/:tableName', requireAdmin, getTableActivityLogs);
 
 router.delete('/audit-logs/cleanup', requireAdmin, cleanOldAuditLogsData);
 
-router.post('/audit-logs/test-cleanup', requireAdmin, async (req, res) => {
-  try {
-    const daysToKeep = parseInt(req.body.days_to_keep) || 2;
-    console.log('🧪 TEST CLEANUP - Days to keep:', daysToKeep);
-
-    const pool = require('../config/db');
-
-    // Show what would be deleted
-    const previewQuery = `
-      SELECT
-        id, action, created_at, user_id,
-        AGE(NOW(), created_at) as age,
-        EXTRACT(EPOCH FROM (NOW() - created_at))/86400 as days_old,
-        (created_at < NOW() - INTERVAL '1 day' * $1) as will_be_deleted
-      FROM audit_logs
-      ORDER BY created_at ASC
-    `;
-    const previewResult = await pool.query(previewQuery, [daysToKeep]);
-
-    // Count what would be deleted
-    const countQuery = `
-      SELECT COUNT(*) as count_to_delete
-      FROM audit_logs
-      WHERE created_at < NOW() - INTERVAL '1 day' * $1
-    `;
-    const countResult = await pool.query(countQuery, [daysToKeep]);
-    const countToDelete = parseInt(countResult.rows[0].count_to_delete);
-
-    console.log('📊 Records that would be deleted:', countToDelete);
-    previewResult.rows.forEach(row => {
-      console.log(`  ID: ${row.id}, Action: ${row.action}, Date: ${row.created_at}, Days Old: ${row.days_old?.toFixed(2)}, Will Delete: ${row.will_be_deleted}`);
-    });
-
-    res.json({
-      success: true,
-      message: `Test cleanup preview - ${countToDelete} records would be deleted with ${daysToKeep} days retention`,
-      data: {
-        days_to_keep: daysToKeep,
-        count_to_delete: countToDelete,
-        records_preview: previewResult.rows,
-        current_time: new Date().toISOString(),
-        cutoff_time: new Date(Date.now() - (daysToKeep * 24 * 60 * 60 * 1000)).toISOString()
-      }
-    });
-  } catch (error) {
-    console.error('❌ Test cleanup error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Test cleanup failed',
-      error: error.message
-    });
-  }
 });
 
 router.get('/audit-logs/export', requireAdmin, exportAuditLogs);
@@ -433,9 +381,7 @@ router.get('/users/:id', requireManagement, async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: user
+    res.json({ success: true, data: user
     });
   } catch (error) {
     console.error('Get user detail error:', error);
@@ -727,9 +673,7 @@ router.get('/fields', requireManagement, async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedFields = fields.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: paginatedFields,
+    res.json({ success: true, data: paginatedFields,
       pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
@@ -759,9 +703,7 @@ router.get('/fields/:id', requireManagement, async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: field
+    res.json({ success: true, data: field
     });
   } catch (error) {
     console.error('Get field detail error:', error);
@@ -872,7 +814,6 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
       });
     }
 
-    // Use the dedicated deleteField function (soft delete)
     const deletedField = await deleteField(id);
     if (!deletedField) {
       return res.status(500).json({
@@ -896,7 +837,7 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete field',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 });
@@ -958,7 +899,7 @@ router.put('/fields/:id/assign-operator', requireManagement, async (req, res) =>
     res.status(500).json({
       success: false,
       message: 'Failed to assign operator to field',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 });
@@ -996,9 +937,7 @@ router.get('/operators', requireManagement, async (req, res) => {
       ? operatorsWithFields.filter(op => op.is_available)
       : operatorsWithFields;
 
-    res.json({
-      success: true,
-      data: filteredOperators
+    res.json({ success: true, data: filteredOperators
     });
 
   } catch (error) {
@@ -1006,7 +945,7 @@ router.get('/operators', requireManagement, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to get operators',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 });
@@ -1116,21 +1055,15 @@ router.get('/auto-completion/config', requireAdmin, getAutoCompletionConfig);
  */
 router.get('/bookings/:id/history', requireManagement, async (req, res) => {
   try {
-    console.log(`📋 Getting booking history for booking ID: ${req.params.id}`);
     const { getBookingHistory } = require('../models/tracking/bookingHistoryModel');
     const { id } = req.params;
 
-    console.log(`📋 Calling getBookingHistory with ID: ${id}`);
     const history = await getBookingHistory(id);
-    console.log(`📋 Booking history result: ${history.length} records found`);
 
-    res.json({
-      success: true,
-      data: history
+    res.json({ success: true, data: history
     });
   } catch (error) {
     console.error('❌ Get booking history error:', error);
-    console.error('❌ Error details:', {
       message: error.message,
       stack: error.stack,
       bookingId: req.params.id
@@ -1151,21 +1084,15 @@ router.get('/bookings/:id/history', requireManagement, async (req, res) => {
  */
 router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
   try {
-    console.log(`📅 Getting booking timeline for booking ID: ${req.params.id}`);
     const { getBookingTimeline } = require('../models/tracking/bookingHistoryModel');
     const { id } = req.params;
 
-    console.log(`📅 Calling getBookingTimeline with ID: ${id}`);
     const timeline = await getBookingTimeline(id);
-    console.log(`📅 Booking timeline result: ${timeline.length} events found`);
 
-    res.json({
-      success: true,
-      data: timeline
+    res.json({ success: true, data: timeline
     });
   } catch (error) {
     console.error('❌ Get booking timeline error:', error);
-    console.error('❌ Error details:', {
       message: error.message,
       stack: error.stack,
       bookingId: req.params.id
@@ -1186,21 +1113,15 @@ router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
  */
 router.get('/payments/:id/logs', requireManagement, async (req, res) => {
   try {
-    console.log(`💳 Getting payment logs for payment ID: ${req.params.id}`);
     const { getPaymentLogs } = require('../models/tracking/paymentLogModel');
     const { id } = req.params;
 
-    console.log(`💳 Calling getPaymentLogs with ID: ${id}`);
     const logs = await getPaymentLogs(id);
-    console.log(`💳 Payment logs result: ${logs.length} records found`);
 
-    res.json({
-      success: true,
-      data: logs
+    res.json({ success: true, data: logs
     });
   } catch (error) {
     console.error('❌ Get payment logs error:', error);
-    console.error('❌ Error details:', {
       message: error.message,
       stack: error.stack,
       paymentId: req.params.id

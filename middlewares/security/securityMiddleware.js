@@ -125,7 +125,6 @@ const securityLogger = (req, res, next) => {
   const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(requestData));
 
   if (isSuspicious) {
-    console.warn('🚨 Suspicious request detected:', {
       ip: req.ip,
       method: req.method,
       url: req.originalUrl,
@@ -138,7 +137,6 @@ const securityLogger = (req, res, next) => {
   res.on('finish', () => {
     const duration = Date.now() - startTime;
     if (duration > 5000) {
-      console.warn('⏱️ Slow request detected:', {
         method: req.method,
         url: req.originalUrl,
         duration: `${duration}ms`,
@@ -160,7 +158,6 @@ const corsSecurityCheck = (req, res, next) => {
   ];
 
   if (origin && !allowedOrigins.includes(origin)) {
-    console.warn('🚨 Suspicious origin detected:', {
       origin,
       ip: req.ip,
       userAgent: req.get('User-Agent'),
@@ -176,14 +173,11 @@ const validateApiKey = (req, res, next) => {
   const validApiKey = process.env.API_KEY;
 
   if (!validApiKey) {
-    console.warn('⚠️ API_KEY not configured in environment');
     return next();
   }
 
   if (!apiKey || apiKey !== validApiKey) {
-    return res.status(401).json({
-      error: 'Invalid or missing API key'
-    });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 
   next();
@@ -224,7 +218,6 @@ const ipWhitelist = (allowedIPs = []) => {
     const clientIP = req.ip || req.connection.remoteAddress;
 
     if (!allowedIPs.includes(clientIP)) {
-      console.warn('🚨 Unauthorized IP access attempt:', {
         ip: clientIP,
         url: req.originalUrl,
         timestamp: new Date().toISOString()

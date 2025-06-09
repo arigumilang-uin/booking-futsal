@@ -59,7 +59,7 @@ class RequestTracker {
 
     // Update metrics
     metrics.requests.total++;
-    
+
     if (this.res.statusCode >= 400) {
       metrics.requests.errors++;
     } else {
@@ -68,13 +68,13 @@ class RequestTracker {
 
     // Update average response time
     const totalRequests = metrics.requests.total;
-    metrics.requests.averageResponseTime = 
+    metrics.requests.averageResponseTime =
       ((metrics.requests.averageResponseTime * (totalRequests - 1)) + duration) / totalRequests;
 
     // Check for slow requests
     if (duration > THRESHOLDS.SLOW_REQUEST) {
       metrics.requests.slowRequests++;
-      
+
       logger.performance('Slow request detected', duration, {
         method: this.req.method,
         url: this.req.url,
@@ -105,9 +105,9 @@ class QueryTracker {
 
   finish(error = null) {
     const duration = Date.now() - this.startTime;
-    
+
     metrics.database.queries++;
-    
+
     if (error) {
       metrics.database.errors++;
       logger.error('Database query error', {
@@ -118,13 +118,13 @@ class QueryTracker {
     } else {
       // Update average query time
       const totalQueries = metrics.database.queries;
-      metrics.database.averageQueryTime = 
+      metrics.database.averageQueryTime =
         ((metrics.database.averageQueryTime * (totalQueries - 1)) + duration) / totalQueries;
 
       // Check for slow queries
       if (duration > THRESHOLDS.SLOW_QUERY) {
         metrics.database.slowQueries++;
-        
+
         logger.performance('Slow database query', duration, {
           query: this.query.substring(0, 200) + '...',
           paramsCount: this.params.length
@@ -142,7 +142,7 @@ class QueryTracker {
 const collectSystemMetrics = () => {
   const memUsage = process.memoryUsage();
   const cpuUsage = process.cpuUsage();
-  
+
   // Update memory metrics
   metrics.memory = {
     heapUsed: memUsage.heapUsed,
@@ -175,12 +175,12 @@ const collectSystemMetrics = () => {
  */
 const performanceMiddleware = (req, res, next) => {
   const tracker = new RequestTracker(req, res);
-  
+
   // Override res.end untuk capture metrics
   const originalEnd = res.end;
   res.end = function(...args) {
     const perfData = tracker.finish();
-    
+
     // Log performance data
     logger.debug('Request completed', {
       method: req.method,
@@ -189,10 +189,10 @@ const performanceMiddleware = (req, res, next) => {
       duration: perfData.duration,
       memoryDelta: perfData.memoryDelta
     });
-    
+
     originalEnd.apply(this, args);
   };
-  
+
   next();
 };
 
@@ -201,7 +201,7 @@ const performanceMiddleware = (req, res, next) => {
  */
 const trackQuery = async (pool, query, params = []) => {
   const tracker = new QueryTracker(query, params);
-  
+
   try {
     const result = await pool.query(query, params);
     tracker.finish();
@@ -217,7 +217,7 @@ const trackQuery = async (pool, query, params = []) => {
  */
 const getMetrics = () => {
   collectSystemMetrics();
-  
+
   return {
     ...metrics,
     timestamp: new Date().toISOString(),
@@ -230,12 +230,12 @@ const getMetrics = () => {
  */
 const getSummary = () => {
   const currentMetrics = getMetrics();
-  
+
   return {
     requests: {
       total: currentMetrics.requests.total,
-      successRate: currentMetrics.requests.total > 0 
-        ? Math.round((currentMetrics.requests.success / currentMetrics.requests.total) * 100) 
+      successRate: currentMetrics.requests.total > 0
+        ? Math.round((currentMetrics.requests.success / currentMetrics.requests.total) * 100)
         : 0,
       averageResponseTime: Math.round(currentMetrics.requests.averageResponseTime),
       slowRequestsPercentage: currentMetrics.requests.total > 0
@@ -275,14 +275,14 @@ const resetMetrics = () => {
     averageResponseTime: 0,
     slowRequests: 0
   };
-  
+
   metrics.database = {
     queries: 0,
     averageQueryTime: 0,
     slowQueries: 0,
     errors: 0
   };
-  
+
   logger.info('Performance metrics reset');
 };
 
@@ -292,24 +292,24 @@ const resetMetrics = () => {
 const startMetricsCollection = (intervalMs = 60000) => {
   setInterval(() => {
     const summary = getSummary();
-    
+
     logger.info('Performance metrics collected', summary);
-    
+
     // Log warnings for concerning metrics
     if (summary.requests.slowRequestsPercentage > 10) {
       logger.warn('High percentage of slow requests', {
         percentage: summary.requests.slowRequestsPercentage
       });
     }
-    
+
     if (summary.database.slowQueriesPercentage > 5) {
       logger.warn('High percentage of slow database queries', {
         percentage: summary.database.slowQueriesPercentage
       });
     }
-    
+
   }, intervalMs);
-  
+
   logger.info('Performance metrics collection started', {
     intervalMs
   });

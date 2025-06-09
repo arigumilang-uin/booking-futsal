@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 const getSafeTimezoneConfig = () => {
   const isProduction = process.env.NODE_ENV === 'production';
   const requestedTimezone = process.env.TZ || 'Asia/Jakarta';
-  
+
   if (isProduction) {
     // Gunakan UTC di production untuk menghindari masalah timezone
     logger.info('Production environment detected - using UTC timezone for safety', {
@@ -16,7 +16,7 @@ const getSafeTimezoneConfig = () => {
       actualTimezone: 'UTC',
       reason: 'Avoiding node-cron timezone parsing issues'
     });
-    
+
     return {
       timezone: 'UTC',
       displayTimezone: 'Asia/Jakarta',
@@ -25,7 +25,7 @@ const getSafeTimezoneConfig = () => {
       isProduction: true
     };
   }
-  
+
   // Development environment - gunakan timezone yang diminta
   return {
     timezone: requestedTimezone,
@@ -44,10 +44,10 @@ const getSafeTimezoneConfig = () => {
 const convertUTCToJakarta = (utcTime) => {
   try {
     const date = new Date(utcTime);
-    
+
     // Tambahkan 7 jam untuk Jakarta timezone (UTC+7)
     const jakartaTime = new Date(date.getTime() + (7 * 60 * 60 * 1000));
-    
+
     return jakartaTime.toISOString().replace('T', ' ').substring(0, 19) + ' WIB';
   } catch (error) {
     logger.error('Error converting UTC to Jakarta time', {
@@ -66,10 +66,10 @@ const convertUTCToJakarta = (utcTime) => {
 const convertJakartaToUTC = (jakartaTime) => {
   try {
     const date = new Date(jakartaTime);
-    
+
     // Kurangi 7 jam untuk konversi ke UTC
     const utcTime = new Date(date.getTime() - (7 * 60 * 60 * 1000));
-    
+
     return utcTime;
   } catch (error) {
     logger.error('Error converting Jakarta to UTC time', {
@@ -87,7 +87,7 @@ const convertJakartaToUTC = (jakartaTime) => {
  */
 const getCurrentTime = (format = 'iso') => {
   const now = new Date();
-  
+
   switch (format) {
     case 'utc':
       return now.toISOString();
@@ -112,12 +112,12 @@ const isTimezoneSafeForCron = (timezone) => {
     'Europe/London',
     'Europe/Paris'
   ];
-  
+
   // UTC selalu aman
   if (timezone === 'UTC' || timezone === 'GMT') {
     return true;
   }
-  
+
   // Timezone lain mungkin bermasalah di production
   if (process.env.NODE_ENV === 'production') {
     logger.warn('Potentially unsafe timezone for production cron job', {
@@ -126,7 +126,7 @@ const isTimezoneSafeForCron = (timezone) => {
     });
     return false;
   }
-  
+
   return true;
 };
 
@@ -142,23 +142,23 @@ const formatTimeForLogging = (time = new Date(), options = {}) => {
     includeMilliseconds = false,
     format = 'iso'
   } = options;
-  
+
   try {
     const date = new Date(time);
     const config = getSafeTimezoneConfig();
-    
+
     let formatted = date.toISOString();
-    
+
     if (!includeMilliseconds) {
       formatted = formatted.substring(0, 19) + 'Z';
     }
-    
+
     if (includeTimezone && config.isProduction) {
       formatted += ` (UTC, display: ${config.displayTimezone})`;
     } else if (includeTimezone) {
       formatted += ` (${config.timezone})`;
     }
-    
+
     return formatted;
   } catch (error) {
     logger.error('Error formatting time for logging', {
@@ -176,7 +176,7 @@ const formatTimeForLogging = (time = new Date(), options = {}) => {
 const getTimezoneDebugInfo = () => {
   const config = getSafeTimezoneConfig();
   const now = new Date();
-  
+
   return {
     config,
     currentTime: {

@@ -30,9 +30,7 @@ const getAllAuditLogs = async (req, res) => {
 
     const result = await getAuditLogs(page, limit, filters);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         logs: result.logs,
         total: result.total,
         pages: result.pages,
@@ -69,9 +67,7 @@ const getAuditLogDetail = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: log
+    res.json({ success: true, data: log
     });
   } catch (error) {
     console.error('Get audit log detail error:', error);
@@ -88,9 +84,7 @@ const getRecordAuditHistory = async (req, res) => {
     const { tableName, recordId } = req.params;
     const logs = await getRecordAuditLogs(tableName, parseInt(recordId));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         table_name: tableName,
         record_id: parseInt(recordId),
         logs,
@@ -114,20 +108,15 @@ const getAuditStatisticsData = async (req, res) => {
     // Fallback implementation if audit model fails
     try {
       const stats = await getAuditStatistics(days);
-      res.json({
-        success: true,
-        data: {
+      res.json({ success: true, data: {
           period_days: days,
           statistics: stats
         }
       });
     } catch (modelError) {
-      console.warn('Audit model error, using fallback:', modelError.message);
 
       // Fallback response
-      res.json({
-        success: true,
-        data: {
+      res.json({ success: true, data: {
           period_days: days,
           statistics: {
             total_actions: 0,
@@ -157,9 +146,7 @@ const getMostActiveUsersData = async (req, res) => {
 
     const activeUsers = await getMostActiveUsers(days, limit);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period_days: days,
         active_users: activeUsers,
         total: activeUsers.length
@@ -198,9 +185,7 @@ const getUserActivityLogs = async (req, res) => {
 
     const logs = await getAuditLogs(page, limit, filters);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         user_id: parseInt(userId),
         logs,
         pagination: {
@@ -243,9 +228,7 @@ const getTableActivityLogs = async (req, res) => {
 
     const logs = await getAuditLogs(page, limit, filters);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         table_name: tableName,
         logs,
         pagination: {
@@ -267,13 +250,10 @@ const getTableActivityLogs = async (req, res) => {
 // Clean old audit logs (admin only)
 const cleanOldAuditLogsData = async (req, res) => {
   try {
-    console.log('🧹 Cleanup request received:', req.body);
     const daysToKeep = parseInt(req.body.days_to_keep) || 365;
-    console.log('📅 Days to keep:', daysToKeep);
 
     // For testing purposes, allow smaller retention periods
     if (daysToKeep < 1) {
-      console.log('❌ Invalid days_to_keep:', daysToKeep);
       return res.status(400).json({
         success: false,
         message: 'Minimal 1 hari data harus disimpan'
@@ -292,21 +272,15 @@ const cleanOldAuditLogsData = async (req, res) => {
       LIMIT 10
     `;
     const previewResult = await pool.query(previewQuery, [daysToKeep]);
-    console.log('📋 Preview of records (showing first 10):');
     previewResult.rows.forEach(row => {
-      console.log(`  ID: ${row.id}, Action: ${row.action}, Date: ${row.created_at}, Age: ${row.age}, Will Delete: ${row.will_be_deleted}`);
     });
 
-    console.log('🔄 Calling cleanOldAuditLogs function...');
     let deletedCount;
     try {
       deletedCount = await cleanOldAuditLogs(daysToKeep);
-      console.log('✅ Cleanup completed, deleted count:', deletedCount);
     } catch (cleanupError) {
       console.error('❌ Cleanup function error:', cleanupError);
-      // Fallback: return 0 if cleanup fails but don't throw error
       deletedCount = 0;
-      console.log('⚠️ Using fallback - no records deleted due to error');
     }
 
     res.json({
@@ -320,11 +294,10 @@ const cleanOldAuditLogsData = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Clean old audit logs error:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Gagal membersihkan log audit lama',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 };

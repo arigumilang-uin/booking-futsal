@@ -77,9 +77,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/features', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       core_features: [
         {
           name: 'User Management',
@@ -166,9 +164,7 @@ router.get('/features', (req, res) => {
  * @access  Public
  */
 router.get('/architecture', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       architecture_type: 'Domain-based with role-based access control',
       folder_structure: {
         controllers: 'Role-based organization (admin, customer, staff, public, auth)',
@@ -209,12 +205,10 @@ router.get('/architecture', (req, res) => {
  * @access  Public
  */
 router.get('/status', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+  res.json({ success: true, data: {
       system_status: 'operational',
       api_version: '2.0.0',
-      environment: process.env.NODE_ENV || 'development',
+      environment: process.env.NODE_ENV || 'production',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
       features_status: {

@@ -33,7 +33,7 @@ const comparePassword = async (password, hash) => {
  */
 const validatePassword = (password) => {
   const errors = [];
-  
+
   if (!password) {
     errors.push('Password is required');
   } else {
@@ -44,7 +44,7 @@ const validatePassword = (password) => {
       errors.push('Password must be less than 128 characters');
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -59,7 +59,7 @@ const validatePassword = (password) => {
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = emailRegex.test(email);
-  
+
   return {
     isValid,
     errors: isValid ? [] : ['Invalid email format']
@@ -74,7 +74,7 @@ const validateEmail = (email) => {
 const validatePhone = (phone) => {
   const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,9}$/;
   const isValid = phoneRegex.test(phone);
-  
+
   return {
     isValid,
     errors: isValid ? [] : ['Invalid Indonesian phone number format']
@@ -89,13 +89,13 @@ const validatePhone = (phone) => {
 const validateRegistrationData = (userData) => {
   const { email, password, name, phone } = userData;
   const errors = [];
-  
+
   // Validate required fields
   if (!email) errors.push('Email is required');
   if (!password) errors.push('Password is required');
   if (!name) errors.push('Name is required');
   if (!phone) errors.push('Phone is required');
-  
+
   // Validate formats if fields exist
   if (email) {
     const emailValidation = validateEmail(email);
@@ -103,25 +103,25 @@ const validateRegistrationData = (userData) => {
       errors.push(...emailValidation.errors);
     }
   }
-  
+
   if (password) {
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
       errors.push(...passwordValidation.errors);
     }
   }
-  
+
   if (phone) {
     const phoneValidation = validatePhone(phone);
     if (!phoneValidation.isValid) {
       errors.push(...phoneValidation.errors);
     }
   }
-  
+
   if (name && (name.length < 2 || name.length > 100)) {
     errors.push('Name must be between 2 and 100 characters');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -136,17 +136,17 @@ const validateRegistrationData = (userData) => {
 const validateLoginData = (loginData) => {
   const { email, password } = loginData;
   const errors = [];
-  
+
   if (!email) errors.push('Email is required');
   if (!password) errors.push('Password is required');
-  
+
   if (email) {
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
       errors.push(...emailValidation.errors);
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors

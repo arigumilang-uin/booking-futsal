@@ -128,7 +128,6 @@ const getSettingValue = async (key, defaultValue = null) => {
       try {
         return JSON.parse(value);
       } catch (error) {
-        console.error('Error parsing JSON setting:', key, error);
         return defaultValue;
       }
     case 'array':

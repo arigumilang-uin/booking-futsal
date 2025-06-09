@@ -170,16 +170,13 @@ const updateBookingStatus = async (id, status, updatedBy = null, reason = null) 
           reason,
           `Status changed from ${currentStatus} to ${status}`
         );
-        console.log(`✅ Booking history logged: ${currentStatus} → ${status} for booking ${id}`);
       } catch (logError) {
-        console.error('❌ Failed to log booking status change:', logError);
         // Don't fail the main operation if logging fails
       }
     }
 
     return updatedBooking;
   } catch (error) {
-    console.error('❌ Error updating booking status:', error);
     throw error;
   }
 };

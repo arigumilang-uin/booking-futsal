@@ -17,9 +17,7 @@ const getNotifications = async (req, res) => {
     const notifications = await getUserNotifications(userId, page, limit);
     const unreadCount = await getUnreadCount(userId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         notifications,
         unread_count: unreadCount,
         pagination: {
@@ -44,9 +42,7 @@ const getUnreadNotificationsCount = async (req, res) => {
     const userId = req.user.id;
     const count = await getUnreadCount(userId);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         unread_count: count
       }
     });
@@ -66,7 +62,7 @@ const markNotificationAsRead = async (req, res) => {
     const { id } = req.params;
 
     const notification = await markAsRead(id, userId);
-    
+
     if (!notification) {
       return res.status(404).json({
         success: false,
@@ -117,7 +113,7 @@ const deleteUserNotification = async (req, res) => {
     const { id } = req.params;
 
     const deleted = await deleteNotification(id, userId);
-    
+
     if (!deleted) {
       return res.status(404).json({
         success: false,
@@ -144,9 +140,7 @@ const getNotificationStatistics = async (req, res) => {
     const userId = req.user.id;
     const stats = await getNotificationStats(userId);
 
-    res.json({
-      success: true,
-      data: stats
+    res.json({ success: true, data: stats
     });
   } catch (error) {
     console.error('Get notification stats error:', error);

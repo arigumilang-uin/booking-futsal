@@ -36,9 +36,7 @@ const getOperatorDashboard = async (req, res) => {
       assignedFields.some(field => field.id === booking.field_id)
     );
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         operator_info: {
           name: req.rawUser.name,
           employee_id: req.rawUser.employee_id,
@@ -58,9 +56,7 @@ const getOperatorDashboard = async (req, res) => {
 
   } catch (error) {
     console.error('Get operator dashboard error:', error);
-    res.status(500).json({
-      error: 'Failed to get operator dashboard'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -70,9 +66,7 @@ const getAssignedFields = async (req, res) => {
 
     const assignedFields = await getFieldsByOperator(operatorId);
 
-    res.json({
-      success: true,
-      data: assignedFields
+    res.json({ success: true, data: assignedFields
     });
 
   } catch (error) {
@@ -166,9 +160,7 @@ const getFieldBookings = async (req, res) => {
       bookings = bookings.filter(booking => booking.status === status);
     }
 
-    res.json({
-      success: true,
-      data: bookings
+    res.json({ success: true, data: bookings
     });
 
   } catch (error) {
@@ -328,9 +320,7 @@ const getTodaySchedule = async (req, res) => {
       bookings: operatorTodayBookings.filter(booking => booking.field_id === field.id)
     }));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         date: new Date().toISOString().split('T')[0],
         schedule_by_field: scheduleByField,
         total_bookings: operatorTodayBookings.length
@@ -339,9 +329,7 @@ const getTodaySchedule = async (req, res) => {
 
   } catch (error) {
     console.error('Get today schedule error:', error);
-    res.status(500).json({
-      error: 'Failed to get today schedule'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -387,9 +375,7 @@ const getAllBookingsForOperator = async (req, res) => {
     const endIndex = startIndex + parseInt(limit);
     const paginatedBookings = bookings.slice(startIndex, endIndex);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         bookings: paginatedBookings,
         assigned_fields: assignedFields,
         pagination: {
@@ -438,9 +424,7 @@ const getBookingDetailForOperator = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: booking
+    res.json({ success: true, data: booking
     });
 
   } catch (error) {

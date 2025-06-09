@@ -52,11 +52,11 @@ const getAllNotifications = async (req, res) => {
       values.push(req.query.date_to);
     }
 
-    const whereClause = whereConditions.length > 0 ? 
+    const whereClause = whereConditions.length > 0 ?
       `WHERE ${whereConditions.join(' AND ')}` : '';
 
     const query = `
-      SELECT 
+      SELECT
         n.id, n.uuid, n.user_id, n.type, n.title, n.message, n.data,
         n.channels, n.priority, n.read_at, n.sent_at, n.failed_at,
         n.error_message, n.created_at,
@@ -71,9 +71,7 @@ const getAllNotifications = async (req, res) => {
     values.push(limit, offset);
     const result = await pool.query(query, values);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         notifications: result.rows,
         pagination: {
           current_page: page,
@@ -136,7 +134,7 @@ const createSystemNotificationAdmin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Gagal membuat notifikasi sistem',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 };
@@ -224,7 +222,7 @@ const getNotificationStatistics = async (req, res) => {
 
     // Get overall statistics
     const statsQuery = `
-      SELECT 
+      SELECT
         COUNT(*) as total_notifications,
         COUNT(CASE WHEN read_at IS NOT NULL THEN 1 END) as read_count,
         COUNT(CASE WHEN read_at IS NULL THEN 1 END) as unread_count,
@@ -243,7 +241,7 @@ const getNotificationStatistics = async (req, res) => {
 
     // Get daily statistics
     const dailyStatsQuery = `
-      SELECT 
+      SELECT
         DATE_TRUNC('day', created_at) as date,
         COUNT(*) as total,
         COUNT(CASE WHEN read_at IS NOT NULL THEN 1 END) as read,
@@ -256,9 +254,7 @@ const getNotificationStatistics = async (req, res) => {
 
     const dailyStatsResult = await pool.query(dailyStatsQuery);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period_days: days,
         overall_stats: statsResult.rows[0],
         daily_stats: dailyStatsResult.rows
@@ -279,7 +275,7 @@ const getNotificationDeliveryStatus = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-      SELECT 
+      SELECT
         n.id, n.uuid, n.title, n.message, n.channels, n.priority,
         n.read_at, n.sent_at, n.failed_at, n.error_message, n.created_at,
         u.name as user_name, u.email as user_email
@@ -309,9 +305,7 @@ const getNotificationDeliveryStatus = async (req, res) => {
       delivery_status = 'delivered';
     }
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         ...notification,
         delivery_status
       }
@@ -366,9 +360,7 @@ const getUserNotificationSummary = async (req, res) => {
 
     const stats = await getNotificationStats(parseInt(userId));
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         user_id: parseInt(userId),
         statistics: stats
       }

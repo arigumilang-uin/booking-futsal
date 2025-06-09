@@ -50,7 +50,7 @@ const createRoleChangeRequest = async (requestData) => {
       current_role: row.from_role,
       requested_role: row.to_role
     };
-    
+
   } catch (error) {
     console.error('Create role change request error:', error);
     throw error;
@@ -77,23 +77,23 @@ const getRoleChangeRequests = async (status = null, limit = null) => {
       LEFT JOIN users target ON rcr.target_user_id = target.id
       LEFT JOIN users approver ON rcr.approved_by = approver.id
     `;
-    
+
     const values = [];
     let paramCount = 1;
-    
+
     if (status) {
       query += ` WHERE rcr.status = $${paramCount}`;
       values.push(status);
       paramCount++;
     }
-    
+
     query += ` ORDER BY rcr.created_at DESC`;
-    
+
     if (limit) {
       query += ` LIMIT $${paramCount}`;
       values.push(limit);
     }
-    
+
     const result = await pool.query(query, values);
 
     // Map database column names back to expected format for backward compatibility
@@ -102,7 +102,7 @@ const getRoleChangeRequests = async (status = null, limit = null) => {
       current_role: row.from_role,
       requested_role: row.to_role
     }));
-    
+
   } catch (error) {
     console.error('Get role change requests error:', error);
     throw error;
@@ -134,7 +134,7 @@ const approveRoleChangeRequest = async (requestId, approverId, approvalNotes = n
       };
     }
     return row;
-    
+
   } catch (error) {
     console.error('Approve role change request error:', error);
     throw error;
@@ -166,7 +166,7 @@ const rejectRoleChangeRequest = async (requestId, rejectorId, rejectionReason) =
       };
     }
     return row;
-    
+
   } catch (error) {
     console.error('Reject role change request error:', error);
     throw error;
@@ -191,7 +191,7 @@ const logRoleChange = async (changeData) => {
       change_type = 'direct',
       request_id = null
     } = changeData;
-    
+
     const query = `
       INSERT INTO role_change_logs (
         admin_id, target_user_id, old_role, new_role, reason,
@@ -201,15 +201,15 @@ const logRoleChange = async (changeData) => {
       RETURNING id, admin_id, target_user_id, old_role, new_role,
                 reason, change_type, created_at
     `;
-    
+
     const values = [
       admin_id, target_user_id, old_role, new_role,
       reason, change_type, request_id
     ];
-    
+
     const result = await pool.query(query, values);
     return result.rows[0];
-    
+
   } catch (error) {
     console.error('Log role change error:', error);
     throw error;
@@ -230,9 +230,9 @@ const getRoleChangeHistory = async (filters = {}) => {
       change_type,
       limit = 50
     } = filters;
-    
+
     let query = `
-      SELECT 
+      SELECT
         rcl.id, rcl.admin_id, rcl.target_user_id, rcl.old_role, rcl.new_role,
         rcl.reason, rcl.change_type, rcl.created_at,
         admin.name as admin_name, admin.email as admin_email,
@@ -242,46 +242,46 @@ const getRoleChangeHistory = async (filters = {}) => {
       LEFT JOIN users target ON rcl.target_user_id = target.id
       WHERE 1=1
     `;
-    
+
     const values = [];
     let paramCount = 1;
-    
+
     if (target_user_id) {
       query += ` AND rcl.target_user_id = $${paramCount}`;
       values.push(target_user_id);
       paramCount++;
     }
-    
+
     if (admin_id) {
       query += ` AND rcl.admin_id = $${paramCount}`;
       values.push(admin_id);
       paramCount++;
     }
-    
+
     if (date_from) {
       query += ` AND rcl.created_at >= $${paramCount}`;
       values.push(date_from);
       paramCount++;
     }
-    
+
     if (date_to) {
       query += ` AND rcl.created_at <= $${paramCount}`;
       values.push(date_to);
       paramCount++;
     }
-    
+
     if (change_type) {
       query += ` AND rcl.change_type = $${paramCount}`;
       values.push(change_type);
       paramCount++;
     }
-    
+
     query += ` ORDER BY rcl.created_at DESC LIMIT $${paramCount}`;
     values.push(limit);
-    
+
     const result = await pool.query(query, values);
     return result.rows;
-    
+
   } catch (error) {
     console.error('Get role change history error:', error);
     throw error;
@@ -306,7 +306,7 @@ const createEmployeeOnboarding = async (onboardingData) => {
       onboarding_notes,
       created_by
     } = onboardingData;
-    
+
     const query = `
       INSERT INTO employee_onboarding (
         user_id, target_role, department, supervisor_id, hire_date,
@@ -316,15 +316,15 @@ const createEmployeeOnboarding = async (onboardingData) => {
       RETURNING id, user_id, target_role, department, supervisor_id,
                 hire_date, status, created_at
     `;
-    
+
     const values = [
       user_id, target_role, department, supervisor_id,
       hire_date, onboarding_notes, created_by
     ];
-    
+
     const result = await pool.query(query, values);
     return result.rows[0];
-    
+
   } catch (error) {
     console.error('Create employee onboarding error:', error);
     throw error;
@@ -344,16 +344,16 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
       WHERE id = $1 AND status = 'pending'
     `;
     const onboardingResult = await pool.query(onboardingQuery, [onboardingId]);
-    
+
     if (onboardingResult.rows.length === 0) {
       throw new Error('Onboarding record not found or already completed');
     }
-    
+
     const onboarding = onboardingResult.rows[0];
-    
+
     // Begin transaction
     await pool.query('BEGIN');
-    
+
     try {
       // Update user role and employee details
       const updateUserQuery = `
@@ -370,7 +370,7 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
         onboarding.hire_date,
         onboarding.user_id
       ]);
-      
+
       // Mark onboarding as completed
       const completeOnboardingQuery = `
         UPDATE employee_onboarding
@@ -378,7 +378,7 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
         WHERE id = $2
       `;
       await pool.query(completeOnboardingQuery, [completedBy, onboardingId]);
-      
+
       // Log role change
       await logRoleChange({
         admin_id: completedBy,
@@ -388,20 +388,20 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
         reason: 'Employee onboarding completed',
         change_type: 'onboarding'
       });
-      
+
       await pool.query('COMMIT');
-      
+
       return {
         onboarding_id: onboardingId,
         user: userResult.rows[0],
         completed_at: new Date().toISOString()
       };
-      
+
     } catch (error) {
       await pool.query('ROLLBACK');
       throw error;
     }
-    
+
   } catch (error) {
     console.error('Complete employee onboarding error:', error);
     throw error;
@@ -414,7 +414,7 @@ const completeEmployeeOnboarding = async (onboardingId, completedBy) => {
 const getEmployeeOnboardingRecords = async (status = null) => {
   try {
     let query = `
-      SELECT 
+      SELECT
         eo.id, eo.user_id, eo.target_role, eo.department, eo.supervisor_id,
         eo.hire_date, eo.status, eo.created_at, eo.completed_at,
         u.name as user_name, u.email as user_email,
@@ -425,19 +425,19 @@ const getEmployeeOnboardingRecords = async (status = null) => {
       LEFT JOIN users s ON eo.supervisor_id = s.id
       LEFT JOIN users creator ON eo.created_by = creator.id
     `;
-    
+
     const values = [];
-    
+
     if (status) {
       query += ` WHERE eo.status = $1`;
       values.push(status);
     }
-    
+
     query += ` ORDER BY eo.created_at DESC`;
-    
+
     const result = await pool.query(query, values);
     return result.rows;
-    
+
   } catch (error) {
     console.error('Get employee onboarding records error:', error);
     throw error;
@@ -450,11 +450,11 @@ module.exports = {
   getRoleChangeRequests,
   approveRoleChangeRequest,
   rejectRoleChangeRequest,
-  
+
   // Audit trail
   logRoleChange,
   getRoleChangeHistory,
-  
+
   // Employee onboarding
   createEmployeeOnboarding,
   completeEmployeeOnboarding,

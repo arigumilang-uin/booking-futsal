@@ -14,9 +14,7 @@ const getAllSystemSettings = async (req, res) => {
   try {
     const settings = await getAllSettings();
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         settings,
         total: settings.length
       }
@@ -35,9 +33,7 @@ const getPublicSystemSettings = async (req, res) => {
   try {
     const settings = await getPublicSettings();
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         settings,
         total: settings.length
       }
@@ -64,9 +60,7 @@ const getSystemSetting = async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      data: setting
+    res.json({ success: true, data: setting
     });
   } catch (error) {
     console.error('Get setting error:', error);
@@ -116,8 +110,6 @@ const createSystemSetting = async (req, res) => {
   try {
     const { key, value, description, is_public } = req.body;
 
-    console.log('Create setting request:', { key, value, description, is_public });
-
     if (!key || value === undefined) {
       return res.status(400).json({
         success: false,
@@ -127,7 +119,6 @@ const createSystemSetting = async (req, res) => {
 
     // Check if setting already exists
     const existing = await getSettingByKey(key);
-    console.log('Existing setting check:', existing);
 
     if (existing) {
       return res.status(400).json({
@@ -136,7 +127,6 @@ const createSystemSetting = async (req, res) => {
       });
     }
 
-    console.log('Calling upsertSetting with:', {
       key,
       value,
       description,
@@ -150,8 +140,6 @@ const createSystemSetting = async (req, res) => {
       is_public: is_public || false
     });
 
-    console.log('Setting created:', setting);
-
     res.status(201).json({
       success: true,
       message: 'Pengaturan berhasil dibuat',
@@ -159,7 +147,6 @@ const createSystemSetting = async (req, res) => {
     });
   } catch (error) {
     console.error('Create setting error:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Gagal membuat pengaturan',
@@ -201,9 +188,7 @@ const getSettingsByCategoryController = async (req, res) => {
     const { category } = req.params;
     const settings = await getSettingsByCategory(category);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         category,
         settings,
         total: settings.length
@@ -290,9 +275,7 @@ const getApplicationConfig = async (req, res) => {
       environment: process.env.NODE_ENV || 'production'
     };
 
-    res.json({
-      success: true,
-      data: config
+    res.json({ success: true, data: config
     });
   } catch (error) {
     console.error('Get app config error:', error);

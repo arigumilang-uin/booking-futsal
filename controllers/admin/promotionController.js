@@ -17,7 +17,7 @@ const getAllPromotionsAdmin = async (req, res) => {
     const promotionsWithStats = await Promise.all(
       promotions.map(async (promo) => {
         const usageQuery = `
-          SELECT 
+          SELECT
             COUNT(*) as total_usage,
             SUM(discount_amount) as total_discount_given,
             COUNT(DISTINCT user_id) as unique_users
@@ -33,16 +33,14 @@ const getAllPromotionsAdmin = async (req, res) => {
             total_usage: parseInt(usage.total_usage),
             total_discount_given: parseFloat(usage.total_discount_given || 0),
             unique_users: parseInt(usage.unique_users),
-            usage_percentage: promo.usage_limit ? 
+            usage_percentage: promo.usage_limit ?
               Math.round((promo.usage_count / promo.usage_limit) * 100) : null
           }
         };
       })
     );
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         promotions: promotionsWithStats,
         pagination: {
           current_page: page,
@@ -69,8 +67,6 @@ const createPromotionAdmin = async (req, res) => {
       applicable_hours, start_date, end_date, valid_from, valid_until,
       min_booking_amount
     } = req.body;
-
-    console.log('Create promotion request:', req.body);
 
     // Support both naming conventions for dates
     const startDate = start_date || valid_from;
@@ -147,11 +143,7 @@ const createPromotionAdmin = async (req, res) => {
       created_by: req.rawUser?.id || req.user?.id
     };
 
-    console.log('Calling createPromotion with:', promotionData);
-
     const promotion = await createPromotion(promotionData);
-
-    console.log('Promotion created:', promotion);
 
     res.status(201).json({
       success: true,
@@ -160,7 +152,6 @@ const createPromotionAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Create promotion admin error:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Gagal membuat promosi',
@@ -265,7 +256,7 @@ const deletePromotionAdmin = async (req, res) => {
     if (usageCount > 0) {
       // Don't delete, just deactivate
       const deactivateQuery = `
-        UPDATE promotions 
+        UPDATE promotions
         SET is_active = false, updated_at = NOW()
         WHERE id = $1
         RETURNING id, code, name, is_active
@@ -339,9 +330,7 @@ const getPromotionUsageHistoryAdmin = async (req, res) => {
     const result = await pool.query(usageQuery, [parseInt(id), limit, offset]);
     const usageHistory = result.rows;
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         promotion_id: parseInt(id),
         usage_history: usageHistory,
         pagination: {
@@ -367,7 +356,7 @@ const getPromotionAnalytics = async (req, res) => {
 
     // Overall promotion statistics
     const overallStatsQuery = `
-      SELECT 
+      SELECT
         COUNT(*) as total_promotions,
         COUNT(CASE WHEN is_active = true THEN 1 END) as active_promotions,
         COUNT(CASE WHEN start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE THEN 1 END) as current_promotions,
@@ -377,7 +366,7 @@ const getPromotionAnalytics = async (req, res) => {
 
     // Usage statistics
     const usageStatsQuery = `
-      SELECT 
+      SELECT
         COUNT(*) as total_usage,
         SUM(discount_amount) as total_discount_given,
         COUNT(DISTINCT user_id) as unique_users,
@@ -390,7 +379,7 @@ const getPromotionAnalytics = async (req, res) => {
 
     // Top performing promotions
     const topPromotionsQuery = `
-      SELECT 
+      SELECT
         p.id, p.code, p.name, p.type, p.value,
         COUNT(pu.id) as usage_count,
         SUM(pu.discount_amount) as total_discount,
@@ -409,9 +398,7 @@ const getPromotionAnalytics = async (req, res) => {
       pool.query(topPromotionsQuery)
     ]);
 
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         period_days: days,
         overall_stats: overallStats.rows[0],
         usage_stats: usageStats.rows[0],
@@ -433,7 +420,7 @@ const togglePromotionStatus = async (req, res) => {
     const { id } = req.params;
 
     const toggleQuery = `
-      UPDATE promotions 
+      UPDATE promotions
       SET is_active = NOT is_active, updated_at = NOW()
       WHERE id = $1
       RETURNING id, code, name, is_active

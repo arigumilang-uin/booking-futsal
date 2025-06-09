@@ -81,9 +81,9 @@ const getRoleByValue = (roleValue) => {
 const hasPermission = (userRole, requiredRole) => {
   const userRoleData = getRoleByValue(userRole);
   const requiredRoleData = getRoleByValue(requiredRole);
-  
+
   if (!userRoleData || !requiredRoleData) return false;
-  
+
   return userRoleData.level >= requiredRoleData.level;
 };
 
@@ -95,7 +95,7 @@ const hasPermission = (userRole, requiredRole) => {
 const getManageableRoles = (userRole) => {
   const userRoleData = getRoleByValue(userRole);
   if (!userRoleData) return [];
-  
+
   return ROLE_HIERARCHY.filter(role => role.level < userRoleData.level);
 };
 

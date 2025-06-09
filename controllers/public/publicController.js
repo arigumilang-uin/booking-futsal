@@ -3,9 +3,9 @@ const { getAvailableFields, getFieldById, getFieldAvailability } = require('../.
 const getPublicFields = async (req, res) => {
   try {
     const { page = 1, limit = 10, search, type, location } = req.query;
-    
+
     let fields = await getAvailableFields();
-    
+
     if (search) {
       fields = fields.filter(field =>
         field.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -48,10 +48,8 @@ const getPublicFields = async (req, res) => {
       rating: field.rating,
       total_reviews: field.total_reviews
     }));
-    
-    res.json({
-      success: true,
-      data: publicFields,
+
+    res.json({ success: true, data: publicFields,
       pagination: {
         current_page: parseInt(page),
         per_page: parseInt(limit),
@@ -62,27 +60,21 @@ const getPublicFields = async (req, res) => {
 
   } catch (error) {
     console.error('Get public fields error:', error);
-    res.status(500).json({
-      error: 'Failed to get fields'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 const getPublicFieldDetail = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const field = await getFieldById(id);
     if (!field) {
-      return res.status(404).json({
-        error: 'Field not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (field.status !== 'active') {
-      return res.status(404).json({
-        error: 'Field not available'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const publicField = {
@@ -106,17 +98,13 @@ const getPublicFieldDetail = async (req, res) => {
       rating: field.rating,
       total_reviews: field.total_reviews
     };
-    
-    res.json({
-      success: true,
-      data: publicField
+
+    res.json({ success: true, data: publicField
     });
 
   } catch (error) {
     console.error('Get public field detail error:', error);
-    res.status(500).json({
-      error: 'Failed to get field detail'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -124,25 +112,19 @@ const getPublicFieldAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const { date } = req.query;
-    
+
     if (!date) {
-      return res.status(400).json({
-        error: 'Date parameter is required'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const field = await getFieldById(id);
     if (!field || field.status !== 'active') {
-      return res.status(404).json({
-        error: 'Field not found or not available'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
-    
+
     const availability = await getFieldAvailability(id, date);
-    
-    res.json({
-      success: true,
-      data: {
+
+    res.json({ success: true, data: {
         field_id: id,
         field_name: field.name,
         date: date,
@@ -153,9 +135,7 @@ const getPublicFieldAvailability = async (req, res) => {
 
   } catch (error) {
     console.error('Get public field availability error:', error);
-    res.status(500).json({
-      error: 'Failed to get field availability'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -163,17 +143,13 @@ const getFieldTypes = async (req, res) => {
   try {
     const fields = await getAvailableFields();
     const types = [...new Set(fields.map(field => field.type))];
-    
-    res.json({
-      success: true,
-      data: types
+
+    res.json({ success: true, data: types
     });
 
   } catch (error) {
     console.error('Get field types error:', error);
-    res.status(500).json({
-      error: 'Failed to get field types'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -181,32 +157,26 @@ const getFieldLocations = async (req, res) => {
   try {
     const fields = await getAvailableFields();
     const locations = [...new Set(fields.map(field => field.location))];
-    
-    res.json({
-      success: true,
-      data: locations
+
+    res.json({ success: true, data: locations
     });
 
   } catch (error) {
     console.error('Get field locations error:', error);
-    res.status(500).json({
-      error: 'Failed to get field locations'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 const getSystemInfo = async (req, res) => {
   try {
-    res.json({
-      success: true,
-      data: {
+    res.json({ success: true, data: {
         app_name: 'Booking Futsal System',
         version: '2.0.0',
         api_version: 'v1',
         enhanced_role_system: true,
         supported_roles: [
           'pengunjung',
-          'penyewa', 
+          'penyewa',
           'staff_kasir',
           'operator_lapangan',
           'manajer_futsal',
@@ -225,9 +195,7 @@ const getSystemInfo = async (req, res) => {
 
   } catch (error) {
     console.error('Get system info error:', error);
-    res.status(500).json({
-      error: 'Failed to get system info'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

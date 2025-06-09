@@ -19,15 +19,11 @@ const register = async (req, res) => {
     // Validate allowed roles
     const allowedRoles = ['penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
     if (!allowedRoles.includes(userRole)) {
-      return res.status(400).json({
-        error: 'Invalid role specified'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (!name || !email || !password) {
-      return res.status(400).json({
-        error: 'Name, email, and password are required'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     // Hybrid email validation (Format + Domain)
@@ -41,16 +37,12 @@ const register = async (req, res) => {
     }
 
     if (password.length < 8) {
-      return res.status(400).json({
-        error: 'Password must be at least 8 characters long'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({
-        error: 'Email sudah terdaftar'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -84,14 +76,12 @@ const register = async (req, res) => {
       success: true,
       message: 'Registration successful',
       user: userResponse,
-      token: process.env.NODE_ENV === 'development' ? token : undefined
+      token: process.env.NODE_ENV === 'production' ? token : undefined
     });
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
-      error: 'Gagal registrasi pengguna'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -100,22 +90,16 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email and password are required'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const user = await getUserByEmail(email);
     if (!user) {
-      return res.status(404).json({
-        error: 'Pengguna tidak ditemukan'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     if (!user.is_active) {
-      return res.status(401).json({
-        error: 'Account is deactivated'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
@@ -129,9 +113,7 @@ const login = async (req, res) => {
         { reason: 'invalid_password', email }
       );
 
-      return res.status(401).json({
-        error: 'Password salah'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     await updateLastLogin(user.id);
@@ -166,36 +148,30 @@ const login = async (req, res) => {
       success: true,
       message: 'Login successful',
       user: userResponse,
-      token: process.env.NODE_ENV === 'development' ? token : undefined
+      token: process.env.NODE_ENV === 'production' ? token : undefined
     });
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
-      error: 'Gagal login'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 const logout = async (req, res) => {
   try {
-    console.log('🚪 Logout request received:', {
       user: req.user ? req.user.id : 'no user',
       ip: req.ip || req.connection.remoteAddress
     });
 
     // Log logout if user is authenticated
     if (req.user && req.user.id) {
-      console.log('📝 Logging logout for user:', req.user.id);
       await logoutAuditLogger(
         req.user.id,
         req.ip || req.connection.remoteAddress,
         req.headers['user-agent'],
         { email: req.user.email }
       );
-      console.log('✅ Logout audit logged successfully');
     } else {
-      console.log('⚠️ No user found in request, skipping audit log');
     }
 
     res.clearCookie('token', {
@@ -211,9 +187,7 @@ const logout = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Logout error:', error);
-    res.status(500).json({
-      error: 'Gagal logout'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -221,9 +195,7 @@ const getProfile = async (req, res) => {
   try {
     const user = await getUserByEmail(req.user.email);
     if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
     const { password: _, ...userResponse } = user;
@@ -235,9 +207,7 @@ const getProfile = async (req, res) => {
 
   } catch (error) {
     console.error('Get profile error:', error);
-    res.status(500).json({
-      error: 'Failed to get profile'
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -287,7 +257,7 @@ const refreshToken = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to refresh token',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'production' ? error.message : 'Internal server error'
     });
   }
 };

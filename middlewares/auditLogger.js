@@ -145,8 +145,6 @@ const auditLogger = (options = {}) => {
       return next();
     }
 
-    console.log('🔍 Audit middleware triggered:', { method: req.method, path: req.path, user: req.user?.id });
-
     // Store original response methods
     const originalSend = res.send;
     const originalJson = res.json;
@@ -176,7 +174,6 @@ const auditLogger = (options = {}) => {
       try {
         // Skip logging if configured to log success only and request failed
         if (logSuccessOnly && statusCode >= 400) {
-          console.log('⚠️ Skipping audit log due to error status:', statusCode);
           return;
         }
 
@@ -186,8 +183,6 @@ const auditLogger = (options = {}) => {
         const userId = req.rawUser?.id || req.user?.id || null;
         const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
         const userAgent = req.headers['user-agent'];
-
-        console.log('📝 Creating audit log:', { action, resourceType, tableName, userId, statusCode });
 
         // Prepare audit log data
         const auditData = {
@@ -213,7 +208,6 @@ const auditLogger = (options = {}) => {
 
         // Create audit log entry
         await createAuditLog(auditData);
-        console.log('✅ Audit log created successfully');
 
       } catch (error) {
         console.error('❌ Audit logging error:', error);

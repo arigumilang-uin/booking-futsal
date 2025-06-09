@@ -5,7 +5,7 @@ const dns = require('dns').promises;
  * Hybrid approach: Format validation + Domain validation
  */
 class EmailValidationService {
-  
+
   /**
    * Validate email format using regex
    * @param {string} email - Email to validate
@@ -15,32 +15,32 @@ class EmailValidationService {
     try {
       // Comprehensive email regex
       const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-      
+
       if (!email || typeof email !== 'string') {
         return {
           valid: false,
           reason: 'Email harus berupa string yang valid'
         };
       }
-      
+
       if (email.length > 254) {
         return {
           valid: false,
           reason: 'Email terlalu panjang (maksimal 254 karakter)'
         };
       }
-      
+
       if (!emailRegex.test(email)) {
         return {
           valid: false,
           reason: 'Format email tidak valid'
         };
       }
-      
+
       // Check for common typos
       const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
       const domain = email.split('@')[1].toLowerCase();
-      
+
       // Check for common typos like gmial.com, yahooo.com
       const typoChecks = {
         'gmial.com': 'gmail.com',
@@ -49,19 +49,19 @@ class EmailValidationService {
         'hotmial.com': 'hotmail.com',
         'outlok.com': 'outlook.com'
       };
-      
+
       if (typoChecks[domain]) {
         return {
           valid: false,
           reason: `Mungkin maksud Anda: ${email.replace(domain, typoChecks[domain])}?`
         };
       }
-      
+
       return {
         valid: true,
         reason: 'Format email valid'
       };
-      
+
     } catch (error) {
       return {
         valid: false,
@@ -69,7 +69,7 @@ class EmailValidationService {
       };
     }
   }
-  
+
   /**
    * Validate email domain using DNS lookup
    * @param {string} email - Email to validate
@@ -78,23 +78,23 @@ class EmailValidationService {
   async validateDomain(email) {
     try {
       const domain = email.split('@')[1].toLowerCase();
-      
+
       // Check if domain has MX record (mail exchange)
       const mxRecords = await dns.resolveMx(domain);
-      
+
       if (!mxRecords || mxRecords.length === 0) {
         return {
           valid: false,
           reason: 'Domain email tidak memiliki mail server'
         };
       }
-      
+
       return {
         valid: true,
         reason: 'Domain email valid',
         mxRecords: mxRecords.length
       };
-      
+
     } catch (error) {
       // Common DNS errors
       if (error.code === 'ENOTFOUND') {
@@ -103,21 +103,21 @@ class EmailValidationService {
           reason: 'Domain email tidak ditemukan'
         };
       }
-      
+
       if (error.code === 'ENODATA') {
         return {
           valid: false,
           reason: 'Domain tidak memiliki mail server'
         };
       }
-      
+
       return {
         valid: false,
         reason: 'Tidak dapat memverifikasi domain email'
       };
     }
   }
-  
+
   /**
    * Complete email validation (Format + Domain)
    * @param {string} email - Email to validate
@@ -135,7 +135,7 @@ class EmailValidationService {
           email: email
         };
       }
-      
+
       // Step 2: Domain validation (1-3 seconds)
       const domainResult = await this.validateDomain(email);
       if (!domainResult.valid) {
@@ -146,7 +146,7 @@ class EmailValidationService {
           email: email
         };
       }
-      
+
       return {
         valid: true,
         step: 'complete',
@@ -156,7 +156,7 @@ class EmailValidationService {
           mx_records: domainResult.mxRecords
         }
       };
-      
+
     } catch (error) {
       return {
         valid: false,
@@ -167,7 +167,7 @@ class EmailValidationService {
       };
     }
   }
-  
+
   /**
    * Quick validation for high-traffic scenarios
    * Only format validation, skip DNS lookup
@@ -182,7 +182,7 @@ class EmailValidationService {
       note: 'Only format validation performed'
     };
   }
-  
+
   /**
    * Validate multiple emails at once
    * @param {array} emails - Array of emails to validate
@@ -190,15 +190,15 @@ class EmailValidationService {
    */
   async validateBatch(emails) {
     const results = [];
-    
+
     for (const email of emails) {
       const result = await this.validateComplete(email);
       results.push(result);
     }
-    
+
     return results;
   }
-  
+
   /**
    * Get validation statistics
    * @param {array} validationResults - Array of validation results
@@ -208,14 +208,14 @@ class EmailValidationService {
     const total = validationResults.length;
     const valid = validationResults.filter(r => r.valid).length;
     const invalid = total - valid;
-    
+
     const failureReasons = {};
     validationResults
       .filter(r => !r.valid)
       .forEach(r => {
         failureReasons[r.step] = (failureReasons[r.step] || 0) + 1;
       });
-    
+
     return {
       total,
       valid,

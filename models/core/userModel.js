@@ -7,7 +7,6 @@ const mapOldRoleToNew = (oldRole) => {
     'admin': 'supervisor_sistem'
   };
 
-  // If role is already enhanced role, return as is
   const enhancedRoles = ['penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
   if (enhancedRoles.includes(oldRole)) {
     return oldRole;

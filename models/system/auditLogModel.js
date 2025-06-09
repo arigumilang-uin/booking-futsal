@@ -296,7 +296,6 @@ const getDailyActivity = async (days = 30) => {
 // Clean old audit logs
 const cleanOldAuditLogs = async (retentionDays = 365) => {
   try {
-    console.log('🗑️ Starting cleanup for retention days:', retentionDays);
 
     // First, check how many records will be deleted
     const countQuery = `
@@ -306,10 +305,8 @@ const cleanOldAuditLogs = async (retentionDays = 365) => {
     `;
     const countResult = await pool.query(countQuery, [retentionDays]);
     const countToDelete = parseInt(countResult.rows[0].count_to_delete);
-    console.log('📊 Records to delete:', countToDelete);
 
     if (countToDelete === 0) {
-      console.log('✅ No records to delete');
       return 0;
     }
 
@@ -318,15 +315,12 @@ const cleanOldAuditLogs = async (retentionDays = 365) => {
       DELETE FROM audit_logs
       WHERE created_at < NOW() - INTERVAL '1 day' * $1
     `;
-    console.log('🔄 Executing delete query...');
     const result = await pool.query(deleteQuery, [retentionDays]);
     const deletedCount = result.rowCount || 0;
-    console.log('✅ Successfully deleted records:', deletedCount);
 
     return deletedCount;
   } catch (error) {
     console.error('❌ Clean old audit logs model error:', error);
-    console.error('Error details:', error.message);
     throw error;
   }
 };

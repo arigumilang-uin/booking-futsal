@@ -22,15 +22,12 @@ class EmailService {
       };
 
       if (!emailConfig.auth.user || !emailConfig.auth.pass) {
-        console.log('📧 Email service not configured - SMTP credentials missing');
         return;
       }
 
       this.transporter = nodemailer.createTransport(emailConfig);
       this.isConfigured = true;
-      console.log('📧 Email service initialized successfully');
     } catch (error) {
-      console.error('📧 Email service initialization failed:', error);
     }
   }
 
@@ -49,7 +46,6 @@ class EmailService {
 
   async sendEmail({ to, subject, html, text }) {
     if (!this.isConfigured) {
-      console.log('📧 Email not sent - service not configured');
       return { success: false, error: 'Email service not configured' };
     }
 
@@ -63,10 +59,8 @@ class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      console.log('📧 Email sent successfully:', result.messageId);
       return { success: true, messageId: result.messageId };
     } catch (error) {
-      console.error('📧 Email send failed:', error);
       return { success: false, error: error.message };
     }
   }
@@ -114,18 +108,18 @@ class EmailService {
 
     const text = `
       Reset Password - Futsal Booking System
-      
+
       Halo ${name},
-      
+
       Kami menerima permintaan untuk reset password akun Anda.
-      
+
       Klik link berikut untuk reset password:
       ${resetLink}
-      
+
       Token: ${token}
-      
+
       Link ini akan expired dalam 1 jam.
-      
+
       Jika Anda tidak meminta reset password, abaikan email ini.
     `;
 
@@ -173,16 +167,16 @@ class EmailService {
 
     const text = `
       Verifikasi Email - Futsal Booking System
-      
+
       Halo ${name},
-      
+
       Terima kasih telah mendaftar di Futsal Booking System!
-      
+
       Klik link berikut untuk verifikasi email:
       ${verificationLink}
-      
+
       Token: ${token}
-      
+
       Link ini akan expired dalam 24 jam.
     `;
 
