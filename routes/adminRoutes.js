@@ -77,6 +77,14 @@ const {
   getBookingStatisticsAdmin
 } = require('../controllers/admin/bookingController');
 
+const {
+  getCacheStats,
+  clearCache,
+  getCacheKeys,
+  getCacheHealth,
+  warmUpCache
+} = require('../controllers/admin/cacheController');
+
 // Middlewares
 const { requireAuth } = require('../middlewares/auth/authMiddleware');
 const { requireAdmin, requireManagement } = require('../middlewares/authorization/roleBasedAccess');
@@ -1229,5 +1237,46 @@ router.get('/payments/:id/logs', requireManagement, async (req, res) => {
     });
   }
 });
+
+// =====================================================
+// CACHE MANAGEMENT ROUTES - ADMIN ONLY
+// =====================================================
+
+/**
+ * @route   GET /api/admin/cache/stats
+ * @desc    Get cache statistics
+ * @access  Admin (supervisor_sistem only)
+ */
+router.get('/cache/stats', requireAdmin, getCacheStats);
+
+/**
+ * @route   GET /api/admin/cache/health
+ * @desc    Get cache health assessment
+ * @access  Admin (supervisor_sistem only)
+ */
+router.get('/cache/health', requireAdmin, getCacheHealth);
+
+/**
+ * @route   GET /api/admin/cache/:type/keys
+ * @desc    Get cache keys by type
+ * @access  Admin (supervisor_sistem only)
+ * @params  { type: field|user|statistics|system }
+ */
+router.get('/cache/:type/keys', requireAdmin, getCacheKeys);
+
+/**
+ * @route   DELETE /api/admin/cache/:type
+ * @desc    Clear cache by type
+ * @access  Admin (supervisor_sistem only)
+ * @params  { type: field|user|statistics|system|all }
+ */
+router.delete('/cache/:type', requireAdmin, clearCache);
+
+/**
+ * @route   POST /api/admin/cache/warmup
+ * @desc    Warm up cache with frequently accessed data
+ * @access  Admin (supervisor_sistem only)
+ */
+router.post('/cache/warmup', requireAdmin, warmUpCache);
 
 module.exports = router;
