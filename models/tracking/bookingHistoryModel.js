@@ -41,8 +41,8 @@ const getBookingHistory = async (bookingId) => {
 const getAllBookingHistory = async (page = 1, limit = 50, filters = {}) => {
   const offset = (page - 1) * limit;
   let query = `
-    SELECT bh.id, bh.uuid, bh.booking_id, bh.status_from, bh.status_to,
-           bh.changed_by, bh.reason, bh.notes, bh.created_at,
+    SELECT bh.id, bh.booking_id, bh.action, bh.old_status, bh.new_status,
+           bh.changed_by, bh.notes, bh.created_at,
            u.name as changed_by_name, u.role as changed_by_role,
            b.booking_number, b.user_id, b.field_id, b.date, b.start_time,
            customer.name as customer_name, customer.email as customer_email,
@@ -65,7 +65,7 @@ const getAllBookingHistory = async (page = 1, limit = 50, filters = {}) => {
   }
 
   if (filters.status_to) {
-    query += ` AND bh.status_to = $${paramCount++}`;
+    query += ` AND bh.new_status = $${paramCount++}`;
     params.push(filters.status_to);
   }
 
@@ -95,13 +95,13 @@ const getAllBookingHistory = async (page = 1, limit = 50, filters = {}) => {
 const getStatusChangeStatistics = async (days = 30) => {
   const query = `
     SELECT
-      status_to,
+      new_status as status_to,
       COUNT(*) as change_count,
       COUNT(DISTINCT booking_id) as unique_bookings,
       COUNT(DISTINCT changed_by) as unique_changers
     FROM booking_history
     WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
-    GROUP BY status_to
+    GROUP BY new_status
     ORDER BY change_count DESC
   `;
   const result = await pool.query(query);
@@ -112,8 +112,8 @@ const getStatusChangeStatistics = async (days = 30) => {
 const getUserBookingActivity = async (userId, page = 1, limit = 20) => {
   const offset = (page - 1) * limit;
   const query = `
-    SELECT bh.id, bh.uuid, bh.booking_id, bh.status_from, bh.status_to,
-           bh.reason, bh.notes, bh.created_at,
+    SELECT bh.id, bh.booking_id, bh.action, bh.old_status, bh.new_status,
+           bh.notes, bh.created_at,
            b.booking_number, b.user_id, b.field_id, b.date, b.start_time,
            customer.name as customer_name,
            f.name as field_name
@@ -135,9 +135,9 @@ const getBookingTimeline = async (bookingId) => {
     SELECT
       'status_change' as event_type,
       bh.id as event_id,
-      bh.status_from,
-      bh.status_to,
-      bh.reason,
+      bh.action,
+      bh.old_status as status_from,
+      bh.new_status as status_to,
       bh.notes,
       bh.created_at,
       u.name as actor_name,
@@ -151,10 +151,10 @@ const getBookingTimeline = async (bookingId) => {
     SELECT
       'payment' as event_type,
       p.id as event_id,
-      p.status as status_from,
+      'payment_created' as action,
+      'pending' as status_from,
       p.status as status_to,
-      p.method as reason,
-      CAST(p.amount AS TEXT) as notes,
+      CONCAT(p.method, ' - ', CAST(p.amount AS TEXT)) as notes,
       p.created_at,
       'System' as actor_name,
       'system' as actor_role
@@ -173,9 +173,9 @@ const getDailyBookingChanges = async (days = 30) => {
     SELECT
       DATE(created_at) as date,
       COUNT(*) as total_changes,
-      COUNT(CASE WHEN status_to = 'confirmed' THEN 1 END) as confirmations,
-      COUNT(CASE WHEN status_to = 'cancelled' THEN 1 END) as cancellations,
-      COUNT(CASE WHEN status_to = 'completed' THEN 1 END) as completions,
+      COUNT(CASE WHEN new_status = 'confirmed' THEN 1 END) as confirmations,
+      COUNT(CASE WHEN new_status = 'cancelled' THEN 1 END) as cancellations,
+      COUNT(CASE WHEN new_status = 'completed' THEN 1 END) as completions,
       COUNT(DISTINCT booking_id) as unique_bookings
     FROM booking_history
     WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
@@ -194,9 +194,9 @@ const getMostActiveStaff = async (days = 30, limit = 10) => {
       u.name as staff_name,
       u.role as staff_role,
       COUNT(*) as total_changes,
-      COUNT(CASE WHEN bh.status_to = 'confirmed' THEN 1 END) as confirmations,
-      COUNT(CASE WHEN bh.status_to = 'cancelled' THEN 1 END) as cancellations,
-      COUNT(CASE WHEN bh.status_to = 'completed' THEN 1 END) as completions,
+      COUNT(CASE WHEN bh.new_status = 'confirmed' THEN 1 END) as confirmations,
+      COUNT(CASE WHEN bh.new_status = 'cancelled' THEN 1 END) as cancellations,
+      COUNT(CASE WHEN bh.new_status = 'completed' THEN 1 END) as completions,
       COUNT(DISTINCT bh.booking_id) as unique_bookings
     FROM booking_history bh
     LEFT JOIN users u ON bh.changed_by = u.id
@@ -214,8 +214,8 @@ const getMostActiveStaff = async (days = 30, limit = 10) => {
 const getBookingStatusFlow = async (days = 30) => {
   const query = `
     SELECT
-      status_from,
-      status_to,
+      old_status as status_from,
+      new_status as status_to,
       COUNT(*) as transition_count,
       COUNT(DISTINCT booking_id) as unique_bookings,
       AVG(EXTRACT(EPOCH FROM (
@@ -226,7 +226,7 @@ const getBookingStatusFlow = async (days = 30) => {
       ) - bh.created_at) / 3600) as avg_hours_in_status
     FROM booking_history bh
     WHERE bh.created_at >= CURRENT_DATE - INTERVAL '${days} days'
-    GROUP BY status_from, status_to
+    GROUP BY old_status, new_status
     ORDER BY transition_count DESC
   `;
   const result = await pool.query(query);
@@ -264,7 +264,7 @@ const getBookingHistorySummary = async (bookingId) => {
       MIN(created_at) as first_change,
       MAX(created_at) as last_change,
       COUNT(DISTINCT changed_by) as unique_changers,
-      array_agg(DISTINCT status_to ORDER BY status_to) as statuses_reached
+      array_agg(DISTINCT new_status ORDER BY new_status) as statuses_reached
     FROM booking_history
     WHERE booking_id = $1
   `;
