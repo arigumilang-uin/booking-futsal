@@ -21,32 +21,83 @@ const getAllBookings = async (page = 1, limit = 20) => {
 };
 
 const getBookingById = async (id) => {
-  const query = `
+  // Optimized: Split complex query into smaller, indexed queries
+  const bookingQuery = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email, b.notes,
            b.base_amount, b.discount_amount, b.admin_fee, b.total_amount,
            b.status, b.payment_status, b.confirmed_by, b.cancelled_by, b.completed_by,
            b.cancellation_reason, b.cancelled_at, b.confirmed_at, b.completed_at,
-           b.reminder_sent, b.created_at, b.updated_at,
-           u.name as user_name, u.email as user_email, u.phone as user_phone,
-           f.name as field_name, f.type as field_type, f.location as field_location,
-           f.price as field_price, f.image_url as field_image,
-           cb.name as confirmed_by_name, cb.employee_id as confirmed_by_employee_id,
-           canb.name as cancelled_by_name, canb.employee_id as cancelled_by_employee_id,
-           cob.name as completed_by_name, cob.employee_id as completed_by_employee_id
+           b.reminder_sent, b.created_at, b.updated_at
     FROM bookings b
-    LEFT JOIN users u ON b.user_id = u.id
-    LEFT JOIN fields f ON b.field_id = f.id
-    LEFT JOIN users cb ON b.confirmed_by = cb.id
-    LEFT JOIN users canb ON b.cancelled_by = canb.id
-    LEFT JOIN users cob ON b.completed_by = cob.id
     WHERE b.id = $1
   `;
-  const result = await pool.query(query, [id]);
-  return result.rows[0];
+
+  const bookingResult = await pool.query(bookingQuery, [id]);
+  if (!bookingResult.rows[0]) {
+    return null;
+  }
+
+  const booking = bookingResult.rows[0];
+
+  // Get user info (indexed by user_id)
+  const userQuery = `
+    SELECT name as user_name, email as user_email, phone as user_phone
+    FROM users WHERE id = $1
+  `;
+  const userResult = await pool.query(userQuery, [booking.user_id]);
+
+  // Get field info (indexed by field_id)
+  const fieldQuery = `
+    SELECT name as field_name, type as field_type, location as field_location,
+           price as field_price, image_url as field_image
+    FROM fields WHERE id = $1
+  `;
+  const fieldResult = await pool.query(fieldQuery, [booking.field_id]);
+
+  // Get staff info only if needed (conditional queries for better performance)
+  let confirmedBy = null, cancelledBy = null, completedBy = null;
+
+  if (booking.confirmed_by) {
+    const confirmedByQuery = `
+      SELECT name as confirmed_by_name, employee_id as confirmed_by_employee_id
+      FROM users WHERE id = $1
+    `;
+    const confirmedByResult = await pool.query(confirmedByQuery, [booking.confirmed_by]);
+    confirmedBy = confirmedByResult.rows[0];
+  }
+
+  if (booking.cancelled_by) {
+    const cancelledByQuery = `
+      SELECT name as cancelled_by_name, employee_id as cancelled_by_employee_id
+      FROM users WHERE id = $1
+    `;
+    const cancelledByResult = await pool.query(cancelledByQuery, [booking.cancelled_by]);
+    cancelledBy = cancelledByResult.rows[0];
+  }
+
+  if (booking.completed_by) {
+    const completedByQuery = `
+      SELECT name as completed_by_name, employee_id as completed_by_employee_id
+      FROM users WHERE id = $1
+    `;
+    const completedByResult = await pool.query(completedByQuery, [booking.completed_by]);
+    completedBy = completedByResult.rows[0];
+  }
+
+  // Combine results
+  return {
+    ...booking,
+    ...userResult.rows[0],
+    ...fieldResult.rows[0],
+    ...confirmedBy,
+    ...cancelledBy,
+    ...completedBy
+  };
 };
 
-const getBookingsByUserId = async (user_id) => {
+const getBookingsByUserId = async (user_id, limit = 50) => {
+  // Optimized: Added LIMIT to prevent large result sets
   const query = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email,
@@ -58,8 +109,9 @@ const getBookingsByUserId = async (user_id) => {
     LEFT JOIN fields f ON b.field_id = f.id
     WHERE b.user_id = $1
     ORDER BY b.created_at DESC
+    LIMIT $2
   `;
-  const result = await pool.query(query, [user_id]);
+  const result = await pool.query(query, [user_id, limit]);
   return result.rows;
 };
 
@@ -204,7 +256,8 @@ const updatePaymentStatus = async (id, paymentStatus) => {
   return result.rows[0];
 };
 
-const getBookingsByStatus = async (status) => {
+const getBookingsByStatus = async (status, limit = 100) => {
+  // Optimized: Added LIMIT to prevent large result sets
   const query = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email,
@@ -217,12 +270,14 @@ const getBookingsByStatus = async (status) => {
     LEFT JOIN fields f ON b.field_id = f.id
     WHERE b.status = $1
     ORDER BY b.created_at DESC
+    LIMIT $2
   `;
-  const result = await pool.query(query, [status]);
+  const result = await pool.query(query, [status, limit]);
   return result.rows;
 };
 
-const getTodayBookings = async () => {
+const getTodayBookings = async (limit = 50) => {
+  // Optimized: Added LIMIT for today's bookings
   const query = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email,
@@ -235,12 +290,14 @@ const getTodayBookings = async () => {
     LEFT JOIN fields f ON b.field_id = f.id
     WHERE b.date = CURRENT_DATE
     ORDER BY b.start_time ASC
+    LIMIT $1
   `;
-  const result = await pool.query(query);
+  const result = await pool.query(query, [limit]);
   return result.rows;
 };
 
-const getUpcomingBookings = async (days = 7) => {
+const getUpcomingBookings = async (days = 7, limit = 100) => {
+  // Optimized: Added LIMIT and parameterized days interval
   const query = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email,
@@ -251,11 +308,12 @@ const getUpcomingBookings = async (days = 7) => {
     FROM bookings b
     LEFT JOIN users u ON b.user_id = u.id
     LEFT JOIN fields f ON b.field_id = f.id
-    WHERE b.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '${days} days'
+    WHERE b.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '$1 days'
       AND b.status IN ('pending', 'confirmed')
     ORDER BY b.date ASC, b.start_time ASC
+    LIMIT $2
   `;
-  const result = await pool.query(query);
+  const result = await pool.query(query, [days, limit]);
   return result.rows;
 };
 
