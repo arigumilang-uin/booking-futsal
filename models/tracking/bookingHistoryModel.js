@@ -9,12 +9,15 @@ const createBookingHistory = async ({
   reason = null,
   notes = null
 }) => {
+  const action = `STATUS_CHANGE_${status_from}_TO_${status_to}`.toUpperCase();
+  const finalNotes = reason ? `${reason}${notes ? ` - ${notes}` : ''}` : notes;
+
   const query = `
-    INSERT INTO booking_history (booking_id, status_from, status_to, changed_by, reason, notes)
+    INSERT INTO booking_history (booking_id, action, old_status, new_status, changed_by, notes)
     VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING id, uuid, booking_id, status_from, status_to, changed_by, reason, notes, created_at
+    RETURNING id, booking_id, action, old_status, new_status, changed_by, notes, created_at
   `;
-  const values = [booking_id, status_from, status_to, changed_by, reason, notes];
+  const values = [booking_id, action, status_from, status_to, changed_by, finalNotes];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -22,8 +25,8 @@ const createBookingHistory = async ({
 // Get booking history
 const getBookingHistory = async (bookingId) => {
   const query = `
-    SELECT bh.id, bh.uuid, bh.booking_id, bh.status_from, bh.status_to,
-           bh.changed_by, bh.reason, bh.notes, bh.created_at,
+    SELECT bh.id, bh.booking_id, bh.action, bh.old_status, bh.new_status,
+           bh.changed_by, bh.notes, bh.created_at,
            u.name as changed_by_name, u.role as changed_by_role
     FROM booking_history bh
     LEFT JOIN users u ON bh.changed_by = u.id
