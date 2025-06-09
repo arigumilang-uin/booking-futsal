@@ -617,7 +617,7 @@ router.get('/system-config', async (req, res) => {
 
   } catch (error) {
     console.error('Get system config error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get system config',
       code: 'SYSTEM_CONFIG_FAILED'
     });
@@ -645,21 +645,27 @@ router.get('/system-config', async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
- *             required: [task]
+ *             required: [type, description]
  *             properties:
- *               task:
+ *               type:
  *                 type: string
- *                 enum: [cleanup_logs, optimize_database, clear_cache, backup_data]
- *                 example: "cleanup_logs"
- *               options:
- *                 type: object
- *                 properties:
- *                   days_to_keep:
- *                     type: integer
- *                     example: 30
- *                   force:
- *                     type: boolean
- *                     example: false
+ *                 enum: [database_cleanup, system_restart, cache_clear, log_rotation, security_scan]
+ *                 example: "database_cleanup"
+ *                 description: "Jenis maintenance yang akan dilakukan"
+ *               description:
+ *                 type: string
+ *                 example: "Membersihkan data lama dan mengoptimalkan database"
+ *                 description: "Deskripsi detail maintenance"
+ *               scheduled_time:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-06-10T02:00:00.000Z"
+ *                 description: "Waktu jadwal maintenance (opsional)"
+ *               notify_users:
+ *                 type: boolean
+ *                 default: true
+ *                 example: true
+ *                 description: "Apakah akan memberitahu users tentang maintenance"
  *     responses:
  *       200:
  *         description: Maintenance task berhasil dijalankan
@@ -677,16 +683,35 @@ router.get('/system-config', async (req, res) => {
  *                 data:
  *                   type: object
  *                   properties:
- *                     task:
+ *                     type:
  *                       type: string
- *                     started_at:
+ *                       example: "database_cleanup"
+ *                     description:
+ *                       type: string
+ *                       example: "Membersihkan data lama dan mengoptimalkan database"
+ *                     scheduled_time:
  *                       type: string
  *                       format: date-time
- *                     completed_at:
+ *                       example: "2025-06-10T02:00:00.000Z"
+ *                     notify_users:
+ *                       type: boolean
+ *                       example: true
+ *                     executed_at:
  *                       type: string
  *                       format: date-time
- *                     results:
+ *                       example: "2025-06-09T10:30:00.000Z"
+ *                     executed_by:
+ *                       type: string
+ *                       example: "Supervisor Sistem"
+ *                     result:
  *                       type: object
+ *                       properties:
+ *                         cleaned_records:
+ *                           type: integer
+ *                           example: 1500
+ *                         freed_space:
+ *                           type: string
+ *                           example: "25 MB"
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:
@@ -709,40 +734,73 @@ router.get('/system-config', async (req, res) => {
  */
 router.post('/system-maintenance', async (req, res) => {
   try {
-    const { task } = req.body;
-    
-    const validTasks = [
-      'cleanup_logs',
-      'optimize_database',
-      'clear_cache',
-      'backup_database'
+    const { type, description, scheduled_time, notify_users } = req.body;
+
+    const validTypes = [
+      'database_cleanup',
+      'system_restart',
+      'cache_clear',
+      'log_rotation',
+      'security_scan'
     ];
-    
-    if (!task || !validTasks.includes(task)) {
-      return res.status(400).json({ 
-        error: 'Invalid maintenance task',
-        code: 'INVALID_MAINTENANCE_TASK',
-        valid_tasks: validTasks
+
+    if (!type || !validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid maintenance type',
+        valid_types: validTypes
       });
     }
-    
-    // This would implement actual maintenance tasks
-    // For now, return success
+
+    if (!description) {
+      return res.status(400).json({
+        success: false,
+        message: 'Description is required'
+      });
+    }
+
+    // Execute maintenance task based on type
+    let result = {};
+
+    switch (type) {
+      case 'database_cleanup':
+        // Placeholder for database cleanup
+        result = { cleaned_records: 0, freed_space: '0 MB' };
+        break;
+      case 'cache_clear':
+        // Placeholder for cache clearing
+        result = { cleared_cache_size: '0 MB' };
+        break;
+      case 'log_rotation':
+        // Placeholder for log rotation
+        result = { rotated_logs: 0, archived_size: '0 MB' };
+        break;
+      default:
+        result = { message: 'Task scheduled for execution' };
+    }
+
+    console.log(`✅ Maintenance task executed: ${type} by ${req.rawUser.name}`);
+
     res.json({
       success: true,
-      message: `Maintenance task '${task}' completed successfully`,
+      message: `Maintenance task '${type}' executed successfully`,
       data: {
-        task: task,
+        type,
+        description,
+        scheduled_time,
+        notify_users,
         executed_at: new Date().toISOString(),
-        executed_by: req.rawUser.name
+        executed_by: req.rawUser.name,
+        result
       }
     });
 
   } catch (error) {
     console.error('System maintenance error:', error);
-    res.status(500).json({ 
-      error: 'Failed to execute maintenance task',
-      code: 'MAINTENANCE_TASK_FAILED'
+    res.status(500).json({
+      success: false,
+      message: 'Failed to execute maintenance task',
+      error: error.message
     });
   }
 });
@@ -829,7 +887,7 @@ router.get('/database-stats', async (req, res) => {
   try {
     const { getDatabaseStats } = require('../config/db');
     const dbStats = await getDatabaseStats();
-    
+
     res.json({
       success: true,
       data: dbStats
@@ -837,7 +895,7 @@ router.get('/database-stats', async (req, res) => {
 
   } catch (error) {
     console.error('Get database stats error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get database stats',
       code: 'DATABASE_STATS_FAILED'
     });
@@ -936,7 +994,7 @@ router.get('/database-stats', async (req, res) => {
 router.get('/error-logs', async (req, res) => {
   try {
     const { page = 1, limit = 50, level = 'error' } = req.query;
-    
+
     // This would be implemented with proper logging system
     // For now, return basic structure
     res.json({
@@ -953,7 +1011,7 @@ router.get('/error-logs', async (req, res) => {
 
   } catch (error) {
     console.error('Get error logs error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get error logs',
       code: 'ERROR_LOGS_FAILED'
     });

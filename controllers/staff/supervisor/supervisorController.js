@@ -46,7 +46,7 @@ const getSystemHealth = async (req, res) => {
   try {
     const systemHealth = await healthCheck();
     const dbStats = await getDatabaseStats();
-    
+
     res.json({
       success: true,
       data: {
@@ -75,14 +75,14 @@ const createStaffUser = async (req, res) => {
   try {
     const supervisorId = req.rawUser.id;
     const { name, email, password, phone, role, department } = req.body;
-    
+
     const validStaffRoles = ['staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'];
     if (!validStaffRoles.includes(role)) {
       return res.status(400).json({
         error: 'Invalid staff role'
       });
     }
-    
+
     const newUser = await createUser({
       name,
       email,
@@ -92,7 +92,7 @@ const createStaffUser = async (req, res) => {
       department,
       created_by: supervisorId
     });
-    
+
     res.status(201).json({
       success: true,
       message: 'Staff user created successfully',
@@ -101,7 +101,7 @@ const createStaffUser = async (req, res) => {
 
   } catch (error) {
     console.error('Create staff user error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to create staff user',
       code: 'STAFF_USER_CREATE_FAILED'
     });
@@ -172,24 +172,46 @@ const getSystemAnalytics = async (req, res) => {
 
 const getAuditLogs = async (req, res) => {
   try {
-    // This would be implemented with proper audit logging
+    const { getAuditLogs: getAuditLogsModel } = require('../../../models/system/auditLogModel');
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+
+    const filters = {
+      user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
+      action: req.query.action,
+      table_name: req.query.table_name,
+      date_from: req.query.date_from,
+      date_to: req.query.date_to
+    };
+
+    // Remove null filters
+    Object.keys(filters).forEach(key => {
+      if (filters[key] === null || filters[key] === undefined) {
+        delete filters[key];
+      }
+    });
+
+    const logs = await getAuditLogsModel(page, limit, filters);
+
     res.json({
       success: true,
       data: {
-        logs: [],
+        logs,
+        filters: filters,
         pagination: {
-          current_page: 1,
-          per_page: 20,
-          total: 0
+          current_page: page,
+          per_page: limit,
+          total: logs.length
         }
-      },
-      message: 'Audit logs implementation in progress'
+      }
     });
   } catch (error) {
     console.error('Get audit logs error:', error);
     res.status(500).json({
-      error: 'Failed to get audit logs',
-      code: 'AUDIT_LOGS_FETCH_FAILED'
+      success: false,
+      message: 'Failed to get audit logs',
+      error: error.message
     });
   }
 };
