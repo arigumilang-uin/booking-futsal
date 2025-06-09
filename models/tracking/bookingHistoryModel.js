@@ -136,12 +136,12 @@ const getBookingTimeline = async (bookingId) => {
       'status_change' as event_type,
       bh.id as event_id,
       bh.action,
-      bh.old_status as status_from,
-      bh.new_status as status_to,
-      bh.notes,
+      CAST(bh.old_status AS TEXT) as status_from,
+      CAST(bh.new_status AS TEXT) as status_to,
+      CAST(bh.notes AS TEXT) as notes,
       bh.created_at,
-      u.name as actor_name,
-      u.role as actor_role
+      CAST(u.name AS TEXT) as actor_name,
+      CAST(u.role AS TEXT) as actor_role
     FROM booking_history bh
     LEFT JOIN users u ON bh.changed_by = u.id
     WHERE bh.booking_id = $1
@@ -153,8 +153,8 @@ const getBookingTimeline = async (bookingId) => {
       p.id as event_id,
       'payment_created' as action,
       'pending' as status_from,
-      p.status as status_to,
-      CONCAT(p.method, ' - ', CAST(p.amount AS TEXT)) as notes,
+      CAST(p.status AS TEXT) as status_to,
+      CONCAT(CAST(p.method AS TEXT), ' - ', CAST(p.amount AS TEXT)) as notes,
       p.created_at,
       'System' as actor_name,
       'system' as actor_role

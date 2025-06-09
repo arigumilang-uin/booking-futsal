@@ -3460,20 +3460,29 @@ router.get('/bookings/:id/history', requireManagement, async (req, res) => {
  */
 router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
   try {
+    console.log(`📅 Getting booking timeline for booking ID: ${req.params.id}`);
     const { getBookingTimeline } = require('../models/tracking/bookingHistoryModel');
     const { id } = req.params;
 
+    console.log(`📅 Calling getBookingTimeline with ID: ${id}`);
     const timeline = await getBookingTimeline(id);
+    console.log(`📅 Booking timeline result: ${timeline.length} events found`);
 
     res.json({
       success: true,
       data: timeline
     });
   } catch (error) {
-    console.error('Get booking timeline error:', error);
+    console.error('❌ Get booking timeline error:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      stack: error.stack,
+      bookingId: req.params.id
+    });
     res.status(500).json({
       success: false,
-      error: 'Failed to get booking timeline'
+      error: 'Failed to get booking timeline',
+      details: error.message
     });
   }
 });
