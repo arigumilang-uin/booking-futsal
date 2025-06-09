@@ -227,7 +227,6 @@ const confirmPayment = async (req, res) => {
       const bookingId = id.replace('booking_', '');
 
       // Get booking details
-      const { getAllBookings } = require('../../../models/business/bookingModel');
       const allBookings = await getAllBookings();
       const booking = allBookings.find(b => b.id == bookingId);
 
@@ -246,7 +245,6 @@ const confirmPayment = async (req, res) => {
       }
 
       // Create payment record for this booking
-      const { createPayment } = require('../../../models/business/paymentModel');
       const paymentData = {
         booking_id: bookingId,
         amount: amount || booking.total_amount,
@@ -263,7 +261,6 @@ const confirmPayment = async (req, res) => {
 
       if (newPayment) {
         // Update booking payment status
-        const { updateBookingPaymentStatus } = require('../../../models/business/bookingModel');
         await updateBookingPaymentStatus(bookingId, 'paid');
 
         console.log('✅ BOOKING PAYMENT CONFIRMED:', {
