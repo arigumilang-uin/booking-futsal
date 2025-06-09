@@ -1442,6 +1442,148 @@ router.delete('/users/:id', requireManagement, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/users/{id}/status:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Update user status 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mengubah status aktif/nonaktif user
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID user yang akan diubah statusnya
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [is_active]
+ *             properties:
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *                 description: Status aktif user (true/false)
+ *     responses:
+ *       200:
+ *         description: Status user berhasil diubah
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User status updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ * @route   PATCH /api/admin/users/:id/status
+ * @desc    Update user status (activate/deactivate)
+ * @access  Management (manajer_futsal+)
+ * @params  { id: user_id }
+ * @body    { is_active: boolean }
+ */
+router.patch('/users/:id/status', requireManagement, async (req, res) => {
+  try {
+    const { updateUserStatus, getUserByIdRaw } = require('../models/core/userModel');
+    const { id } = req.params;
+    const { is_active } = req.body;
+
+    // Validate input
+    if (typeof is_active !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'is_active must be a boolean value'
+      });
+    }
+
+    // Validate user exists
+    const existingUser = await getUserByIdRaw(id);
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Role hierarchy validation
+    const currentUserRole = req.rawUser.role;
+    const targetUserRole = existingUser.role;
+
+    // Define role hierarchy levels
+    const roleHierarchy = {
+      'supervisor_sistem': 6,
+      'manajer_futsal': 5,
+      'operator_lapangan': 4,
+      'staff_kasir': 3,
+      'penyewa': 2,
+      'pengunjung': 1
+    };
+
+    const currentUserLevel = roleHierarchy[currentUserRole] || 0;
+    const targetUserLevel = roleHierarchy[targetUserRole] || 0;
+
+    // Manager cannot modify supervisor
+    if (currentUserRole === 'manajer_futsal' && targetUserRole === 'supervisor_sistem') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Cannot modify supervisor'
+      });
+    }
+
+    // Only allow modification of users with lower hierarchy level
+    if (currentUserLevel <= targetUserLevel && currentUserRole !== targetUserRole) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Insufficient role level'
+      });
+    }
+
+    const updatedUser = await updateUserStatus(id, is_active);
+    if (!updatedUser) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update user status'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'User status updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Update user status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user status'
+    });
+  }
+});
+
 // =====================================================
 // FIELD MANAGEMENT ROUTES - ADMIN LEVEL
 // =====================================================
