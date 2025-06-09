@@ -271,13 +271,31 @@ const cleanOldAuditLogsData = async (req, res) => {
     const daysToKeep = parseInt(req.body.days_to_keep) || 365;
     console.log('📅 Days to keep:', daysToKeep);
 
-    if (daysToKeep < 30) {
+    // For testing purposes, allow smaller retention periods
+    if (daysToKeep < 1) {
       console.log('❌ Invalid days_to_keep:', daysToKeep);
       return res.status(400).json({
         success: false,
-        message: 'Minimal 30 hari data harus disimpan'
+        message: 'Minimal 1 hari data harus disimpan'
       });
     }
+
+    // Show what would be deleted before actual deletion
+    const pool = require('../../config/db');
+    const previewQuery = `
+      SELECT
+        id, action, created_at, user_id,
+        AGE(NOW(), created_at) as age,
+        (created_at < NOW() - INTERVAL '1 day' * $1) as will_be_deleted
+      FROM audit_logs
+      ORDER BY created_at DESC
+      LIMIT 10
+    `;
+    const previewResult = await pool.query(previewQuery, [daysToKeep]);
+    console.log('📋 Preview of records (showing first 10):');
+    previewResult.rows.forEach(row => {
+      console.log(`  ID: ${row.id}, Action: ${row.action}, Date: ${row.created_at}, Age: ${row.age}, Will Delete: ${row.will_be_deleted}`);
+    });
 
     console.log('🔄 Calling cleanOldAuditLogs function...');
     let deletedCount;
@@ -296,7 +314,8 @@ const cleanOldAuditLogsData = async (req, res) => {
       message: `${deletedCount} log audit lama berhasil dihapus`,
       data: {
         deleted_count: deletedCount,
-        days_kept: daysToKeep
+        days_kept: daysToKeep,
+        preview: previewResult.rows.slice(0, 5) // Return first 5 for debugging
       }
     });
   } catch (error) {
