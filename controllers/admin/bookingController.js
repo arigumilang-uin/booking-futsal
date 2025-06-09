@@ -147,6 +147,22 @@ const updateBookingStatusAdmin = async (req, res) => {
       });
     }
 
+    // BUSINESS RULE: Payment must be completed before booking can be confirmed
+    // Admin can override this rule by providing override_payment_check: true
+    if (status === 'confirmed' && booking.payment_status !== 'paid' && !req.body.override_payment_check) {
+      return res.status(400).json({
+        success: false,
+        error: 'Booking cannot be confirmed. Payment must be completed first',
+        code: 'PAYMENT_NOT_COMPLETED',
+        details: {
+          current_payment_status: booking.payment_status,
+          required_payment_status: 'paid',
+          message: 'Please ensure payment is processed by kasir before confirming booking',
+          admin_override: 'Set override_payment_check: true to bypass this validation'
+        }
+      });
+    }
+
     const updatedBooking = await updateBookingStatus(
       id,
       status,
