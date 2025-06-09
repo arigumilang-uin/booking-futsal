@@ -304,6 +304,79 @@ router.put('/settings/:key/reset', requireAdmin, resetSettingToDefault);
 router.get('/audit-logs', requireAdmin, getAllAuditLogs);
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/statistics:
+ *   get:
+ *     tags: [Admin - Audit System]
+ *     summary: Get audit logs statistics 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan statistik audit logs sistem
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: Periode hari untuk statistik (default 30 hari)
+ *     responses:
+ *       200:
+ *         description: Statistik audit logs berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     period_days:
+ *                       type: integer
+ *                       example: 30
+ *                     statistics:
+ *                       type: object
+ *                       properties:
+ *                         total_logs:
+ *                           type: integer
+ *                           example: 150
+ *                         today_logs:
+ *                           type: integer
+ *                           example: 25
+ *                         unique_users:
+ *                           type: integer
+ *                           example: 8
+ *                         critical_actions:
+ *                           type: integer
+ *                           example: 3
+ *                         create_actions:
+ *                           type: integer
+ *                           example: 45
+ *                         update_actions:
+ *                           type: integer
+ *                           example: 67
+ *                         delete_actions:
+ *                           type: integer
+ *                           example: 12
+ *                         login_actions:
+ *                           type: integer
+ *                           example: 89
+ *                         logout_actions:
+ *                           type: integer
+ *                           example: 76
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/audit-logs/statistics
  * @desc    Get audit statistics
  * @access  Admin (supervisor_sistem only)
@@ -328,6 +401,84 @@ router.get('/audit-logs/record/:tableName/:recordId', requireAdmin, getRecordAud
 router.get('/audit-logs/:id', requireAdmin, getAuditLogDetail);
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/active-users:
+ *   get:
+ *     tags: [Admin - Audit System]
+ *     summary: Get most active users 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan daftar pengguna paling aktif berdasarkan audit logs
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *         description: Periode hari untuk analisis aktivitas
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Jumlah maksimal pengguna yang ditampilkan
+ *     responses:
+ *       200:
+ *         description: Daftar pengguna paling aktif berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     period_days:
+ *                       type: integer
+ *                       example: 30
+ *                     active_users:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           user_id:
+ *                             type: integer
+ *                             example: 1
+ *                           user_name:
+ *                             type: string
+ *                             example: "John Doe"
+ *                           user_email:
+ *                             type: string
+ *                             example: "john@example.com"
+ *                           user_role:
+ *                             type: string
+ *                             example: "supervisor_sistem"
+ *                           activity_count:
+ *                             type: integer
+ *                             example: 156
+ *                           login_count:
+ *                             type: integer
+ *                             example: 45
+ *                           last_activity:
+ *                             type: string
+ *                             format: date-time
+ *                     total:
+ *                       type: integer
+ *                       example: 10
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   GET /api/admin/audit-logs/active-users
  * @desc    Get most active users
  * @access  Admin (supervisor_sistem only)
@@ -336,6 +487,100 @@ router.get('/audit-logs/:id', requireAdmin, getAuditLogDetail);
 router.get('/audit-logs/active-users', requireAdmin, getMostActiveUsersData);
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/user/{userId}:
+ *   get:
+ *     tags: [Admin - Audit System]
+ *     summary: Get user activity logs 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mendapatkan riwayat aktivitas pengguna tertentu
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID pengguna yang akan dilihat aktivitasnya
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Halaman data
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Jumlah data per halaman
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *           enum: [LOGIN, LOGOUT, CREATE, UPDATE, DELETE]
+ *         description: Filter berdasarkan jenis aksi
+ *       - in: query
+ *         name: table_name
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama tabel
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai (YYYY-MM-DD)
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Riwayat aktivitas pengguna berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user_info:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                     logs:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/AuditLog'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/PaginationMeta'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: Pengguna tidak ditemukan
+ *
  * @route   GET /api/admin/audit-logs/user/:userId
  * @desc    Get user activity logs
  * @access  Admin (supervisor_sistem only)
@@ -354,6 +599,92 @@ router.get('/audit-logs/user/:userId', requireAdmin, getUserActivityLogs);
 router.get('/audit-logs/table/:tableName', requireAdmin, getTableActivityLogs);
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/cleanup:
+ *   delete:
+ *     tags: [Admin - Audit System]
+ *     summary: Clean old audit logs 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk membersihkan audit logs lama berdasarkan retention period
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *
+ *       **⚠️ PERINGATAN:**
+ *       - Operasi ini akan menghapus data secara permanen
+ *       - Minimal retention period adalah 1 hari
+ *       - Gunakan test-cleanup endpoint untuk preview terlebih dahulu
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [days_to_keep]
+ *             properties:
+ *               days_to_keep:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 90
+ *                 description: Jumlah hari data yang akan disimpan (minimal 1 hari)
+ *     responses:
+ *       200:
+ *         description: Cleanup berhasil dilakukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "5 log audit lama berhasil dihapus"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deleted_count:
+ *                       type: integer
+ *                       example: 5
+ *                     days_kept:
+ *                       type: integer
+ *                       example: 90
+ *                     preview:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           action:
+ *                             type: string
+ *                           created_at:
+ *                             type: string
+ *                           will_be_deleted:
+ *                             type: boolean
+ *       400:
+ *         description: Parameter tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Minimal 1 hari data harus disimpan"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @route   DELETE /api/admin/audit-logs/cleanup
  * @desc    Clean old audit logs
  * @access  Admin (supervisor_sistem only)
@@ -362,6 +693,107 @@ router.get('/audit-logs/table/:tableName', requireAdmin, getTableActivityLogs);
 router.delete('/audit-logs/cleanup', requireAdmin, cleanOldAuditLogsData);
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/test-cleanup:
+ *   post:
+ *     tags: [Admin - Audit System]
+ *     summary: Test cleanup preview 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk preview cleanup operation tanpa menghapus data
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *
+ *       **🧪 TESTING PURPOSE:**
+ *       - Menampilkan preview records yang akan dihapus
+ *       - Tidak menghapus data apapun (safe operation)
+ *       - Berguna untuk verifikasi sebelum cleanup sesungguhnya
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [days_to_keep]
+ *             properties:
+ *               days_to_keep:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 30
+ *                 description: Jumlah hari data yang akan disimpan untuk testing
+ *     responses:
+ *       200:
+ *         description: Preview cleanup berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Test cleanup preview - 3 records would be deleted with 30 days retention"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     days_to_keep:
+ *                       type: integer
+ *                       example: 30
+ *                     count_to_delete:
+ *                       type: integer
+ *                       example: 3
+ *                     records_preview:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           action:
+ *                             type: string
+ *                             example: "LOGIN"
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                           days_old:
+ *                             type: number
+ *                             example: 35.5
+ *                           will_be_deleted:
+ *                             type: boolean
+ *                             example: true
+ *                     current_time:
+ *                       type: string
+ *                       format: date-time
+ *                     cutoff_time:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       500:
+ *         description: Test cleanup gagal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Test cleanup failed"
+ *                 error:
+ *                   type: string
+ *
  * @route   POST /api/admin/audit-logs/test-cleanup
  * @desc    Test cleanup preview (shows what would be deleted)
  * @access  Admin (supervisor_sistem only)
@@ -422,6 +854,85 @@ router.post('/audit-logs/test-cleanup', requireAdmin, async (req, res) => {
 });
 
 /**
+ * @swagger
+ * /api/admin/audit-logs/export:
+ *   get:
+ *     tags: [Admin - Audit System]
+ *     summary: Export audit logs to CSV 🔴 SUPERVISOR ONLY
+ *     description: |
+ *       Endpoint untuk mengekspor audit logs ke format CSV
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem) ONLY
+ *       - ❌ Manager dan staff lainnya TIDAK dapat mengakses
+ *
+ *       **📁 EXPORT FORMAT:**
+ *       - File CSV dengan header: ID, User, Action, Table, Record ID, IP Address, Created At
+ *       - Maksimal 10,000 records per export
+ *       - Filter dapat diterapkan untuk membatasi data
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan user ID
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *           enum: [LOGIN, LOGOUT, CREATE, UPDATE, DELETE]
+ *         description: Filter berdasarkan jenis aksi
+ *       - in: query
+ *         name: table_name
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama tabel
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal mulai (YYYY-MM-DD)
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tanggal akhir (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: File CSV audit logs
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *         headers:
+ *           Content-Disposition:
+ *             description: attachment; filename=audit_logs.csv
+ *             schema:
+ *               type: string
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       500:
+ *         description: Export gagal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Gagal mengekspor log audit"
+ *
  * @route   GET /api/admin/audit-logs/export
  * @desc    Export audit logs
  * @access  Admin (supervisor_sistem only)
