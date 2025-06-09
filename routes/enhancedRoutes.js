@@ -6,49 +6,6 @@ const router = express.Router();
 // ENHANCED FEATURES DOCUMENTATION
 // =====================================================
 
-/**
- * @swagger
- * /api/enhanced/:
- *   get:
- *     tags: [Enhanced Features]
- *     summary: Get enhanced features overview ⚪ PUBLIC
- *     description: Endpoint untuk mendapatkan overview fitur-fitur enhanced sistem
- *     responses:
- *       200:
- *         description: Overview fitur enhanced berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Enhanced Futsal Booking System - Advanced Features"
- *                 data:
- *                   type: object
- *                   properties:
- *                     version:
- *                       type: string
- *                       example: "2.0.0"
- *                     features:
- *                       type: array
- *                       items:
- *                         type: string
- *                       example: ["Auto-completion", "Real-time notifications", "Advanced analytics", "Role-based access"]
- *                     status:
- *                       type: string
- *                       example: "active"
- *                     last_updated:
- *                       type: string
- *                       format: date-time
- *
- * @route   GET /api/enhanced/
- * @desc    Enhanced features overview
- * @access  Public
- */
 router.get('/', (req, res) => {
   res.json({
     success: true,
@@ -119,59 +76,6 @@ router.get('/', (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /api/enhanced/features:
- *   get:
- *     tags: [Enhanced Features]
- *     summary: Get detailed enhanced features ⚪ PUBLIC
- *     description: Endpoint untuk mendapatkan daftar detail fitur-fitur enhanced
- *     responses:
- *       200:
- *         description: Daftar fitur enhanced berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: object
- *                   properties:
- *                     booking_features:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           name:
- *                             type: string
- *                           description:
- *                             type: string
- *                           status:
- *                             type: string
- *                       example:
- *                         - name: "Auto-completion"
- *                           description: "Automatic booking completion system"
- *                           status: "active"
- *                     notification_features:
- *                       type: array
- *                       items:
- *                         type: object
- *                     analytics_features:
- *                       type: array
- *                       items:
- *                         type: object
- *                     security_features:
- *                       type: array
- *                       items:
- *                         type: object
- *
- * @route   GET /api/enhanced/features
- * @desc    Detailed features list
- * @access  Public
- */
 router.get('/features', (req, res) => {
   res.json({
     success: true,
