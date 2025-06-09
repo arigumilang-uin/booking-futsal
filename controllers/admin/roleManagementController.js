@@ -88,27 +88,36 @@ const getAllUsersForRoleManagement = async (req, res) => {
   try {
     const adminRole = req.rawUser.role;
     const adminLevel = getRoleLevel(adminRole);
-    
-    const { 
-      page = 1, 
-      limit = 20, 
-      role, 
-      status, 
+
+    const {
+      page = 1,
+      limit = 20,
+      role,
+      status,
+      department,
       search,
       sort_by = 'created_at',
       sort_order = 'desc'
     } = req.query;
-    
+
     let users = await getAllUsers();
-    
+
     if (role) {
       const targetRole = mapOldRoleToNew(role);
       users = users.filter(user => user.role === targetRole);
     }
 
-    if (status !== undefined) {
-      const isActive = status === 'active';
-      users = users.filter(user => user.is_active === isActive);
+    if (status !== undefined && status !== '') {
+      if (status === 'active') {
+        users = users.filter(user => user.is_active === true);
+      } else if (status === 'inactive') {
+        users = users.filter(user => user.is_active === false);
+      }
+      // If status is 'all' or empty, don't filter
+    }
+
+    if (department && department !== '') {
+      users = users.filter(user => user.department === department);
     }
 
     if (search) {
@@ -126,7 +135,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
         return userLevel < adminLevel;
       });
     }
-    
+
     users.sort((a, b) => {
       if (sort_order === 'desc') {
         return new Date(b[sort_by]) - new Date(a[sort_by]);
@@ -149,7 +158,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
         available_roles: getAvailableRolesForUser(adminRole)
       }
     }));
-    
+
     res.json({
       success: true,
       data: {
@@ -163,6 +172,7 @@ const getAllUsersForRoleManagement = async (req, res) => {
         filters: {
           role: role || 'all',
           status: status || 'all',
+          department: department || 'all',
           search: search || ''
         }
       }
@@ -181,7 +191,7 @@ const requestRoleChange = async (req, res) => {
     const requesterId = req.rawUser.id;
     const requesterRole = req.rawUser.role;
     const { user_id, new_role, reason, priority = 'normal' } = req.body;
-    
+
     if (!user_id || !new_role || !reason) {
       return res.status(400).json({
         error: 'User ID, new role, and reason are required'
@@ -215,7 +225,7 @@ const requestRoleChange = async (req, res) => {
       reason: reason,
       priority: priority
     });
-    
+
     res.status(201).json({
       success: true,
       message: 'Role change request created successfully',
@@ -235,7 +245,7 @@ const changeUserRoleDirect = async (req, res) => {
     const adminId = req.rawUser.id;
     const adminRole = req.rawUser.role;
     const { user_id, new_role, reason, bypass_approval = false } = req.body;
-    
+
     if (!user_id || !new_role || !reason) {
       return res.status(400).json({
         error: 'User ID, new role, and reason are required'
@@ -269,7 +279,7 @@ const changeUserRoleDirect = async (req, res) => {
         error: 'Failed to update user role'
       });
     }
-    
+
     // Log role change for audit trail
     await logRoleChange({
       admin_id: adminId,
@@ -279,7 +289,7 @@ const changeUserRoleDirect = async (req, res) => {
       reason: reason,
       change_type: bypass_approval ? 'direct_bypass' : 'direct_authorized'
     });
-    
+
     res.json({
       success: true,
       message: 'User role changed successfully',
@@ -315,14 +325,14 @@ const getAdminPermissions = (role) => {
       'bypass_approval_workflow'
     ]
   };
-  
+
   return permissions[role] || [];
 };
 
 const canElevateUser = (userRole, adminRole) => {
   const userLevel = getRoleLevel(userRole);
   const adminLevel = getRoleLevel(adminRole);
-  
+
   // Admin can only elevate users to levels below their own
   return userLevel < adminLevel - 1;
 };

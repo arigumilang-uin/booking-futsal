@@ -44,9 +44,8 @@ const getAllUsers = async () => {
   const query = `
     SELECT id, uuid, name, email, phone, role, employee_id, department,
            booking_count, total_spent, last_booking_date,
-           is_active, is_verified, created_at
+           is_active, is_verified, last_login_at, created_at, updated_at
     FROM users
-    WHERE is_active = true
     ORDER BY created_at DESC
   `;
   const result = await pool.query(query);
