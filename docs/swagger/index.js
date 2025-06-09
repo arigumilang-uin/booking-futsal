@@ -12,6 +12,8 @@ const parameters = require('./components/parameters');
 const authPaths = require('./paths/auth');
 const customerPaths = require('./paths/customer');
 const adminPaths = require('./paths/admin');
+const adminAuditPaths = require('./paths/admin-audit');
+const adminNotificationPaths = require('./paths/admin-notifications');
 const staffPaths = require('./paths/staff');
 const publicPaths = require('./paths/public');
 
@@ -84,6 +86,8 @@ const swaggerDefinition = {
     ...authPaths,
     ...customerPaths,
     ...adminPaths,
+    ...adminAuditPaths,
+    ...adminNotificationPaths,
     ...staffPaths,
     ...publicPaths
   },
@@ -119,6 +123,18 @@ const swaggerDefinition = {
     {
       name: 'Admin',
       description: 'Endpoint untuk administrator sistem - Mixed Levels (Management + Supervisor)'
+    },
+    {
+      name: 'Admin - System Settings',
+      description: 'Endpoint untuk manajemen pengaturan sistem - Supervisor Only'
+    },
+    {
+      name: 'Admin - Audit System',
+      description: 'Endpoint untuk audit logs dan monitoring sistem - Supervisor Only'
+    },
+    {
+      name: 'Admin - Notification Management',
+      description: 'Endpoint untuk manajemen notifikasi sistem - Management Level'
     },
     {
       name: 'Enhanced Features',

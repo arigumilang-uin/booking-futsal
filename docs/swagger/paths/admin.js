@@ -472,6 +472,432 @@ const adminPaths = {
         }
       }
     }
+  },
+
+  // =====================================================
+  // SYSTEM SETTINGS ROUTES - ADMIN ONLY
+  // =====================================================
+
+  '/api/admin/settings': {
+    get: {
+      tags: ['Admin - System Settings'],
+      summary: 'Get all system settings 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk mendapatkan semua pengaturan sistem',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      responses: {
+        200: {
+          description: 'System settings berhasil diambil',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  data: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        key: {
+                          type: 'string',
+                          example: 'booking_auto_completion_hours'
+                        },
+                        value: {
+                          type: 'string',
+                          example: '24'
+                        },
+                        description: {
+                          type: 'string',
+                          example: 'Hours after which booking is auto-completed'
+                        },
+                        is_public: {
+                          type: 'boolean',
+                          example: false
+                        },
+                        category: {
+                          type: 'string',
+                          example: 'booking'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        }
+      }
+    },
+    post: {
+      tags: ['Admin - System Settings'],
+      summary: 'Create new system setting 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk membuat pengaturan sistem baru',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['key', 'value'],
+              properties: {
+                key: {
+                  type: 'string',
+                  example: 'new_setting_key',
+                  description: 'Unique setting key'
+                },
+                value: {
+                  type: 'string',
+                  example: 'setting_value',
+                  description: 'Setting value'
+                },
+                description: {
+                  type: 'string',
+                  example: 'Description of the setting',
+                  description: 'Setting description'
+                },
+                is_public: {
+                  type: 'boolean',
+                  example: false,
+                  description: 'Whether setting is publicly accessible'
+                },
+                category: {
+                  type: 'string',
+                  example: 'general',
+                  description: 'Setting category'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: 'Setting berhasil dibuat',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  message: {
+                    type: 'string',
+                    example: 'Setting created successfully'
+                  },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      key: {
+                        type: 'string'
+                      },
+                      value: {
+                        type: 'string'
+                      },
+                      description: {
+                        type: 'string'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        400: {
+          $ref: '#/components/responses/BadRequest'
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        },
+        409: {
+          $ref: '#/components/responses/Conflict'
+        }
+      }
+    }
+  },
+
+  '/api/admin/settings/public': {
+    get: {
+      tags: ['Admin - System Settings'],
+      summary: 'Get public system settings 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk mendapatkan pengaturan sistem yang bersifat publik',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      responses: {
+        200: {
+          description: 'Public settings berhasil diambil',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  data: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        key: {
+                          type: 'string'
+                        },
+                        value: {
+                          type: 'string'
+                        },
+                        description: {
+                          type: 'string'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        }
+      }
+    }
+  },
+
+  '/api/admin/settings/{key}': {
+    get: {
+      tags: ['Admin - System Settings'],
+      summary: 'Get specific system setting 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk mendapatkan pengaturan sistem berdasarkan key',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      parameters: [
+        {
+          in: 'path',
+          name: 'key',
+          required: true,
+          schema: {
+            type: 'string'
+          },
+          description: 'Setting key',
+          example: 'booking_auto_completion_hours'
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Setting berhasil diambil',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      key: {
+                        type: 'string'
+                      },
+                      value: {
+                        type: 'string'
+                      },
+                      description: {
+                        type: 'string'
+                      },
+                      is_public: {
+                        type: 'boolean'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        },
+        404: {
+          $ref: '#/components/responses/NotFound'
+        }
+      }
+    },
+    put: {
+      tags: ['Admin - System Settings'],
+      summary: 'Update system setting 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk mengupdate pengaturan sistem',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      parameters: [
+        {
+          in: 'path',
+          name: 'key',
+          required: true,
+          schema: {
+            type: 'string'
+          },
+          description: 'Setting key'
+        }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['value'],
+              properties: {
+                value: {
+                  type: 'string',
+                  example: '48',
+                  description: 'New setting value'
+                },
+                description: {
+                  type: 'string',
+                  example: 'Updated description',
+                  description: 'Updated description'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Setting berhasil diupdate',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  message: {
+                    type: 'string',
+                    example: 'Setting updated successfully'
+                  },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      key: {
+                        type: 'string'
+                      },
+                      value: {
+                        type: 'string'
+                      },
+                      old_value: {
+                        type: 'string'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        400: {
+          $ref: '#/components/responses/BadRequest'
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        },
+        404: {
+          $ref: '#/components/responses/NotFound'
+        }
+      }
+    },
+    delete: {
+      tags: ['Admin - System Settings'],
+      summary: 'Delete system setting 🔴 SUPERVISOR ONLY',
+      description: 'Endpoint untuk menghapus pengaturan sistem',
+      security: [
+        { bearerAuth: [] },
+        { cookieAuth: [] }
+      ],
+      parameters: [
+        {
+          in: 'path',
+          name: 'key',
+          required: true,
+          schema: {
+            type: 'string'
+          },
+          description: 'Setting key'
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Setting berhasil dihapus',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: {
+                    type: 'boolean',
+                    example: true
+                  },
+                  message: {
+                    type: 'string',
+                    example: 'Setting deleted successfully'
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: {
+          $ref: '#/components/responses/Unauthorized'
+        },
+        403: {
+          $ref: '#/components/responses/Forbidden'
+        },
+        404: {
+          $ref: '#/components/responses/NotFound'
+        }
+      }
+    }
   }
 };
 
