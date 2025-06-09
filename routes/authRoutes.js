@@ -32,294 +32,30 @@ const { requireAuth } = require('../middlewares/auth/authMiddleware');
 // =====================================================
 
 /**
- * @swagger
- * /api/auth/register:
- *   post:
- *     tags: [Authentication]
- *     summary: Register pengguna baru ⚪ PUBLIC
- *     description: Endpoint untuk mendaftarkan pengguna baru dengan role default penyewa
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email, password, phone]
- *             properties:
- *               name:
- *                 type: string
- *                 example: "John Doe"
- *                 description: "Nama lengkap"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "john@example.com"
- *                 description: "Email unik"
- *               password:
- *                 type: string
- *                 example: "password123"
- *                 description: "Password minimal 6 karakter"
- *               phone:
- *                 type: string
- *                 example: "081234567890"
- *                 description: "Nomor telepon"
- *               role:
- *                 type: string
- *                 enum: [user, penyewa]
- *                 default: user
- *                 description: "Role (opsional)"
- *     responses:
- *       201:
- *         description: Registrasi berhasil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Registration successful"
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 token:
- *                   type: string
- *                   description: "JWT token (development only)"
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       409:
- *         $ref: '#/components/responses/Conflict'
+ * @route   POST /api/auth/register
+ * @desc    Register new user
+ * @access  Public
  */
 router.post('/register', register);
 
 /**
- * @swagger
- * /api/auth/login:
- *   post:
- *     tags: [Authentication]
- *     summary: Login pengguna ⚪ PUBLIC
- *     description: Endpoint untuk autentikasi pengguna dengan email dan password
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "ppwweebb01@gmail.com"
- *                 description: "Email pengguna"
- *               password:
- *                 type: string
- *                 example: "password123"
- *                 description: "Password pengguna"
- *     responses:
- *       200:
- *         description: Login berhasil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Login berhasil"
- *                 data:
- *                   type: object
- *                   properties:
- *                     token:
- *                       type: string
- *                       description: "JWT token"
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *       400:
- *         description: Password salah atau email tidak ditemukan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 error:
- *                   type: string
- *                   example: "Password salah"
+ * @route   POST /api/auth/login
+ * @desc    Login user
+ * @access  Public
  */
 router.post('/login', login);
 
 /**
- * @swagger
- * /api/auth/logout:
- *   post:
- *     tags: [Authentication]
- *     summary: Logout pengguna 🔵 AUTHENTICATED
- *     description: Endpoint untuk logout pengguna dan menghapus session/token
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Logout berhasil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Logout successful"
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *
  * @route   POST /api/auth/logout
  * @desc    Logout user
- * @access  Public
+ * @access  Private
  */
 router.post('/logout', requireAuth, logout);
 
-/**
- * @swagger
- * /api/auth/profile:
- *   get:
- *     tags: [Authentication]
- *     summary: Get profil pengguna 🔵 AUTHENTICATED
- *     description: Endpoint untuk mendapatkan profil pengguna yang sedang login
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Profil berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- */
 router.get('/profile', requireAuth, getProfile);
 
-/**
- * @swagger
- * /api/auth/refresh:
- *   post:
- *     tags: [Authentication]
- *     summary: Refresh JWT token 🔵 AUTHENTICATED
- *     description: Endpoint untuk memperbarui JWT token yang akan expired
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Token berhasil di-refresh
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Token refreshed successfully"
- *                 data:
- *                   type: object
- *                   properties:
- *                     token:
- *                       type: string
- *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *                       description: "JWT token baru yang sudah di-refresh"
- *                     expires_in:
- *                       type: string
- *                       example: "7d"
- *                       description: "Durasi expired token (7 hari)"
- *                     user:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                           example: 123
- *                         email:
- *                           type: string
- *                           example: "user@example.com"
- *                         name:
- *                           type: string
- *                           example: "John Doe"
- *                         role:
- *                           type: string
- *                           example: "penyewa"
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *
- * @route   POST /api/auth/refresh
- * @desc    Refresh JWT token
- * @access  Private (Authenticated users)
- */
 router.post('/refresh', requireAuth, refreshToken);
 
-/**
- * @swagger
- * /api/auth/roles:
- *   get:
- *     tags: [Authentication]
- *     summary: Mendapatkan daftar role sistem ⚪ PUBLIC
- *     description: Endpoint untuk mendapatkan semua role yang tersedia dalam sistem enhanced 6-level hierarchy
- *     responses:
- *       200:
- *         description: Daftar role berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: object
- *                   properties:
- *                     roles:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           value:
- *                             type: string
- *                             example: "penyewa"
- *                           label:
- *                             type: string
- *                             example: "Customer (Penyewa)"
- *                           level:
- *                             type: integer
- *                             example: 2
- *                           description:
- *                             type: string
- *                             example: "Customer yang dapat melakukan booking"
- *                     hierarchy:
- *                       type: array
- *                       items:
- *                         type: string
- *                       example: ["pengunjung", "penyewa", "staff_kasir", "operator_lapangan", "manajer_futsal", "supervisor_sistem"]
- */
 router.get('/roles', (req, res) => {
   res.json({
     success: true,
@@ -373,60 +109,6 @@ router.get('/roles', (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /api/auth/change-password:
- *   post:
- *     tags: [Authentication]
- *     summary: Ubah password pengguna 🔵 AUTHENTICATED
- *     description: Endpoint untuk mengubah password pengguna yang sedang login
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [current_password, new_password, confirm_password]
- *             properties:
- *               current_password:
- *                 type: string
- *                 example: "oldpassword123"
- *                 description: "Password saat ini"
- *               new_password:
- *                 type: string
- *                 example: "newpassword123"
- *                 description: "Password baru"
- *               confirm_password:
- *                 type: string
- *                 example: "newpassword123"
- *                 description: "Konfirmasi password baru"
- *     responses:
- *       200:
- *         description: Password berhasil diubah
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Password changed successfully"
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *
- * @route   POST /api/auth/change-password
- * @desc    Change user password
- * @access  Private (Authenticated users)
- * @body    { current_password, new_password, confirm_password }
- */
 router.post('/change-password', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -495,39 +177,6 @@ router.post('/change-password', requireAuth, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/auth/verify:
- *   get:
- *     tags: [Authentication]
- *     summary: Verify authentication status 🔵 AUTHENTICATED
- *     description: Endpoint untuk memverifikasi status autentikasi pengguna
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Authentication status berhasil diverifikasi
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "User authenticated"
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *
- * @route   GET /api/auth/verify
- * @desc    Verify token validity
- * @access  Private (Authenticated users)
- */
 router.get('/verify', requireAuth, (req, res) => {
   res.json({
     success: true,
@@ -547,50 +196,6 @@ router.get('/verify', requireAuth, (req, res) => {
 // PASSWORD RESET ROUTES
 // =====================================================
 
-/**
- * @swagger
- * /api/auth/forgot-password:
- *   post:
- *     tags: [Authentication]
- *     summary: Request reset password ⚪ PUBLIC
- *     description: Endpoint untuk meminta reset password melalui email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "user@example.com"
- *                 description: "Email pengguna yang akan direset passwordnya"
- *     responses:
- *       200:
- *         description: Email reset password berhasil dikirim
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Password reset email sent successfully"
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       404:
- *         $ref: '#/components/responses/NotFound'
- *
- * @route   POST /api/auth/forgot-password
- * @desc    Request password reset
- * @access  Public
- * @body    { email }
- */
 router.post('/forgot-password', requestPasswordReset);
 
 /**
@@ -612,49 +217,6 @@ router.post('/reset-password', resetPassword);
 // EMAIL VERIFICATION ROUTES
 // =====================================================
 
-/**
- * @swagger
- * /api/auth/send-verification:
- *   post:
- *     tags: [Authentication]
- *     summary: Send email verification ⚪ PUBLIC
- *     description: Endpoint untuk mengirim email verifikasi ke pengguna
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "user@example.com"
- *     responses:
- *       200:
- *         description: Email verifikasi berhasil dikirim
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Verification email sent successfully"
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       404:
- *         $ref: '#/components/responses/NotFound'
- *
- * @route   POST /api/auth/send-verification
- * @desc    Send email verification
- * @access  Public
- * @body    { email }
- */
 router.post('/send-verification', sendEmailVerification);
 
 /**
@@ -899,7 +461,5 @@ router.post('/validate-email-batch', async (req, res) => {
     });
   }
 });
-
-
 
 module.exports = router;

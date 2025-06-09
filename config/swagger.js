@@ -73,8 +73,8 @@ const swaggerOptions = {
             name: { type: 'string', description: 'Nama lengkap user' },
             email: { type: 'string', format: 'email', description: 'Email user' },
             phone: { type: 'string', description: 'Nomor telepon user' },
-            role: { 
-              type: 'string', 
+            role: {
+              type: 'string',
               enum: ['pengunjung', 'penyewa', 'staff_kasir', 'operator_lapangan', 'manajer_futsal', 'supervisor_sistem'],
               description: 'Role user dalam sistem enhanced 6-level hierarchy'
             },
@@ -96,14 +96,14 @@ const swaggerOptions = {
             id: { type: 'integer', description: 'ID unik lapangan' },
             uuid: { type: 'string', format: 'uuid', description: 'UUID lapangan' },
             name: { type: 'string', description: 'Nama lapangan' },
-            type: { 
-              type: 'string', 
+            type: {
+              type: 'string',
               enum: ['futsal', 'mini_soccer', 'basketball'],
               description: 'Jenis lapangan'
             },
             description: { type: 'string', description: 'Deskripsi lapangan' },
-            facilities: { 
-              type: 'array', 
+            facilities: {
+              type: 'array',
               items: { type: 'string' },
               description: 'Fasilitas yang tersedia',
               example: ['parking', 'toilet', 'canteen', 'shower', 'wifi', 'ac', 'sound_system', 'tribun']
@@ -163,13 +163,13 @@ const swaggerOptions = {
             discount_amount: { type: 'string', description: 'Jumlah diskon' },
             admin_fee: { type: 'string', description: 'Biaya admin' },
             total_amount: { type: 'string', description: 'Total pembayaran' },
-            status: { 
-              type: 'string', 
+            status: {
+              type: 'string',
               enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'],
               description: 'Status booking'
             },
-            payment_status: { 
-              type: 'string', 
+            payment_status: {
+              type: 'string',
               enum: ['pending', 'paid', 'failed', 'refunded'],
               description: 'Status pembayaran'
             },
@@ -319,16 +319,13 @@ const swaggerOptions = {
     ]
   },
   apis: [
-    './routes/authRoutes.js',
-    './routes/publicRoutes.js',
-    './routes/customerRoutes.js',
-    './routes/kasirRoutes.js',
-    './routes/operatorRoutes.js',
-    './routes/manajerRoutes.js',
-    './routes/supervisorRoutes.js',
-    './routes/adminRoutes.js',
-    './routes/*.js',
-    './controllers/**/*.js'
+    // Dokumentasi Swagger terpisah (clean architecture)
+    './swagger/index.js',
+    './swagger/auth.swagger.js',
+    './swagger/customer.swagger.js',
+    './swagger/admin.swagger.js',
+    './swagger/staff.swagger.js',
+    './swagger/public.swagger.js'
   ]
 };
 
@@ -357,7 +354,7 @@ const swaggerUiOptions = {
     .swagger-ui .info .title { color: #2c3e50; }
     .swagger-ui .info .description { color: #34495e; }
   `,
-  customSiteTitle: 'Enhanced Futsal Booking API Documentation'
+  customSiteTitle: 'Panam Soccer Field API Documentation'
 };
 
 module.exports = {
