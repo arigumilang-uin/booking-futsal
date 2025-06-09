@@ -28,17 +28,22 @@ const getAllAuditLogs = async (req, res) => {
       }
     });
 
-    const logs = await getAuditLogs(page, limit, filters);
+    const result = await getAuditLogs(page, limit, filters);
 
     res.json({
       success: true,
       data: {
-        logs,
+        logs: result.logs,
+        total: result.total,
+        pages: result.pages,
+        current_page: result.current_page,
+        per_page: result.per_page,
         filters: filters,
         pagination: {
-          current_page: page,
-          per_page: limit,
-          total: logs.length
+          current_page: result.current_page,
+          per_page: result.per_page,
+          total: result.total,
+          pages: result.pages
         }
       }
     });
