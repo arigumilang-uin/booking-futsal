@@ -181,6 +181,7 @@ const getAuditLogs = async (req, res) => {
       user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
       action: req.query.action,
       table_name: req.query.table_name,
+      resource_type: req.query.resource_type,
       date_from: req.query.date_from,
       date_to: req.query.date_to
     };

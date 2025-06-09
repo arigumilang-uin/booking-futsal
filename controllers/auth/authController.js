@@ -6,6 +6,7 @@ const {
   mapNewRoleToOld
 } = require('../../models/core/userModel');
 const { generateToken } = require('../../utils/tokenUtils');
+const { loginAuditLogger, logoutAuditLogger } = require('../../middlewares/auditLogger');
 const emailValidationService = require('../../services/emailValidationService');
 
 const register = async (req, res) => {
@@ -119,6 +120,15 @@ const login = async (req, res) => {
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
+      // Log failed login attempt
+      await loginAuditLogger(
+        user.id,
+        false,
+        req.ip || req.connection.remoteAddress,
+        req.headers['user-agent'],
+        { reason: 'invalid_password', email }
+      );
+
       return res.status(401).json({
         error: 'Password salah'
       });
@@ -143,6 +153,15 @@ const login = async (req, res) => {
 
     const { password: _, ...userResponse } = user;
 
+    // Log successful login
+    await loginAuditLogger(
+      user.id,
+      true,
+      req.ip || req.connection.remoteAddress,
+      req.headers['user-agent'],
+      { email, role: user.role }
+    );
+
     res.json({
       success: true,
       message: 'Login successful',
@@ -158,8 +177,18 @@ const login = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
   try {
+    // Log logout if user is authenticated
+    if (req.user) {
+      await logoutAuditLogger(
+        req.user.id,
+        req.ip || req.connection.remoteAddress,
+        req.headers['user-agent'],
+        { email: req.user.email }
+      );
+    }
+
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
