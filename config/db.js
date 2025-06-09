@@ -110,16 +110,40 @@ const healthCheck = async () => {
     const start = Date.now();
     await client.query('SELECT 1');
     const duration = Date.now() - start;
+
+    // Get additional database info
+    const versionResult = await client.query('SELECT version()');
+    const connectionsResult = await client.query('SELECT count(*) as active_connections FROM pg_stat_activity WHERE state = \'active\'');
+
     client.release();
+
+    // Determine health status based on response time
+    let healthStatus = 'excellent';
+    if (duration > 100) healthStatus = 'good';
+    if (duration > 500) healthStatus = 'warning';
+    if (duration > 1000) healthStatus = 'critical';
 
     return {
       status: 'healthy',
+      health_level: healthStatus,
+      database: 'connected',
       response_time: `${duration}ms`,
+      response_time_ms: duration,
+      database_version: versionResult.rows[0].version.split(' ')[1],
+      active_connections: parseInt(connectionsResult.rows[0].active_connections),
+      pool_info: {
+        total_count: pool.totalCount,
+        idle_count: pool.idleCount,
+        waiting_count: pool.waitingCount
+      },
       timestamp: new Date().toISOString()
     };
   } catch (error) {
+    console.error('Health check failed:', error);
     return {
       status: 'unhealthy',
+      health_level: 'critical',
+      database: 'disconnected',
       error: error.message,
       timestamp: new Date().toISOString()
     };

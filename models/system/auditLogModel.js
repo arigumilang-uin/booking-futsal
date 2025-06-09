@@ -5,6 +5,7 @@ const createAuditLog = async ({
   user_id,
   action,
   resource_type,
+  table_name,
   resource_id,
   old_values = null,
   new_values = null,
@@ -14,15 +15,15 @@ const createAuditLog = async ({
 }) => {
   const query = `
     INSERT INTO audit_logs (
-      user_id, action, resource_type, resource_id, old_values, new_values,
+      user_id, action, resource_type, table_name, resource_id, old_values, new_values,
       ip_address, user_agent, additional_info
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING id, uuid, user_id, action, resource_type, resource_id,
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    RETURNING id, uuid, user_id, action, resource_type, table_name, resource_id,
               old_values, new_values, ip_address, user_agent, additional_info, created_at
   `;
   const values = [
-    user_id, action, resource_type, resource_id,
+    user_id, action, resource_type, table_name || resource_type, resource_id,
     old_values ? JSON.stringify(old_values) : null,
     new_values ? JSON.stringify(new_values) : null,
     ip_address, user_agent,
@@ -62,6 +63,11 @@ const getAuditLogs = async (page = 1, limit = 50, filters = {}) => {
   if (filters.resource_type) {
     query += ` AND al.resource_type = $${paramCount++}`;
     params.push(filters.resource_type);
+  }
+
+  if (filters.table_name) {
+    query += ` AND al.table_name = $${paramCount++}`;
+    params.push(filters.table_name);
   }
 
   if (filters.resource_id) {
@@ -139,33 +145,73 @@ const getUserActivityLogs = async (userId, page = 1, limit = 20) => {
 const getAuditStatistics = async (days = 30) => {
   try {
     // Use parameterized query to avoid SQL injection
-    const query = `
+    const allTimeQuery = `
       SELECT
         COUNT(*) as total_logs,
         COUNT(DISTINCT user_id) as unique_users,
-        COUNT(DISTINCT resource_type) as resource_types,
+        COUNT(DISTINCT COALESCE(resource_type, table_name)) as resource_types,
         COUNT(CASE WHEN action = 'CREATE' THEN 1 END) as create_actions,
         COUNT(CASE WHEN action = 'UPDATE' THEN 1 END) as update_actions,
         COUNT(CASE WHEN action = 'DELETE' THEN 1 END) as delete_actions,
         COUNT(CASE WHEN action = 'LOGIN' THEN 1 END) as login_actions,
         COUNT(CASE WHEN action = 'LOGOUT' THEN 1 END) as logout_actions
       FROM audit_logs
-      WHERE created_at >= CURRENT_DATE - INTERVAL $1 || ' days'
     `;
-    const result = await pool.query(query, [days]);
-    return result.rows[0];
+
+    const todayQuery = `
+      SELECT
+        COUNT(*) as today_logs,
+        COUNT(DISTINCT user_id) as today_unique_users
+      FROM audit_logs
+      WHERE DATE(created_at) = CURRENT_DATE
+    `;
+
+    const criticalQuery = `
+      SELECT
+        COUNT(*) as critical_actions
+      FROM audit_logs
+      WHERE action IN ('DELETE', 'LOGIN_FAILED', 'MANUAL_AUTO_COMPLETION_TRIGGER')
+      AND created_at >= CURRENT_DATE - INTERVAL $1 || ' days'
+    `;
+
+    const [allTimeResult, todayResult, criticalResult] = await Promise.all([
+      pool.query(allTimeQuery),
+      pool.query(todayQuery),
+      pool.query(criticalQuery, [days])
+    ]);
+
+    const allTime = allTimeResult.rows[0];
+    const today = todayResult.rows[0];
+    const critical = criticalResult.rows[0];
+
+    return {
+      total_logs: parseInt(allTime.total_logs) || 0,
+      today_logs: parseInt(today.today_logs) || 0,
+      unique_users: parseInt(allTime.unique_users) || 0,
+      today_unique_users: parseInt(today.today_unique_users) || 0,
+      critical_actions: parseInt(critical.critical_actions) || 0,
+      resource_types: parseInt(allTime.resource_types) || 0,
+      create_actions: parseInt(allTime.create_actions) || 0,
+      update_actions: parseInt(allTime.update_actions) || 0,
+      delete_actions: parseInt(allTime.delete_actions) || 0,
+      login_actions: parseInt(allTime.login_actions) || 0,
+      logout_actions: parseInt(allTime.logout_actions) || 0
+    };
   } catch (error) {
     console.error('Audit statistics query error:', error);
     // Return fallback data
     return {
-      total_logs: '0',
-      unique_users: '0',
-      resource_types: '0',
-      create_actions: '0',
-      update_actions: '0',
-      delete_actions: '0',
-      login_actions: '0',
-      logout_actions: '0'
+      total_logs: 0,
+      today_logs: 0,
+      unique_users: 0,
+      today_unique_users: 0,
+      critical_actions: 0,
+      resource_types: 0,
+      create_actions: 0,
+      update_actions: 0,
+      delete_actions: 0,
+      login_actions: 0,
+      logout_actions: 0
     };
   }
 };
@@ -224,13 +270,17 @@ const getDailyActivity = async (days = 30) => {
 
 // Clean old audit logs
 const cleanOldAuditLogs = async (retentionDays = 365) => {
-  const query = `
-    DELETE FROM audit_logs
-    WHERE created_at < CURRENT_DATE - INTERVAL '${retentionDays} days'
-    RETURNING COUNT(*) as deleted_count
-  `;
-  const result = await pool.query(query);
-  return result.rows[0];
+  try {
+    const query = `
+      DELETE FROM audit_logs
+      WHERE created_at < CURRENT_DATE - INTERVAL $1 || ' days'
+    `;
+    const result = await pool.query(query, [retentionDays]);
+    return result.rowCount || 0;
+  } catch (error) {
+    console.error('Clean old audit logs error:', error);
+    throw error;
+  }
 };
 
 // Log user login
@@ -239,6 +289,7 @@ const logUserLogin = async (userId, ipAddress, userAgent, success = true) => {
     user_id: userId,
     action: success ? 'LOGIN' : 'LOGIN_FAILED',
     resource_type: 'user',
+    table_name: 'users',
     resource_id: userId,
     ip_address: ipAddress,
     user_agent: userAgent,
@@ -252,6 +303,7 @@ const logUserLogout = async (userId, ipAddress, userAgent) => {
     user_id: userId,
     action: 'LOGOUT',
     resource_type: 'user',
+    table_name: 'users',
     resource_id: userId,
     ip_address: ipAddress,
     user_agent: userAgent,
@@ -265,6 +317,7 @@ const logResourceChange = async (userId, action, resourceType, resourceId, oldVa
     user_id: userId,
     action: action.toUpperCase(),
     resource_type: resourceType,
+    table_name: `${resourceType}s`,
     resource_id: resourceId,
     old_values: oldValues,
     new_values: newValues,
