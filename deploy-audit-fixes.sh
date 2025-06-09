@@ -47,6 +47,11 @@ git commit -m "🔧 Fix audit system for production deployment
 
 🎯 FIXES IMPLEMENTED:
 
+✅ CORS Security Issue:
+- Fix 'Suspicious origin detected' warnings in production logs
+- Add production origin to corsSecurityCheck middleware
+- Resolve cross-origin request blocking for cleanup operations
+
 ✅ System Health Status:
 - Fix system health status logic to use backend health_level
 - Enhanced response time consideration in health calculation
@@ -68,6 +73,7 @@ git commit -m "🔧 Fix audit system for production deployment
 - Prevent 500 errors from crashing the system
 
 🐛 ISSUES RESOLVED:
+- CORS blocking cleanup operations (suspicious origin warnings)
 - System status showing 'Perhatian' instead of proper health status
 - Cleanup operation error 500 due to SQL syntax incompatibility
 - Health status not properly using backend response
