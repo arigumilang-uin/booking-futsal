@@ -39,7 +39,7 @@ async function createFreshBooking() {
     // Get available field
     const fieldsResponse = await axiosInstance.get(`${BASE_URL}/public/fields`);
     const availableField = fieldsResponse.data.data[0];
-    
+
     if (!availableField) {
       throw new Error('No available fields found');
     }
@@ -48,14 +48,14 @@ async function createFreshBooking() {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 10); // 10 days from now
     const dateStr = futureDate.toISOString().split('T')[0];
-    
+
     // Use current timestamp for unique time
     const timestamp = new Date().getTime();
     const uniqueMinutes = (timestamp % 60);
     const uniqueHour = 6 + (timestamp % 12); // 6AM-5PM
     const startTime = `${uniqueHour.toString().padStart(2, '0')}:${uniqueMinutes.toString().padStart(2, '0')}:00`;
     const endTime = `${(uniqueHour + 1).toString().padStart(2, '0')}:${uniqueMinutes.toString().padStart(2, '0')}:00`;
-    
+
     const bookingData = {
       field_id: availableField.id,
       date: dateStr,
@@ -132,7 +132,7 @@ async function confirmBooking(bookingId) {
 
 async function checkTrackingTables(bookingId, paymentId) {
   console.log('\n🔍 CHECKING TRACKING TABLES IMMEDIATELY AFTER OPERATIONS');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   // Check booking history
   try {
@@ -146,13 +146,13 @@ async function checkTrackingTables(bookingId, paymentId) {
     if (historyResponse.data.success) {
       const history = historyResponse.data.data || [];
       console.log(`   ✅ Found ${history.length} booking history records`);
-      
+
       if (history.length > 0) {
         history.forEach((record, index) => {
-          console.log(`   ${index + 1}. ${record.status_from || 'N/A'} → ${record.status_to || 'N/A'}`);
+          console.log(`   ${index + 1}. ${record.old_status || 'N/A'} → ${record.new_status || 'N/A'} (${record.action || 'unknown'})`);
           console.log(`      Changed by: ${record.changed_by_name || record.changed_by || 'Unknown'}`);
           console.log(`      Date: ${record.created_at}`);
-          if (record.reason) console.log(`      Reason: ${record.reason}`);
+          if (record.notes) console.log(`      Notes: ${record.notes}`);
           console.log('');
         });
       } else {
@@ -178,14 +178,15 @@ async function checkTrackingTables(bookingId, paymentId) {
       if (logsResponse.data.success) {
         const logs = logsResponse.data.data || [];
         console.log(`   ✅ Found ${logs.length} payment log records`);
-        
+
         if (logs.length > 0) {
           logs.forEach((record, index) => {
             console.log(`   ${index + 1}. Action: ${record.action || 'unknown'}`);
-            console.log(`      Status: ${record.status_from || 'N/A'} → ${record.status_to || 'N/A'}`);
-            console.log(`      Processed by: ${record.processed_by_name || record.processed_by || 'System'}`);
+            console.log(`      Request: ${record.request_data ? 'Yes' : 'No'}`);
+            console.log(`      Response: ${record.response_data ? 'Yes' : 'No'}`);
+            console.log(`      Status Code: ${record.status_code || 'N/A'}`);
             console.log(`      Date: ${record.created_at}`);
-            if (record.notes) console.log(`      Notes: ${record.notes}`);
+            if (record.error_message) console.log(`      Error: ${record.error_message}`);
             console.log('');
           });
         } else {
@@ -202,9 +203,9 @@ async function checkTrackingTables(bookingId, paymentId) {
 
 async function testFreshTrackingTables() {
   console.log('🧪 TESTING FRESH TRACKING TABLES IMPLEMENTATION');
-  console.log('=' .repeat(70));
+  console.log('='.repeat(70));
   console.log('Creating fresh booking and immediately checking tracking tables');
-  console.log('=' .repeat(70));
+  console.log('='.repeat(70));
 
   // Step 1: Login all roles
   console.log('\n📝 Step 1: Login test users');
@@ -255,7 +256,7 @@ async function testFreshTrackingTables() {
 
   // Summary
   console.log('\n🎯 FRESH TRACKING TEST COMPLETED');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
   console.log(`✅ Test booking: ${booking.booking_number} (ID: ${booking.id})`);
   console.log(`✅ Test payment: ${payment?.payment_number || 'N/A'} (ID: ${payment?.id || 'N/A'})`);
   console.log('\n📊 Expected tracking records:');
