@@ -2,8 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Import test routes
-const testRoutes = require('./testRoutes');
+// Test routes removed for production
 
 // Import all route modules
 const authRoutes = require('./authRoutes');
@@ -20,8 +19,7 @@ const enhancedRoutes = require('./enhancedRoutes');
 // ROUTE MOUNTING - SIMPLIFIED FLAT STRUCTURE
 // =====================================================
 
-// Test routes
-router.use('/test', testRoutes);
+// Test routes removed for production
 
 // All routes enabled
 router.use('/public', publicRoutes);
