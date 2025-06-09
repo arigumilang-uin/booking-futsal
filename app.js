@@ -199,16 +199,8 @@ app.use((req, res) => {
   });
 });
 
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-
-  const isDev = process.env.NODE_ENV === 'development';
-
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Server error',
-    ...(isDev && { stack: err.stack })
-  });
-});
+// Use centralized error handler
+const { errorHandler } = require('./middlewares/errorHandler');
+app.use(errorHandler);
 
 module.exports = app;

@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const { userCache, generateCacheKey, cacheTTL, invalidateCache } = require('../../utils/cache');
 
 const mapOldRoleToNew = (oldRole) => {
   const roleMapping = {
@@ -54,6 +55,15 @@ const getAllUsers = async () => {
 };
 
 const getUserById = async (id) => {
+  // Check cache first
+  const cacheKey = generateCacheKey.user(id);
+  const cachedUser = userCache.get(cacheKey);
+
+  if (cachedUser) {
+    return cachedUser;
+  }
+
+  // If not in cache, query database
   const query = `
     SELECT id, uuid, name, email, phone, role, employee_id, department,
            booking_count, total_spent, last_booking_date,
@@ -63,11 +73,15 @@ const getUserById = async (id) => {
   const result = await pool.query(query, [id]);
 
   if (result.rows[0]) {
-    const user = result.rows[0];
-    return {
-      ...user,
-      role: mapNewRoleToOld(user.role)
+    const user = {
+      ...result.rows[0],
+      role: mapNewRoleToOld(result.rows[0].role)
     };
+
+    // Cache the result
+    userCache.set(cacheKey, user, cacheTTL.users);
+
+    return user;
   }
   return null;
 };
@@ -111,6 +125,15 @@ const deleteUserById = async (id) => {
 };
 
 const getUsersByRole = async (role) => {
+  // Check cache first
+  const cacheKey = generateCacheKey.usersByRole(role);
+  const cachedUsers = userCache.get(cacheKey);
+
+  if (cachedUsers) {
+    return cachedUsers;
+  }
+
+  // If not in cache, query database
   const enhancedRole = mapOldRoleToNew(role);
 
   const query = `
@@ -122,10 +145,15 @@ const getUsersByRole = async (role) => {
   `;
   const result = await pool.query(query, [enhancedRole]);
 
-  return result.rows.map(user => ({
+  const users = result.rows.map(user => ({
     ...user,
     role: mapNewRoleToOld(user.role)
   }));
+
+  // Cache the result
+  userCache.set(cacheKey, users, cacheTTL.users);
+
+  return users;
 };
 
 const updateUserProfile = async (id, { name, email, phone }) => {
@@ -163,11 +191,15 @@ const updateUserProfile = async (id, { name, email, phone }) => {
   const result = await pool.query(query, values);
 
   if (result.rows[0]) {
-    const user = result.rows[0];
-    return {
-      ...user,
-      role: mapNewRoleToOld(user.role) // Map untuk frontend compatibility
+    const user = {
+      ...result.rows[0],
+      role: mapNewRoleToOld(result.rows[0].role) // Map untuk frontend compatibility
     };
+
+    // Invalidate user cache after update
+    invalidateCache.user(id);
+
+    return user;
   }
   return null;
 };
