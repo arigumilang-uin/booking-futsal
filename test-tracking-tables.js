@@ -40,25 +40,29 @@ async function createTestBooking() {
     // Get available field
     const fieldsResponse = await axiosInstance.get(`${BASE_URL}/public/fields`);
     const availableField = fieldsResponse.data.data[0];
-    
+
     if (!availableField) {
       throw new Error('No available fields found');
     }
 
-    // Create booking with unique time
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dateStr = tomorrow.toISOString().split('T')[0];
-    
-    const uniqueTime = new Date().getTime() % 1000;
-    const startHour = 14 + (uniqueTime % 6); // 14-19 (2PM-7PM)
-    const endHour = startHour + 2;
-    
+    // Create booking with unique time - use far future date and very specific time
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 7); // 1 week from now
+    const dateStr = futureDate.toISOString().split('T')[0];
+
+    // Use current timestamp to generate very unique time
+    const now = new Date();
+    const timestamp = now.getTime();
+    const uniqueMinutes = (timestamp % 60); // 0-59 minutes
+    const uniqueHour = 20 + (timestamp % 4); // 20-23 (8PM-11PM) - late hours to avoid conflicts
+    const startTime = `${uniqueHour.toString().padStart(2, '0')}:${uniqueMinutes.toString().padStart(2, '0')}:00`;
+    const endTime = `${(uniqueHour + 1).toString().padStart(2, '0')}:${uniqueMinutes.toString().padStart(2, '0')}:00`;
+
     const bookingData = {
       field_id: availableField.id,
       date: dateStr,
-      start_time: `${startHour.toString().padStart(2, '0')}:00:00`,
-      end_time: `${endHour.toString().padStart(2, '0')}:00:00`,
+      start_time: startTime,
+      end_time: endTime,
       name: 'Test Tracking Tables',
       phone: '081234567890',
       email: 'test@example.com',
@@ -149,15 +153,15 @@ async function completeBooking(bookingId) {
 async function checkDatabaseTables(bookingId, paymentId) {
   try {
     console.log('\n📊 CHECKING DATABASE TABLES');
-    console.log('=' .repeat(50));
-    
+    console.log('='.repeat(50));
+
     // Check booking_history table
     const bookingHistoryResponse = await axiosInstance.get(`${BASE_URL}/admin/bookings/${bookingId}/history`, {
       headers: {
         'Cookie': authCookies.manager?.join('; ') || ''
       }
     });
-    
+
     if (bookingHistoryResponse.data.success) {
       const historyRecords = bookingHistoryResponse.data.data || [];
       console.log(`📋 BOOKING_HISTORY TABLE: ${historyRecords.length} records found`);
@@ -167,7 +171,7 @@ async function checkDatabaseTables(bookingId, paymentId) {
     } else {
       console.log('❌ Failed to get booking history');
     }
-    
+
     // Check payment_logs table
     if (paymentId) {
       const paymentLogsResponse = await axiosInstance.get(`${BASE_URL}/admin/payments/${paymentId}/logs`, {
@@ -175,7 +179,7 @@ async function checkDatabaseTables(bookingId, paymentId) {
           'Cookie': authCookies.manager?.join('; ') || ''
         }
       });
-      
+
       if (paymentLogsResponse.data.success) {
         const logRecords = paymentLogsResponse.data.data || [];
         console.log(`💳 PAYMENT_LOGS TABLE: ${logRecords.length} records found`);
@@ -186,7 +190,7 @@ async function checkDatabaseTables(bookingId, paymentId) {
         console.log('❌ Failed to get payment logs');
       }
     }
-    
+
   } catch (error) {
     console.error('❌ Error checking database tables:', error.response?.data || error.message);
   }
@@ -194,9 +198,9 @@ async function checkDatabaseTables(bookingId, paymentId) {
 
 async function runTrackingTablesTest() {
   console.log('🧪 TESTING TRACKING TABLES IMPLEMENTATION');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
   console.log('Testing booking_history and payment_logs auto-logging');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   // Step 1: Login all roles
   console.log('\n📝 Step 1: Login test users');
@@ -247,7 +251,7 @@ async function runTrackingTablesTest() {
   await checkDatabaseTables(booking.id, payment.id);
 
   console.log('\n🎯 TEST COMPLETED');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
   console.log('✅ Check your database tables:');
   console.log('   - booking_history: Should have 3 records (pending→confirmed→completed)');
   console.log('   - payment_logs: Should have 2 records (created, processed)');

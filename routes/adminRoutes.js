@@ -3425,20 +3425,29 @@ router.get('/auto-completion/config', requireAdmin, getAutoCompletionConfig);
  */
 router.get('/bookings/:id/history', requireManagement, async (req, res) => {
   try {
+    console.log(`📋 Getting booking history for booking ID: ${req.params.id}`);
     const { getBookingHistory } = require('../models/tracking/bookingHistoryModel');
     const { id } = req.params;
 
+    console.log(`📋 Calling getBookingHistory with ID: ${id}`);
     const history = await getBookingHistory(id);
+    console.log(`📋 Booking history result: ${history.length} records found`);
 
     res.json({
       success: true,
       data: history
     });
   } catch (error) {
-    console.error('Get booking history error:', error);
+    console.error('❌ Get booking history error:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      stack: error.stack,
+      bookingId: req.params.id
+    });
     res.status(500).json({
       success: false,
-      error: 'Failed to get booking history'
+      error: 'Failed to get booking history',
+      details: error.message
     });
   }
 });
@@ -3477,20 +3486,29 @@ router.get('/bookings/:id/timeline', requireManagement, async (req, res) => {
  */
 router.get('/payments/:id/logs', requireManagement, async (req, res) => {
   try {
+    console.log(`💳 Getting payment logs for payment ID: ${req.params.id}`);
     const { getPaymentLogs } = require('../models/tracking/paymentLogModel');
     const { id } = req.params;
 
+    console.log(`💳 Calling getPaymentLogs with ID: ${id}`);
     const logs = await getPaymentLogs(id);
+    console.log(`💳 Payment logs result: ${logs.length} records found`);
 
     res.json({
       success: true,
       data: logs
     });
   } catch (error) {
-    console.error('Get payment logs error:', error);
+    console.error('❌ Get payment logs error:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      stack: error.stack,
+      paymentId: req.params.id
+    });
     res.status(500).json({
       success: false,
-      error: 'Failed to get payment logs'
+      error: 'Failed to get payment logs',
+      details: error.message
     });
   }
 });
