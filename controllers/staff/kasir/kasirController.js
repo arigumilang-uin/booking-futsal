@@ -24,29 +24,76 @@ const getAllPaymentsForKasir = async (req, res) => {
       date_to
     } = req.query;
 
-    let payments = await getAllPayments(page, limit);
+    // Get actual payments from payments table
+    let actualPayments = await getAllPayments(page, limit);
 
+    // Get bookings with pending payment status (no payment record yet)
+    const { getAllBookings } = require('../../../models/business/bookingModel');
+    const allBookings = await getAllBookings();
+
+    // Find bookings with pending payment status that don't have payment records
+    const pendingBookings = allBookings.filter(booking =>
+      booking.payment_status === 'pending' &&
+      !actualPayments.find(payment => payment.booking_id === booking.id)
+    );
+
+    // Convert pending bookings to payment-like objects for kasir
+    const pendingPaymentObjects = pendingBookings.map(booking => ({
+      id: `booking_${booking.id}`, // Temporary ID for frontend
+      booking_id: booking.id,
+      booking_number: booking.booking_number,
+      amount: parseFloat(booking.total_amount),
+      method: 'pending', // Indicates this needs payment method selection
+      status: 'pending',
+      created_at: booking.created_at,
+      user_name: booking.user_name,
+      user_email: booking.user_email || booking.email,
+      field_name: booking.field_name,
+      payment_number: null, // Will be generated when payment is created
+      is_booking_payment: true // Flag to identify this as booking needing payment
+    }));
+
+    // Combine actual payments with pending booking payments
+    let allPaymentData = [...actualPayments, ...pendingPaymentObjects];
+
+    // Apply filters
     if (status) {
-      payments = payments.filter(payment => payment.status === status);
+      allPaymentData = allPaymentData.filter(payment => payment.status === status);
     }
 
-    if (method) {
-      payments = payments.filter(payment => payment.method === method);
+    if (method && method !== 'pending') {
+      allPaymentData = allPaymentData.filter(payment => payment.method === method);
     }
 
     if (date_from && date_to) {
-      payments = payments.filter(payment => {
+      allPaymentData = allPaymentData.filter(payment => {
         const paymentDate = new Date(payment.created_at);
         return paymentDate >= new Date(date_from) && paymentDate <= new Date(date_to);
       });
     }
 
+    // Sort by created_at desc
+    allPaymentData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    console.log('🔍 KASIR PAYMENT DATA SUMMARY:', {
+      actualPayments: actualPayments.length,
+      pendingBookings: pendingBookings.length,
+      totalPaymentData: allPaymentData.length,
+      statusBreakdown: allPaymentData.reduce((acc, p) => {
+        acc[p.status] = (acc[p.status] || 0) + 1;
+        return acc;
+      }, {})
+    });
+
     res.json({
       success: true,
-      data: payments,
+      data: allPaymentData,
       pagination: {
         current_page: parseInt(page),
-        per_page: parseInt(limit)
+        per_page: parseInt(limit),
+        total_actual_payments: actualPayments.length,
+        total_pending_bookings: pendingBookings.length,
+        total_items: allPaymentData.length
       }
     });
 
