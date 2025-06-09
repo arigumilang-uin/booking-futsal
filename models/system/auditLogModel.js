@@ -277,7 +277,7 @@ const cleanOldAuditLogs = async (retentionDays = 365) => {
     const countQuery = `
       SELECT COUNT(*) as count_to_delete
       FROM audit_logs
-      WHERE created_at < CURRENT_DATE - INTERVAL $1 || ' days'
+      WHERE created_at < NOW() - INTERVAL '1 day' * $1
     `;
     const countResult = await pool.query(countQuery, [retentionDays]);
     const countToDelete = parseInt(countResult.rows[0].count_to_delete);
@@ -291,7 +291,7 @@ const cleanOldAuditLogs = async (retentionDays = 365) => {
     // Perform the deletion
     const deleteQuery = `
       DELETE FROM audit_logs
-      WHERE created_at < CURRENT_DATE - INTERVAL $1 || ' days'
+      WHERE created_at < NOW() - INTERVAL '1 day' * $1
     `;
     console.log('🔄 Executing delete query...');
     const result = await pool.query(deleteQuery, [retentionDays]);

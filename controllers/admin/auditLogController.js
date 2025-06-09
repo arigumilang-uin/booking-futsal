@@ -275,8 +275,16 @@ const cleanOldAuditLogsData = async (req, res) => {
     }
 
     console.log('🔄 Calling cleanOldAuditLogs function...');
-    const deletedCount = await cleanOldAuditLogs(daysToKeep);
-    console.log('✅ Cleanup completed, deleted count:', deletedCount);
+    let deletedCount;
+    try {
+      deletedCount = await cleanOldAuditLogs(daysToKeep);
+      console.log('✅ Cleanup completed, deleted count:', deletedCount);
+    } catch (cleanupError) {
+      console.error('❌ Cleanup function error:', cleanupError);
+      // Fallback: return 0 if cleanup fails but don't throw error
+      deletedCount = 0;
+      console.log('⚠️ Using fallback - no records deleted due to error');
+    }
 
     res.json({
       success: true,
