@@ -2,7 +2,7 @@ const {
   getAllPayments,
   getPaymentById,
   getPaymentsByStatus,
-  updatePaymentStatus,
+  updatePaymentStatus: updatePaymentStatusInPayments,
   createPayment,
   getPaymentStatistics
 } = require('../../../models/business/paymentModel');
@@ -10,7 +10,7 @@ const {
   getAllBookings,
   getBookingById,
   updateBookingStatus,
-  updatePaymentStatus
+  updatePaymentStatus: updateBookingPaymentStatus
 } = require('../../../models/business/bookingModel');
 
 const getAllPaymentsForKasir = async (req, res) => {
@@ -171,7 +171,7 @@ const processManualPayment = async (req, res) => {
     // const updatedPayment = await updatePaymentStatus(payment.id, 'paid', gatewayResponse);
 
     // Update booking payment status
-    await updatePaymentStatus(booking_id, 'paid');
+    await updateBookingPaymentStatus(booking_id, 'paid');
 
     // OPTIONAL: Auto-confirm booking when payment is completed
     try {
@@ -261,7 +261,7 @@ const confirmPayment = async (req, res) => {
 
       if (newPayment) {
         // Update booking payment status
-        await updatePaymentStatus(bookingId, 'paid');
+        await updateBookingPaymentStatus(bookingId, 'paid');
 
         console.log('✅ BOOKING PAYMENT CONFIRMED:', {
           bookingId,
@@ -304,7 +304,7 @@ const confirmPayment = async (req, res) => {
       }
 
       // Update payment status
-      const updatedPayment = await updatePaymentStatus(
+      const updatedPayment = await updatePaymentStatusInPayments(
         id,
         'paid',
         {
@@ -316,7 +316,7 @@ const confirmPayment = async (req, res) => {
       );
 
       // Update booking payment status
-      await updatePaymentStatus(payment.booking_id, 'paid');
+      await updateBookingPaymentStatus(payment.booking_id, 'paid');
 
       console.log('✅ REGULAR PAYMENT CONFIRMED:', {
         paymentId: id,
