@@ -1,6 +1,16 @@
 const pool = require('../../config/db');
+const { fieldCache, generateCacheKey, cacheTTL, invalidateCache } = require('../../utils/cache');
 
 const getAllFields = async (page = 1, limit = 10) => {
+  // Create cache key with pagination
+  const cacheKey = `${generateCacheKey.allFields()}:page:${page}:limit:${limit}`;
+  const cachedFields = fieldCache.get(cacheKey);
+
+  if (cachedFields) {
+    return cachedFields;
+  }
+
+  // If not in cache, query database
   const offset = (page - 1) * limit;
   const query = `
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
@@ -16,10 +26,23 @@ const getAllFields = async (page = 1, limit = 10) => {
     LIMIT $1 OFFSET $2
   `;
   const result = await pool.query(query, [limit, offset]);
+
+  // Cache the result
+  fieldCache.set(cacheKey, result.rows, cacheTTL.fields);
+
   return result.rows;
 };
 
 const getFieldById = async (id) => {
+  // Check cache first
+  const cacheKey = generateCacheKey.field(id);
+  const cachedField = fieldCache.get(cacheKey);
+
+  if (cachedField) {
+    return cachedField;
+  }
+
+  // If not in cache, query database
   const query = `
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
            f.location, f.address, f.coordinates, f.price, f.price_weekend, f.price_member,
@@ -32,7 +55,14 @@ const getFieldById = async (id) => {
     WHERE f.id = $1
   `;
   const result = await pool.query(query, [id]);
-  return result.rows[0];
+  const field = result.rows[0];
+
+  // Cache the result if found
+  if (field) {
+    fieldCache.set(cacheKey, field, cacheTTL.fields);
+  }
+
+  return field;
 };
 
 const createField = async ({
@@ -73,6 +103,10 @@ const createField = async ({
     JSON.stringify(gallery), status, assigned_operator, created_by
   ];
   const result = await pool.query(query, values);
+
+  // Invalidate field caches after creating new field
+  invalidateCache.field();
+
   return result.rows[0];
 };
 
@@ -174,12 +208,22 @@ const updateField = async (id, fieldData) => {
   `;
 
   const result = await pool.query(query, values);
+
+  // Invalidate field caches after updating field
+  invalidateCache.field(id);
+
   return result.rows[0];
 };
 
 const deleteField = async (id) => {
   const query = 'UPDATE fields SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *';
   const result = await pool.query(query, ['inactive', id]);
+
+  // Invalidate field caches after deleting field
+  if (result.rowCount > 0) {
+    invalidateCache.field(id);
+  }
+
   return result.rowCount > 0 ? result.rows[0] : null;
 };
 
@@ -232,6 +276,15 @@ const getFieldsByOperator = async (operatorId) => {
 };
 
 const getAvailableFields = async () => {
+  // Check cache first
+  const cacheKey = generateCacheKey.availableFields();
+  const cachedFields = fieldCache.get(cacheKey);
+
+  if (cachedFields) {
+    return cachedFields;
+  }
+
+  // If not in cache, query database
   const query = `
     SELECT f.id, f.uuid, f.name, f.type, f.description, f.facilities, f.capacity,
            f.location, f.address, f.coordinates, f.price, f.price_weekend, f.price_member,
@@ -244,6 +297,10 @@ const getAvailableFields = async () => {
     ORDER BY f.rating DESC, f.created_at DESC
   `;
   const result = await pool.query(query);
+
+  // Cache the result
+  fieldCache.set(cacheKey, result.rows, cacheTTL.fields);
+
   return result.rows;
 };
 

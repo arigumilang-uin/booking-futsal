@@ -17,32 +17,27 @@ const {
   createPayment,
   getPaymentsByBookingId
 } = require('../../models/business/paymentModel');
+const {
+  asyncHandler,
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+  createSuccessResponse,
+  createPaginationMeta
+} = require('../../middlewares/errorHandler');
 
-const getCustomerProfile = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    
-    const user = await getUserById(userId);
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
-    }
+const getCustomerProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    const { password: _, ...userProfile } = user;
-
-    res.json({
-      success: true,
-      data: userProfile
-    });
-
-  } catch (error) {
-    console.error('Get customer profile error:', error);
-    res.status(500).json({
-      error: 'Failed to get profile'
-    });
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
   }
-};
+
+  const { password: _, ...userProfile } = user;
+
+  res.json(createSuccessResponse(userProfile));
+});
 
 const updateCustomerProfile = async (req, res) => {
   try {
@@ -197,7 +192,7 @@ const getCustomerBookings = async (req, res) => {
   try {
     const userId = req.user.id;
     const { status, page = 1, limit = 10 } = req.query;
-    
+
     let bookings = await getBookingsByUserId(userId);
 
     if (status) {
