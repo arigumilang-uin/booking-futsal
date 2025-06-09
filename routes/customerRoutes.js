@@ -1838,4 +1838,144 @@ router.post('/promotions/validate', validatePromotionCode);
 router.post('/promotions/apply', applyPromotionToBooking);
 router.post('/promotions/calculate', calculateDiscountPreview);
 
+// PAYMENT ROUTES
+const {
+  getCustomerPayments,
+  getCustomerPaymentDetail,
+  createCustomerPayment,
+  uploadPaymentProof
+} = require('../controllers/customer/paymentController');
+
+/**
+ * @swagger
+ * /api/customer/payments:
+ *   get:
+ *     summary: Get customer payments
+ *     tags: [Customer Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, paid, failed, cancelled]
+ *     responses:
+ *       200:
+ *         description: Customer payments retrieved successfully
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get('/payments', getCustomerPayments);
+
+/**
+ * @swagger
+ * /api/customer/payments/{id}:
+ *   get:
+ *     summary: Get customer payment detail
+ *     tags: [Customer Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Payment detail retrieved successfully
+ *       404:
+ *         description: Payment not found
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get('/payments/:id', getCustomerPaymentDetail);
+
+/**
+ * @swagger
+ * /api/customer/bookings/{bookingId}/payment:
+ *   post:
+ *     summary: Create payment for booking
+ *     tags: [Customer Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: bookingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - method
+ *               - amount
+ *             properties:
+ *               method:
+ *                 type: string
+ *                 enum: [bank_transfer, cash, card]
+ *               amount:
+ *                 type: number
+ *               currency:
+ *                 type: string
+ *                 default: IDR
+ *     responses:
+ *       201:
+ *         description: Payment created successfully
+ *       400:
+ *         description: Invalid payment data
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post('/bookings/:bookingId/payment', createCustomerPayment);
+
+/**
+ * @swagger
+ * /api/customer/payments/{id}/proof:
+ *   post:
+ *     summary: Upload payment proof
+ *     tags: [Customer Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               proof:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Payment proof uploaded successfully
+ *       400:
+ *         description: Invalid file
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post('/payments/:id/proof', uploadPaymentProof);
+
 module.exports = router;
