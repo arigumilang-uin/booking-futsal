@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const { logBookingStatusChange } = require('../tracking/bookingHistoryModel');
 
 const getAllBookings = async (page = 1, limit = 20) => {
   const offset = (page - 1) * limit;
@@ -112,45 +113,75 @@ const checkBookingConflict = async ({ field_id, date, start_time, end_time, excl
 };
 
 const updateBookingStatus = async (id, status, updatedBy = null, reason = null) => {
-  let query, values;
+  try {
+    // Get current booking status for logging
+    const currentBookingQuery = 'SELECT status FROM bookings WHERE id = $1';
+    const currentBookingResult = await pool.query(currentBookingQuery, [id]);
+    const currentStatus = currentBookingResult.rows[0]?.status || 'unknown';
 
-  if (status === 'confirmed') {
-    query = `
-      UPDATE bookings
-      SET status = $1, confirmed_by = $2, confirmed_at = NOW(), updated_at = NOW()
-      WHERE id = $3
-      RETURNING id, uuid, booking_number, status, confirmed_at
-    `;
-    values = [status, updatedBy, id];
-  } else if (status === 'cancelled') {
-    query = `
-      UPDATE bookings
-      SET status = $1, cancelled_by = $2, cancelled_at = NOW(),
-          cancellation_reason = $3, updated_at = NOW()
-      WHERE id = $4
-      RETURNING id, uuid, booking_number, status, cancelled_at, cancellation_reason
-    `;
-    values = [status, updatedBy, reason, id];
-  } else if (status === 'completed') {
-    query = `
-      UPDATE bookings
-      SET status = $1, completed_by = $2, completed_at = NOW(), updated_at = NOW()
-      WHERE id = $3
-      RETURNING id, uuid, booking_number, status, completed_at
-    `;
-    values = [status, updatedBy, id];
-  } else {
-    query = `
-      UPDATE bookings
-      SET status = $1, updated_at = NOW()
-      WHERE id = $2
-      RETURNING id, uuid, booking_number, status, updated_at
-    `;
-    values = [status, id];
+    let query, values;
+
+    if (status === 'confirmed') {
+      query = `
+        UPDATE bookings
+        SET status = $1, confirmed_by = $2, confirmed_at = NOW(), updated_at = NOW()
+        WHERE id = $3
+        RETURNING id, uuid, booking_number, status, confirmed_at
+      `;
+      values = [status, updatedBy, id];
+    } else if (status === 'cancelled') {
+      query = `
+        UPDATE bookings
+        SET status = $1, cancelled_by = $2, cancelled_at = NOW(),
+            cancellation_reason = $3, updated_at = NOW()
+        WHERE id = $4
+        RETURNING id, uuid, booking_number, status, cancelled_at, cancellation_reason
+      `;
+      values = [status, updatedBy, reason, id];
+    } else if (status === 'completed') {
+      query = `
+        UPDATE bookings
+        SET status = $1, completed_by = $2, completed_at = NOW(), updated_at = NOW()
+        WHERE id = $3
+        RETURNING id, uuid, booking_number, status, completed_at
+      `;
+      values = [status, updatedBy, id];
+    } else {
+      query = `
+        UPDATE bookings
+        SET status = $1, updated_at = NOW()
+        WHERE id = $2
+        RETURNING id, uuid, booking_number, status, updated_at
+      `;
+      values = [status, id];
+    }
+
+    const result = await pool.query(query, values);
+    const updatedBooking = result.rows[0];
+
+    // Log the status change to booking_history
+    if (updatedBooking && currentStatus !== status) {
+      try {
+        await logBookingStatusChange(
+          id,
+          currentStatus,
+          status,
+          updatedBy,
+          reason,
+          `Status changed from ${currentStatus} to ${status}`
+        );
+        console.log(`✅ Booking history logged: ${currentStatus} → ${status} for booking ${id}`);
+      } catch (logError) {
+        console.error('❌ Failed to log booking status change:', logError);
+        // Don't fail the main operation if logging fails
+      }
+    }
+
+    return updatedBooking;
+  } catch (error) {
+    console.error('❌ Error updating booking status:', error);
+    throw error;
   }
-
-  const result = await pool.query(query, values);
-  return result.rows[0];
 };
 
 const deleteBooking = async (id) => {

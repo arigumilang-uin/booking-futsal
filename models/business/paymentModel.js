@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const { logPaymentCreation, logPaymentProcessing } = require('../tracking/paymentLogModel');
 
 const getAllPayments = async (page = 1, limit = 20) => {
   const offset = (page - 1) * limit;
@@ -37,30 +38,75 @@ const getPaymentById = async (id) => {
 };
 
 const createPayment = async (paymentData) => {
-  const { booking_id, amount, method = 'manual', status = 'pending' } = paymentData;
+  try {
+    const { booking_id, amount, method = 'manual', status = 'pending' } = paymentData;
 
-  const query = `
-    INSERT INTO payments (booking_id, amount, method, status)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id, uuid, payment_number, booking_id, amount, method, status, created_at
-  `;
-  const values = [booking_id, amount, method, status];
-  const result = await pool.query(query, values);
-  return result.rows[0];
+    const query = `
+      INSERT INTO payments (booking_id, amount, method, status)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, uuid, payment_number, booking_id, amount, method, status, created_at
+    `;
+    const values = [booking_id, amount, method, status];
+    const result = await pool.query(query, values);
+    const newPayment = result.rows[0];
+
+    // Log payment creation to payment_logs
+    try {
+      await logPaymentCreation(newPayment.id, amount);
+      console.log(`✅ Payment creation logged: ${newPayment.payment_number} - ${amount}`);
+    } catch (logError) {
+      console.error('❌ Failed to log payment creation:', logError);
+      // Don't fail the main operation if logging fails
+    }
+
+    return newPayment;
+  } catch (error) {
+    console.error('❌ Error creating payment:', error);
+    throw error;
+  }
 };
 
 const updatePaymentStatus = async (id, status, gatewayResponse = null) => {
-  const query = `
-    UPDATE payments
-    SET status = $1,
-        gateway_response = $2,
-        paid_at = CASE WHEN $1 = 'paid' THEN NOW() ELSE paid_at END,
-        updated_at = NOW()
-    WHERE id = $3
-    RETURNING id, uuid, payment_number, status, paid_at, updated_at
-  `;
-  const result = await pool.query(query, [status, gatewayResponse, id]);
-  return result.rows[0];
+  try {
+    // Get current payment status for logging
+    const currentPaymentQuery = 'SELECT status FROM payments WHERE id = $1';
+    const currentPaymentResult = await pool.query(currentPaymentQuery, [id]);
+    const currentStatus = currentPaymentResult.rows[0]?.status || 'unknown';
+
+    const query = `
+      UPDATE payments
+      SET status = $1,
+          gateway_response = $2,
+          paid_at = CASE WHEN $1 = 'paid' THEN NOW() ELSE paid_at END,
+          updated_at = NOW()
+      WHERE id = $3
+      RETURNING id, uuid, payment_number, status, paid_at, updated_at
+    `;
+    const result = await pool.query(query, [status, gatewayResponse, id]);
+    const updatedPayment = result.rows[0];
+
+    // Log payment status change to payment_logs
+    if (updatedPayment && currentStatus !== status) {
+      try {
+        await logPaymentProcessing(
+          id,
+          currentStatus,
+          status,
+          null, // gatewayRequest - not available here
+          gatewayResponse
+        );
+        console.log(`✅ Payment status change logged: ${currentStatus} → ${status} for payment ${id}`);
+      } catch (logError) {
+        console.error('❌ Failed to log payment status change:', logError);
+        // Don't fail the main operation if logging fails
+      }
+    }
+
+    return updatedPayment;
+  } catch (error) {
+    console.error('❌ Error updating payment status:', error);
+    throw error;
+  }
 };
 
 const getPaymentsByBookingId = async (bookingId) => {
