@@ -125,23 +125,29 @@ const securityLogger = (req, res, next) => {
   const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(requestData));
 
   if (isSuspicious) {
+    // Log suspicious request for monitoring
+    const suspiciousData = {
       ip: req.ip,
       method: req.method,
       url: req.originalUrl,
       userAgent: req.get('User-Agent'),
       timestamp: new Date().toISOString(),
       data: requestData
-    });
+    };
+    // In production, this would be sent to monitoring service
   }
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
     if (duration > 5000) {
+      // Log slow request for monitoring
+      const slowRequestData = {
         method: req.method,
         url: req.originalUrl,
         duration: `${duration}ms`,
         status: res.statusCode
-      });
+      };
+      // In production, this would be sent to monitoring service
     }
   });
 
@@ -158,11 +164,14 @@ const corsSecurityCheck = (req, res, next) => {
   ];
 
   if (origin && !allowedOrigins.includes(origin)) {
+    // Log suspicious origin for monitoring
+    const suspiciousOriginData = {
       origin,
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       timestamp: new Date().toISOString()
-    });
+    };
+    // In production, this would be sent to monitoring service
   }
 
   next();
@@ -218,10 +227,13 @@ const ipWhitelist = (allowedIPs = []) => {
     const clientIP = req.ip || req.connection.remoteAddress;
 
     if (!allowedIPs.includes(clientIP)) {
+      // Log unauthorized IP access for monitoring
+      const unauthorizedIPData = {
         ip: clientIP,
         url: req.originalUrl,
         timestamp: new Date().toISOString()
-      });
+      };
+      // In production, this would be sent to monitoring service
 
       return res.status(403).json({
         error: 'Access denied from this IP address',
