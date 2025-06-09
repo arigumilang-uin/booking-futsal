@@ -171,7 +171,7 @@ const getAuditStatistics = async (days = 30) => {
         COUNT(*) as critical_actions
       FROM audit_logs
       WHERE action IN ('DELETE', 'LOGIN_FAILED', 'MANUAL_AUTO_COMPLETION_TRIGGER')
-      AND created_at >= CURRENT_DATE - INTERVAL $1 || ' days'
+      AND created_at >= NOW() - INTERVAL '1 day' * $1
     `;
 
     const [allTimeResult, todayResult, criticalResult] = await Promise.all([
@@ -224,11 +224,11 @@ const getActivityByAction = async (days = 30) => {
       COUNT(*) as count,
       COUNT(DISTINCT user_id) as unique_users
     FROM audit_logs
-    WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+    WHERE created_at >= NOW() - INTERVAL '1 day' * $1
     GROUP BY action
     ORDER BY count DESC
   `;
-  const result = await pool.query(query);
+  const result = await pool.query(query, [days]);
   return result.rows;
 };
 
@@ -243,11 +243,11 @@ const getActivityByResourceType = async (days = 30) => {
       COUNT(CASE WHEN action = 'UPDATE' THEN 1 END) as updates,
       COUNT(CASE WHEN action = 'DELETE' THEN 1 END) as deletes
     FROM audit_logs
-    WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+    WHERE created_at >= NOW() - INTERVAL '1 day' * $1
     GROUP BY resource_type
     ORDER BY count DESC
   `;
-  const result = await pool.query(query);
+  const result = await pool.query(query, [days]);
   return result.rows;
 };
 
@@ -260,11 +260,11 @@ const getDailyActivity = async (days = 30) => {
       COUNT(DISTINCT user_id) as unique_users,
       COUNT(CASE WHEN action = 'LOGIN' THEN 1 END) as logins
     FROM audit_logs
-    WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+    WHERE created_at >= NOW() - INTERVAL '1 day' * $1
     GROUP BY DATE(created_at)
     ORDER BY date DESC
   `;
-  const result = await pool.query(query);
+  const result = await pool.query(query, [days]);
   return result.rows;
 };
 
@@ -362,12 +362,12 @@ const getMostActiveUsers = async (days = 30, limit = 10) => {
       MAX(al.created_at) as last_activity
     FROM audit_logs al
     LEFT JOIN users u ON al.user_id = u.id
-    WHERE al.created_at >= CURRENT_DATE - INTERVAL '${days} days'
+    WHERE al.created_at >= NOW() - INTERVAL '1 day' * $1
     GROUP BY al.user_id, u.name, u.email, u.role
     ORDER BY activity_count DESC
-    LIMIT $1
+    LIMIT $2
   `;
-  const result = await pool.query(query, [limit]);
+  const result = await pool.query(query, [days, limit]);
   return result.rows;
 };
 
