@@ -12,21 +12,28 @@ const createPaymentLog = async ({
   notes = null,
   processed_by = null
 }) => {
+  // Prepare request_data and response_data as JSON
+  const requestData = gateway_request ? JSON.stringify(gateway_request) : null;
+  const responseData = gateway_response ? JSON.stringify(gateway_response) : null;
+
+  // Determine status_code from response
+  let statusCode = null;
+  if (gateway_response && typeof gateway_response === 'object') {
+    statusCode = gateway_response.status_code || gateway_response.statusCode || 200;
+  }
+
+  // Prepare error_message
+  let errorMessage = null;
+  if (gateway_response && gateway_response.error) {
+    errorMessage = typeof gateway_response.error === 'string' ? gateway_response.error : JSON.stringify(gateway_response.error);
+  }
+
   const query = `
-    INSERT INTO payment_logs (
-      payment_id, action, status_from, status_to, gateway_request, gateway_response,
-      amount, notes, processed_by
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING id, uuid, payment_id, action, status_from, status_to, gateway_request,
-              gateway_response, amount, notes, processed_by, created_at
+    INSERT INTO payment_logs (payment_id, action, request_data, response_data, status_code, error_message)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, payment_id, action, request_data, response_data, status_code, error_message, created_at
   `;
-  const values = [
-    payment_id, action, status_from, status_to,
-    gateway_request ? JSON.stringify(gateway_request) : null,
-    gateway_response ? JSON.stringify(gateway_response) : null,
-    amount, notes, processed_by
-  ];
+  const values = [payment_id, action, requestData, responseData, statusCode, errorMessage];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -34,12 +41,9 @@ const createPaymentLog = async ({
 // Get payment logs
 const getPaymentLogs = async (paymentId) => {
   const query = `
-    SELECT pl.id, pl.uuid, pl.payment_id, pl.action, pl.status_from, pl.status_to,
-           pl.gateway_request, pl.gateway_response, pl.amount, pl.notes,
-           pl.processed_by, pl.created_at,
-           u.name as processed_by_name, u.role as processed_by_role
+    SELECT pl.id, pl.payment_id, pl.action, pl.request_data, pl.response_data,
+           pl.status_code, pl.error_message, pl.created_at
     FROM payment_logs pl
-    LEFT JOIN users u ON pl.processed_by = u.id
     WHERE pl.payment_id = $1
     ORDER BY pl.created_at ASC
   `;
