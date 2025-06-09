@@ -1,0 +1,281 @@
+{
+  "timestamp": "2025-06-09T21:31:11.679Z",
+  "summary": {
+    "total_issues": 15,
+    "query_optimization": 7,
+    "error_handling": 0,
+    "indexing_needs": 5,
+    "caching_opportunities": 3
+  },
+  "issues": {
+    "queryOptimization": [
+      {
+        "file": "models/business/bookingModel.js",
+        "type": "complex_joins",
+        "issues": [
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          }
+        ],
+        "priority": "high"
+      },
+      {
+        "file": "models/business/bookingModel.js",
+        "type": "unlimited_queries",
+        "issues": [
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          }
+        ],
+        "priority": "medium"
+      },
+      {
+        "file": "models/business/fieldModel.js",
+        "type": "complex_joins",
+        "issues": [
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          }
+        ],
+        "priority": "high"
+      },
+      {
+        "file": "models/business/fieldModel.js",
+        "type": "unlimited_queries",
+        "issues": [
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          }
+        ],
+        "priority": "medium"
+      },
+      {
+        "file": "models/business/paymentModel.js",
+        "type": "complex_joins",
+        "issues": [
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          },
+          {
+            "description": "Query dengan 3 LEFT JOINs - berpotensi lambat",
+            "suggestion": "Pertimbangkan untuk memecah query atau menggunakan subquery",
+            "impact": "high"
+          }
+        ],
+        "priority": "high"
+      },
+      {
+        "file": "models/business/paymentModel.js",
+        "type": "unlimited_queries",
+        "issues": [
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          }
+        ],
+        "priority": "medium"
+      },
+      {
+        "file": "models/core/userModel.js",
+        "type": "unlimited_queries",
+        "issues": [
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          },
+          {
+            "description": "Query tanpa LIMIT berpotensi mengembalikan data berlebihan",
+            "suggestion": "Tambahkan LIMIT atau implementasi pagination",
+            "impact": "medium"
+          }
+        ],
+        "priority": "medium"
+      }
+    ],
+    "errorHandling": [],
+    "indexingNeeds": [
+      {
+        "table": "bookings",
+        "columns": [
+          "user_id",
+          "field_id",
+          "date",
+          "status",
+          "payment_status"
+        ],
+        "reason": "Frequently queried in booking operations",
+        "priority": "high"
+      },
+      {
+        "table": "bookings",
+        "columns": [
+          "field_id",
+          "date",
+          "start_time",
+          "end_time"
+        ],
+        "reason": "Used in conflict detection queries",
+        "priority": "high"
+      },
+      {
+        "table": "users",
+        "columns": [
+          "email",
+          "role",
+          "is_active"
+        ],
+        "reason": "Used in authentication and role-based queries",
+        "priority": "high"
+      },
+      {
+        "table": "fields",
+        "columns": [
+          "status",
+          "assigned_operator"
+        ],
+        "reason": "Used in field availability and operator queries",
+        "priority": "medium"
+      },
+      {
+        "table": "payments",
+        "columns": [
+          "booking_id",
+          "status",
+          "created_at"
+        ],
+        "reason": "Used in payment tracking and reporting",
+        "priority": "medium"
+      }
+    ],
+    "caching": [
+      {
+        "type": "static_data",
+        "description": "Field information (name, type, facilities)",
+        "location": "models/business/fieldModel.js",
+        "benefit": "Reduce database load for field listings",
+        "priority": "high"
+      },
+      {
+        "type": "user_sessions",
+        "description": "User profile data after authentication",
+        "location": "controllers/auth/authController.js",
+        "benefit": "Faster user data retrieval",
+        "priority": "medium"
+      },
+      {
+        "type": "statistics",
+        "description": "Dashboard statistics and analytics",
+        "location": "controllers/admin/*Controller.js",
+        "benefit": "Faster dashboard loading",
+        "priority": "medium"
+      }
+    ]
+  }
+}
