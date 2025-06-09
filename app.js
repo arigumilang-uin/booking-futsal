@@ -182,6 +182,14 @@ function formatUptime(seconds) {
   return `${days}d ${hours}h ${minutes}m ${secs}s`;
 }
 
+// Add audit logging middleware for all API routes
+const { auditLogger } = require('./middlewares/auditLogger');
+app.use('/api', auditLogger({
+  excludePaths: ['/api/auth/verify', '/api/health', '/api/status', '/api/staff/supervisor/system-health', '/api/staff/supervisor/database-stats'],
+  excludeMethods: ['OPTIONS', 'GET'],
+  logSuccessOnly: true
+}));
+
 app.use('/api', apiRoutes);
 
 app.use((req, res) => {

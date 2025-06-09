@@ -179,14 +179,23 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
+    console.log('🚪 Logout request received:', {
+      user: req.user ? req.user.id : 'no user',
+      ip: req.ip || req.connection.remoteAddress
+    });
+
     // Log logout if user is authenticated
-    if (req.user) {
+    if (req.user && req.user.id) {
+      console.log('📝 Logging logout for user:', req.user.id);
       await logoutAuditLogger(
         req.user.id,
         req.ip || req.connection.remoteAddress,
         req.headers['user-agent'],
         { email: req.user.email }
       );
+      console.log('✅ Logout audit logged successfully');
+    } else {
+      console.log('⚠️ No user found in request, skipping audit log');
     }
 
     res.clearCookie('token', {
@@ -201,7 +210,7 @@ const logout = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error('❌ Logout error:', error);
     res.status(500).json({
       error: 'Gagal logout'
     });
