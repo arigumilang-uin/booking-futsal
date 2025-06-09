@@ -187,7 +187,7 @@ router.post('/login', login);
  * @desc    Logout user
  * @access  Public
  */
-router.post('/logout', authenticateToken, logout);
+router.post('/logout', requireAuth, logout);
 
 /**
  * @swagger
