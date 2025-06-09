@@ -12,7 +12,7 @@ const getAllAuditLogs = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     const filters = {
       user_id: req.query.user_id ? parseInt(req.query.user_id) : null,
       action: req.query.action,
@@ -149,7 +149,7 @@ const getMostActiveUsersData = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     const activeUsers = await getMostActiveUsers(days, limit);
 
     res.json({
@@ -175,7 +175,7 @@ const getUserActivityLogs = async (req, res) => {
     const { userId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     const filters = {
       user_id: parseInt(userId),
       action: req.query.action,
@@ -220,7 +220,7 @@ const getTableActivityLogs = async (req, res) => {
     const { tableName } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     const filters = {
       table_name: tableName,
       action: req.query.action,
@@ -262,16 +262,21 @@ const getTableActivityLogs = async (req, res) => {
 // Clean old audit logs (admin only)
 const cleanOldAuditLogsData = async (req, res) => {
   try {
+    console.log('🧹 Cleanup request received:', req.body);
     const daysToKeep = parseInt(req.body.days_to_keep) || 365;
+    console.log('📅 Days to keep:', daysToKeep);
 
     if (daysToKeep < 30) {
+      console.log('❌ Invalid days_to_keep:', daysToKeep);
       return res.status(400).json({
         success: false,
         message: 'Minimal 30 hari data harus disimpan'
       });
     }
 
+    console.log('🔄 Calling cleanOldAuditLogs function...');
     const deletedCount = await cleanOldAuditLogs(daysToKeep);
+    console.log('✅ Cleanup completed, deleted count:', deletedCount);
 
     res.json({
       success: true,
@@ -282,10 +287,12 @@ const cleanOldAuditLogsData = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Clean old audit logs error:', error);
+    console.error('❌ Clean old audit logs error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Gagal membersihkan log audit lama'
+      message: 'Gagal membersihkan log audit lama',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
