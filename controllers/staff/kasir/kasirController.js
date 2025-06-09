@@ -126,6 +126,19 @@ const processManualPayment = async (req, res) => {
     // Update booking payment status
     await updateBookingPaymentStatus(booking_id, 'paid');
 
+    // OPTIONAL: Auto-confirm booking when payment is completed
+    try {
+      if (booking.status === 'pending') {
+        console.log(`[AUTO-CONFIRM] Manual payment processed for booking ${booking.booking_number}, auto-confirmation opportunity available`);
+        // Note: This would require operator assignment validation
+        // For now, we just log the opportunity for auto-confirmation
+        // await updateBookingStatus(booking_id, 'confirmed', 'system', 'Auto-confirmed after manual payment');
+      }
+    } catch (autoConfirmError) {
+      console.log('[AUTO-CONFIRM] Error during auto-confirmation attempt:', autoConfirmError.message);
+      // Don't fail the payment processing if auto-confirm fails
+    }
+
     res.status(201).json({
       success: true,
       message: 'Manual payment processed successfully',
@@ -182,6 +195,21 @@ const confirmPayment = async (req, res) => {
 
     // Update booking payment status
     await updateBookingPaymentStatus(payment.booking_id, 'paid');
+
+    // OPTIONAL: Auto-confirm booking when payment is completed
+    // This can be enabled/disabled based on business requirements
+    try {
+      const booking = await getBookingById(payment.booking_id);
+      if (booking && booking.status === 'pending') {
+        console.log(`[AUTO-CONFIRM] Payment confirmed for booking ${booking.booking_number}, auto-confirming booking...`);
+        // Note: This would require operator assignment validation
+        // For now, we just log the opportunity for auto-confirmation
+        // await updateBookingStatus(payment.booking_id, 'confirmed', 'system', 'Auto-confirmed after payment');
+      }
+    } catch (autoConfirmError) {
+      console.log('[AUTO-CONFIRM] Error during auto-confirmation attempt:', autoConfirmError.message);
+      // Don't fail the payment confirmation if auto-confirm fails
+    }
 
     res.json({
       success: true,

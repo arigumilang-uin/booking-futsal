@@ -46,7 +46,7 @@ const getManagerDashboard = async (req, res) => {
 const getAllFieldsForManager = async (req, res) => {
   try {
     const fields = await getAllFields();
-    
+
     res.json({
       success: true,
       data: fields
@@ -54,7 +54,7 @@ const getAllFieldsForManager = async (req, res) => {
 
   } catch (error) {
     console.error('Get all fields for manager error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get fields',
       code: 'FIELDS_FETCH_FAILED'
     });
@@ -109,15 +109,15 @@ const updateFieldByManager = async (req, res) => {
       ...req.body,
       updated_by: managerId
     };
-    
+
     const updatedField = await updateField(id, updateData);
     if (!updatedField) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'Field not found',
         code: 'FIELD_NOT_FOUND'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Field updated successfully',
@@ -126,7 +126,7 @@ const updateFieldByManager = async (req, res) => {
 
   } catch (error) {
     console.error('Update field by manager error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to update field',
       code: 'FIELD_UPDATE_FAILED'
     });
@@ -326,6 +326,20 @@ const updateBookingStatusForManager = async (req, res) => {
         success: false,
         error: 'Booking not found',
         code: 'BOOKING_NOT_FOUND'
+      });
+    }
+
+    // BUSINESS RULE: Payment must be completed before booking can be confirmed
+    if (status === 'confirmed' && booking.payment_status !== 'paid') {
+      return res.status(400).json({
+        success: false,
+        error: 'Booking cannot be confirmed. Payment must be completed first',
+        code: 'PAYMENT_NOT_COMPLETED',
+        details: {
+          current_payment_status: booking.payment_status,
+          required_payment_status: 'paid',
+          message: 'Please ensure payment is processed by kasir before confirming booking'
+        }
       });
     }
 

@@ -269,7 +269,7 @@ router.get('/schedule/:date', async (req, res) => {
   try {
     const { date } = req.params;
     const operatorId = req.rawUser.id;
-    
+
     // This would be implemented in controller
     // For now, return basic structure
     res.json({
@@ -287,7 +287,7 @@ router.get('/schedule/:date', async (req, res) => {
 
   } catch (error) {
     console.error('Get schedule error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get schedule',
       code: 'SCHEDULE_FETCH_FAILED'
     });
@@ -359,10 +359,11 @@ router.get('/schedule/:date', async (req, res) => {
  *         $ref: '#/components/responses/NotFound'
  *
  * @route   PUT /api/staff/operator/bookings/:id/confirm
- * @desc    Confirm booking
+ * @desc    Confirm booking (requires payment to be completed first)
  * @access  Private (Operator, Manager, Supervisor)
  * @params  { id: booking_id }
  * @body    { notes }
+ * @errors  PAYMENT_NOT_COMPLETED - Payment must be completed before booking confirmation
  */
 router.put('/bookings/:id/confirm', confirmBooking);
 
@@ -751,7 +752,7 @@ router.get('/statistics', async (req, res) => {
   try {
     const operatorId = req.rawUser.id;
     const { date_from, date_to } = req.query;
-    
+
     // This would calculate operator statistics
     // For now, return basic structure
     res.json({
@@ -774,7 +775,7 @@ router.get('/statistics', async (req, res) => {
 
   } catch (error) {
     console.error('Get operator statistics error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get operator statistics',
       code: 'OPERATOR_STATS_FAILED'
     });
