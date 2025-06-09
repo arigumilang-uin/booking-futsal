@@ -36,60 +36,85 @@ const createAuditLog = async ({
 // Get audit logs with pagination
 const getAuditLogs = async (page = 1, limit = 50, filters = {}) => {
   const offset = (page - 1) * limit;
-  let query = `
-    SELECT al.id, al.uuid, al.user_id, al.action, al.resource_type, al.resource_id,
-           al.old_values, al.new_values, al.ip_address, al.user_agent,
-           al.additional_info, al.created_at,
-           u.name as user_name, u.email as user_email, u.role as user_role
-    FROM audit_logs al
-    LEFT JOIN users u ON al.user_id = u.id
-    WHERE 1=1
-  `;
 
+  // Build WHERE clause for both queries
+  let whereClause = 'WHERE 1=1';
   const params = [];
   let paramCount = 1;
 
   // Apply filters
   if (filters.user_id) {
-    query += ` AND al.user_id = $${paramCount++}`;
+    whereClause += ` AND al.user_id = $${paramCount++}`;
     params.push(filters.user_id);
   }
 
   if (filters.action) {
-    query += ` AND al.action = $${paramCount++}`;
+    whereClause += ` AND al.action = $${paramCount++}`;
     params.push(filters.action);
   }
 
   if (filters.resource_type) {
-    query += ` AND al.resource_type = $${paramCount++}`;
+    whereClause += ` AND al.resource_type = $${paramCount++}`;
     params.push(filters.resource_type);
   }
 
   if (filters.table_name) {
-    query += ` AND al.table_name = $${paramCount++}`;
+    whereClause += ` AND al.table_name = $${paramCount++}`;
     params.push(filters.table_name);
   }
 
   if (filters.resource_id) {
-    query += ` AND al.resource_id = $${paramCount++}`;
+    whereClause += ` AND al.resource_id = $${paramCount++}`;
     params.push(filters.resource_id);
   }
 
   if (filters.date_from) {
-    query += ` AND al.created_at >= $${paramCount++}`;
+    whereClause += ` AND al.created_at >= $${paramCount++}`;
     params.push(filters.date_from);
   }
 
   if (filters.date_to) {
-    query += ` AND al.created_at <= $${paramCount++}`;
+    whereClause += ` AND al.created_at <= $${paramCount++}`;
     params.push(filters.date_to);
   }
 
-  query += ` ORDER BY al.created_at DESC LIMIT $${paramCount++} OFFSET $${paramCount++}`;
-  params.push(limit, offset);
+  // Count query
+  const countQuery = `
+    SELECT COUNT(*) as total
+    FROM audit_logs al
+    LEFT JOIN users u ON al.user_id = u.id
+    ${whereClause}
+  `;
 
-  const result = await pool.query(query, params);
-  return result.rows;
+  // Data query
+  const dataQuery = `
+    SELECT al.id, al.uuid, al.user_id, al.action, al.resource_type, al.table_name, al.resource_id,
+           al.old_values, al.new_values, al.ip_address, al.user_agent,
+           al.additional_info, al.created_at,
+           u.name as user_name, u.email as user_email, u.role as user_role
+    FROM audit_logs al
+    LEFT JOIN users u ON al.user_id = u.id
+    ${whereClause}
+    ORDER BY al.created_at DESC
+    LIMIT $${paramCount++} OFFSET $${paramCount++}
+  `;
+
+  // Execute both queries
+  const [countResult, dataResult] = await Promise.all([
+    pool.query(countQuery, params),
+    pool.query(dataQuery, [...params, limit, offset])
+  ]);
+
+  const total = parseInt(countResult.rows[0].total) || 0;
+  const logs = dataResult.rows;
+
+  return {
+    logs,
+    total,
+    pages: Math.ceil(total / limit),
+    current_page: page,
+    per_page: limit
+  };
 };
 
 // Get audit log by ID
