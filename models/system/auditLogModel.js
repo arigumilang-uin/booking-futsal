@@ -271,14 +271,37 @@ const getDailyActivity = async (days = 30) => {
 // Clean old audit logs
 const cleanOldAuditLogs = async (retentionDays = 365) => {
   try {
-    const query = `
+    console.log('🗑️ Starting cleanup for retention days:', retentionDays);
+
+    // First, check how many records will be deleted
+    const countQuery = `
+      SELECT COUNT(*) as count_to_delete
+      FROM audit_logs
+      WHERE created_at < CURRENT_DATE - INTERVAL $1 || ' days'
+    `;
+    const countResult = await pool.query(countQuery, [retentionDays]);
+    const countToDelete = parseInt(countResult.rows[0].count_to_delete);
+    console.log('📊 Records to delete:', countToDelete);
+
+    if (countToDelete === 0) {
+      console.log('✅ No records to delete');
+      return 0;
+    }
+
+    // Perform the deletion
+    const deleteQuery = `
       DELETE FROM audit_logs
       WHERE created_at < CURRENT_DATE - INTERVAL $1 || ' days'
     `;
-    const result = await pool.query(query, [retentionDays]);
-    return result.rowCount || 0;
+    console.log('🔄 Executing delete query...');
+    const result = await pool.query(deleteQuery, [retentionDays]);
+    const deletedCount = result.rowCount || 0;
+    console.log('✅ Successfully deleted records:', deletedCount);
+
+    return deletedCount;
   } catch (error) {
-    console.error('Clean old audit logs error:', error);
+    console.error('❌ Clean old audit logs model error:', error);
+    console.error('Error details:', error.message);
     throw error;
   }
 };
