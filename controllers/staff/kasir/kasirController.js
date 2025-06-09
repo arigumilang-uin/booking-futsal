@@ -211,64 +211,136 @@ const confirmPayment = async (req, res) => {
   try {
     const staffId = req.rawUser.id;
     const { id } = req.params;
-    const { notes } = req.body;
+    const { notes, method = 'cash', amount } = req.body;
 
-    const payment = await getPaymentById(id);
-    if (!payment) {
-      return res.status(404).json({
-        error: 'Payment not found',
-        code: 'PAYMENT_NOT_FOUND'
-      });
-    }
-
-    if (payment.status !== 'pending') {
-      return res.status(400).json({
-        error: 'Payment cannot be confirmed',
-        code: 'PAYMENT_NOT_CONFIRMABLE'
-      });
-    }
-
-    // Update payment status
-    const updatedPayment = await updatePaymentStatus(
-      id,
-      'paid',
-      {
-        notes: notes || `Payment confirmed by staff: ${req.rawUser.name}`,
-        confirmed_by: req.rawUser.name,
-        employee_id: req.rawUser.employee_id,
-        confirmed_at: new Date().toISOString()
-      }
-    );
-
-    // Update booking payment status
-    await updateBookingPaymentStatus(payment.booking_id, 'paid');
-
-    // OPTIONAL: Auto-confirm booking when payment is completed
-    // This can be enabled/disabled based on business requirements
-    try {
-      const booking = await getBookingById(payment.booking_id);
-      if (booking && booking.status === 'pending') {
-        console.log(`[AUTO-CONFIRM] Payment confirmed for booking ${booking.booking_number}, auto-confirming booking...`);
-        // Note: This would require operator assignment validation
-        // For now, we just log the opportunity for auto-confirmation
-        // await updateBookingStatus(payment.booking_id, 'confirmed', 'system', 'Auto-confirmed after payment');
-      }
-    } catch (autoConfirmError) {
-      console.log('[AUTO-CONFIRM] Error during auto-confirmation attempt:', autoConfirmError.message);
-      // Don't fail the payment confirmation if auto-confirm fails
-    }
-
-    res.json({
-      success: true,
-      message: 'Payment confirmed successfully',
-      data: updatedPayment
+    console.log('🔍 KASIR CONFIRM PAYMENT:', {
+      paymentId: id,
+      method,
+      amount,
+      isBookingPayment: id.startsWith('booking_'),
+      staffId,
+      staffName: req.rawUser.name
     });
 
+    // Check if this is a booking payment (pending booking without payment record)
+    if (id.startsWith('booking_')) {
+      const bookingId = id.replace('booking_', '');
+
+      // Get booking details
+      const { getAllBookings } = require('../../../models/business/bookingModel');
+      const allBookings = await getAllBookings();
+      const booking = allBookings.find(b => b.id == bookingId);
+
+      if (!booking) {
+        return res.status(404).json({
+          error: 'Booking not found',
+          code: 'BOOKING_NOT_FOUND'
+        });
+      }
+
+      if (booking.payment_status !== 'pending') {
+        return res.status(400).json({
+          error: 'Booking payment already processed',
+          code: 'PAYMENT_ALREADY_PROCESSED'
+        });
+      }
+
+      // Create payment record for this booking
+      const { createPayment } = require('../../../models/business/paymentModel');
+      const paymentData = {
+        booking_id: bookingId,
+        amount: amount || booking.total_amount,
+        method: method,
+        status: 'paid',
+        currency: 'IDR',
+        reference_number: `PAY-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(Date.now()).slice(-3)}`,
+        notes: notes || `Payment confirmed by kasir: ${req.rawUser.name}`,
+        confirmed_by: req.rawUser.name,
+        confirmed_at: new Date().toISOString()
+      };
+
+      const newPayment = await createPayment(paymentData);
+
+      if (newPayment) {
+        // Update booking payment status
+        const { updateBookingPaymentStatus } = require('../../../models/business/bookingModel');
+        await updateBookingPaymentStatus(bookingId, 'paid');
+
+        console.log('✅ BOOKING PAYMENT CONFIRMED:', {
+          bookingId,
+          paymentId: newPayment.id,
+          amount: paymentData.amount,
+          method: paymentData.method,
+          confirmedBy: req.rawUser.name
+        });
+
+        res.json({
+          success: true,
+          message: 'Booking payment confirmed successfully',
+          data: {
+            payment: newPayment,
+            booking_id: bookingId,
+            type: 'booking_payment_confirmation'
+          }
+        });
+      } else {
+        res.status(500).json({
+          error: 'Failed to create payment record',
+          code: 'PAYMENT_CREATION_FAILED'
+        });
+      }
+    } else {
+      // Handle regular payment confirmation
+      const payment = await getPaymentById(id);
+      if (!payment) {
+        return res.status(404).json({
+          error: 'Payment not found',
+          code: 'PAYMENT_NOT_FOUND'
+        });
+      }
+
+      if (payment.status !== 'pending') {
+        return res.status(400).json({
+          error: 'Payment cannot be confirmed',
+          code: 'PAYMENT_NOT_CONFIRMABLE'
+        });
+      }
+
+      // Update payment status
+      const updatedPayment = await updatePaymentStatus(
+        id,
+        'paid',
+        {
+          notes: notes || `Payment confirmed by kasir: ${req.rawUser.name}`,
+          confirmed_by: req.rawUser.name,
+          employee_id: req.rawUser.employee_id,
+          confirmed_at: new Date().toISOString()
+        }
+      );
+
+      // Update booking payment status
+      await updateBookingPaymentStatus(payment.booking_id, 'paid');
+
+      console.log('✅ REGULAR PAYMENT CONFIRMED:', {
+        paymentId: id,
+        method: payment.method,
+        amount: payment.amount,
+        confirmedBy: req.rawUser.name
+      });
+
+      res.json({
+        success: true,
+        message: 'Payment confirmed successfully',
+        data: updatedPayment
+      });
+    }
+
   } catch (error) {
-    console.error('Confirm payment error:', error);
+    console.error('❌ Confirm payment error:', error);
     res.status(500).json({
       error: 'Failed to confirm payment',
-      code: 'PAYMENT_CONFIRM_FAILED'
+      code: 'PAYMENT_CONFIRM_FAILED',
+      details: error.message
     });
   }
 };
