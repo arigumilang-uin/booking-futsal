@@ -81,7 +81,7 @@ router.get('/analytics', getBusinessAnalytics);
 router.get('/reports/revenue', async (req, res) => {
   try {
     const { date_from, date_to } = req.query;
-    
+
     // This would be implemented with detailed revenue reporting
     // For now, redirect to analytics
     req.query.period = 'custom';
@@ -89,7 +89,7 @@ router.get('/reports/revenue', async (req, res) => {
 
   } catch (error) {
     console.error('Get revenue report error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get revenue report',
       code: 'REVENUE_REPORT_FAILED'
     });
@@ -99,7 +99,7 @@ router.get('/reports/revenue', async (req, res) => {
 router.get('/reports/bookings', async (req, res) => {
   try {
     const { date_from, date_to } = req.query;
-    
+
     // This would be implemented with detailed booking reporting
     // For now, redirect to analytics
     req.query.period = 'custom';
@@ -107,7 +107,7 @@ router.get('/reports/bookings', async (req, res) => {
 
   } catch (error) {
     console.error('Get booking report error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get booking report',
       code: 'BOOKING_REPORT_FAILED'
     });
@@ -117,7 +117,7 @@ router.get('/reports/bookings', async (req, res) => {
 router.get('/staff-performance', async (req, res) => {
   try {
     const { date_from, date_to } = req.query;
-    
+
     // This would be implemented with staff performance tracking
     // For now, return basic structure
     res.json({
@@ -144,7 +144,7 @@ router.get('/staff-performance', async (req, res) => {
 
   } catch (error) {
     console.error('Get staff performance error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get staff performance',
       code: 'STAFF_PERFORMANCE_FAILED'
     });

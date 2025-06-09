@@ -108,7 +108,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Get kasir dashboard data
     const today = new Date().toISOString().split('T')[0];
-    
+
     // This would call multiple functions to get dashboard data
     // For now, return basic structure
     res.json({
@@ -140,7 +140,7 @@ router.get('/dashboard', async (req, res) => {
 
   } catch (error) {
     console.error('Kasir dashboard error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get kasir dashboard',
       code: 'KASIR_DASHBOARD_FAILED'
     });
