@@ -1846,6 +1846,11 @@ router.post('/fields', requireManagement, async (req, res) => {
  *       - ✅ **Supervisor Sistem** (supervisor_sistem)
  *       - ✅ **Manager Futsal** (manajer_futsal)
  *       - ❌ Staff lainnya tidak dapat mengakses
+ *
+ *       **📝 FIELD ASSIGNMENT:**
+ *       - Gunakan field `assigned_operator` untuk menugaskan operator ke lapangan
+ *       - Set `assigned_operator: null` untuk menghapus penugasan
+ *       - Hanya operator yang ditugaskan yang bisa mengelola booking di lapangan tersebut
  *     security:
  *       - bearerAuth: []
  *       - cookieAuth: []
@@ -1889,6 +1894,11 @@ router.post('/fields', requireManagement, async (req, res) => {
  *                 items:
  *                   type: string
  *                 example: ["AC", "Sound System", "Lighting", "Parking"]
+ *               assigned_operator:
+ *                 type: integer
+ *                 nullable: true
+ *                 example: 3
+ *                 description: "ID operator yang ditugaskan untuk mengelola lapangan ini"
  *               is_active:
  *                 type: boolean
  *                 example: true
@@ -2078,6 +2088,285 @@ router.delete('/fields/:id', requireManagement, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete field',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/admin/fields/{id}/assign-operator:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Assign operator ke lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint khusus untuk menugaskan operator ke lapangan tertentu
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *
+ *       **📝 OPERATOR ASSIGNMENT:**
+ *       - Hanya operator yang ditugaskan yang bisa mengelola booking di lapangan
+ *       - Set `operator_id: null` untuk menghapus penugasan
+ *       - Operator harus memiliki role `operator_lapangan`
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID lapangan yang akan ditugaskan operator
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [operator_id]
+ *             properties:
+ *               operator_id:
+ *                 type: integer
+ *                 nullable: true
+ *                 example: 3
+ *                 description: "ID operator yang akan ditugaskan (null untuk menghapus penugasan)"
+ *     responses:
+ *       200:
+ *         description: Operator berhasil ditugaskan ke lapangan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Operator assigned to field successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     field_id:
+ *                       type: integer
+ *                       example: 3
+ *                     field_name:
+ *                       type: string
+ *                       example: "Lapangan Futsal A"
+ *                     assigned_operator:
+ *                       type: integer
+ *                       example: 3
+ *                     operator_name:
+ *                       type: string
+ *                       example: "Operator Lapangan"
+ *       400:
+ *         description: Bad Request - Operator tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid operator - must have operator_lapangan role"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *
+ * @route   PUT /api/admin/fields/:id/assign-operator
+ * @desc    Assign operator to field
+ * @access  Management (manajer_futsal+)
+ * @params  { id: field_id }
+ * @body    { operator_id }
+ */
+router.put('/fields/:id/assign-operator', requireManagement, async (req, res) => {
+  try {
+    const { updateField, getFieldById } = require('../models/business/fieldModel');
+    const { getUserByIdRaw } = require('../models/core/userModel');
+    const adminId = req.rawUser.id;
+    const { id } = req.params;
+    const { operator_id } = req.body;
+
+    // Check if field exists
+    const existingField = await getFieldById(id);
+    if (!existingField) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field not found'
+      });
+    }
+
+    // If operator_id is provided, validate the operator
+    if (operator_id !== null && operator_id !== undefined) {
+      const operator = await getUserByIdRaw(operator_id);
+      if (!operator) {
+        return res.status(400).json({
+          success: false,
+          message: 'Operator not found'
+        });
+      }
+
+      if (operator.role !== 'operator_lapangan') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid operator - must have operator_lapangan role'
+        });
+      }
+    }
+
+    // Update field with assigned operator
+    const updatedField = await updateField(id, {
+      assigned_operator: operator_id,
+      updated_by: adminId
+    });
+
+    res.json({
+      success: true,
+      message: operator_id ? 'Operator assigned to field successfully' : 'Operator unassigned from field successfully',
+      data: {
+        field_id: updatedField.id,
+        field_name: updatedField.name,
+        assigned_operator: updatedField.assigned_operator,
+        operator_name: updatedField.operator_name || null
+      }
+    });
+
+  } catch (error) {
+    console.error('Assign operator to field error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to assign operator to field',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/admin/operators:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get daftar operator lapangan 🟡 MANAGEMENT
+ *     description: |
+ *       Endpoint untuk mendapatkan daftar semua operator lapangan yang tersedia
+ *
+ *       **🔐 ACCESS LEVEL:**
+ *       - ✅ **Supervisor Sistem** (supervisor_sistem)
+ *       - ✅ **Manager Futsal** (manajer_futsal)
+ *       - ❌ Staff lainnya tidak dapat mengakses
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: available_only
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Hanya tampilkan operator yang belum ditugaskan
+ *     responses:
+ *       200:
+ *         description: Daftar operator berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 3
+ *                       name:
+ *                         type: string
+ *                         example: "Operator Lapangan"
+ *                       email:
+ *                         type: string
+ *                         example: "operator@futsal.com"
+ *                       employee_id:
+ *                         type: string
+ *                         example: "OP001"
+ *                       assigned_fields:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             field_id:
+ *                               type: integer
+ *                             field_name:
+ *                               type: string
+ *                       is_available:
+ *                         type: boolean
+ *                         example: true
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ * @route   GET /api/admin/operators
+ * @desc    Get list of field operators
+ * @access  Management (manajer_futsal+)
+ * @query   { available_only }
+ */
+router.get('/operators', requireManagement, async (req, res) => {
+  try {
+    const { getAllUsers } = require('../models/core/userModel');
+    const { getFieldsByOperator } = require('../models/business/fieldModel');
+    const { available_only } = req.query;
+
+    // Get all operators
+    const allUsers = await getAllUsers();
+    const operators = allUsers.filter(user => user.role === 'operator_lapangan' && user.is_active);
+
+    // Get assigned fields for each operator
+    const operatorsWithFields = await Promise.all(
+      operators.map(async (operator) => {
+        const assignedFields = await getFieldsByOperator(operator.id);
+        return {
+          id: operator.id,
+          name: operator.name,
+          email: operator.email,
+          employee_id: operator.employee_id,
+          assigned_fields: assignedFields.map(field => ({
+            field_id: field.id,
+            field_name: field.name
+          })),
+          is_available: assignedFields.length === 0
+        };
+      })
+    );
+
+    // Filter available only if requested
+    const filteredOperators = available_only === 'true'
+      ? operatorsWithFields.filter(op => op.is_available)
+      : operatorsWithFields;
+
+    res.json({
+      success: true,
+      data: filteredOperators
+    });
+
+  } catch (error) {
+    console.error('Get operators error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get operators',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
