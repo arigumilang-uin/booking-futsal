@@ -13,7 +13,35 @@
 
 ## 🔧 **PERBAIKAN YANG DILAKUKAN:**
 
-### **1. System Health Status Logic - FIXED**
+### **1. CORS Security Issue - FIXED**
+
+#### **MASALAH:**
+```
+🚨 Suspicious origin detected: {
+  origin: 'https://booking-futsal-production.up.railway.app',
+  ip: '114.125.27.255'
+}
+```
+
+#### **PERBAIKAN:**
+```javascript
+// BEFORE: Missing production origin
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://booking-futsal-frontend.vercel.app'
+];
+
+// AFTER: Added production origin
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://booking-futsal-frontend.vercel.app',
+  'https://booking-futsal-production.up.railway.app'  // ✅ ADDED
+];
+```
+
+### **2. System Health Status Logic - FIXED**
 
 #### **BEFORE:**
 ```javascript

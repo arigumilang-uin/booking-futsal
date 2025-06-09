@@ -39,9 +39,9 @@ const generalRateLimit = rateLimit({
   skip: (req) => {
     // Skip rate limiting for health checks and monitoring
     return req.path === '/' ||
-           req.path === '/api/test/health' ||
-           req.path === '/health' ||
-           req.path === '/metrics';
+      req.path === '/api/test/health' ||
+      req.path === '/health' ||
+      req.path === '/metrics';
   }
 });
 
@@ -108,7 +108,7 @@ const validateInput = (req, res, next) => {
 
 const securityLogger = (req, res, next) => {
   const startTime = Date.now();
-  
+
   const suspiciousPatterns = [
     /(\<script|\<iframe|\<object)/i,
     /(union.*select|select.*from|insert.*into|delete.*from)/i,
@@ -155,7 +155,8 @@ const corsSecurityCheck = (req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://booking-futsal-frontend.vercel.app'
+    'https://booking-futsal-frontend.vercel.app',
+    'https://booking-futsal-production.up.railway.app'
   ];
 
   if (origin && !allowedOrigins.includes(origin)) {
@@ -194,11 +195,11 @@ const validateApiKey = (req, res, next) => {
 const requestSizeLimit = (maxSize = '10mb') => {
   return (req, res, next) => {
     const contentLength = req.get('Content-Length');
-    
+
     if (contentLength) {
       const sizeInMB = parseInt(contentLength) / (1024 * 1024);
       const maxSizeInMB = parseInt(maxSize);
-      
+
       if (sizeInMB > maxSizeInMB) {
         return res.status(413).json({
           error: `Request too large. Maximum size is ${maxSize}`,
@@ -206,7 +207,7 @@ const requestSizeLimit = (maxSize = '10mb') => {
         });
       }
     }
-    
+
     next();
   };
 };
@@ -221,20 +222,20 @@ const ipWhitelist = (allowedIPs = []) => {
     }
 
     const clientIP = req.ip || req.connection.remoteAddress;
-    
+
     if (!allowedIPs.includes(clientIP)) {
       console.warn('🚨 Unauthorized IP access attempt:', {
         ip: clientIP,
         url: req.originalUrl,
         timestamp: new Date().toISOString()
       });
-      
+
       return res.status(403).json({
         error: 'Access denied from this IP address',
         code: 'IP_NOT_WHITELISTED'
       });
     }
-    
+
     next();
   };
 };
