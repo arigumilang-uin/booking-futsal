@@ -46,13 +46,27 @@ const updateCompletedBookings = async () => {
 
     for (const booking of expiredBookings.rows) {
       try {
+        console.log(`[AUTO-COMPLETION] 🔍 Checking booking ${booking.booking_number}:`);
+        console.log(`  Raw data - Date: ${booking.date}, End time: ${booking.end_time}`);
+
+        // Validate date and time format
+        if (!booking.date || !booking.end_time) {
+          throw new Error(`Missing date or time data: date=${booking.date}, end_time=${booking.end_time}`);
+        }
+
         // Database stores time in WIB (UTC+7), convert to UTC for comparison
-        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}`);
+        const dateTimeString = `${booking.date}T${booking.end_time}`;
+        console.log(`  DateTime string: ${dateTimeString}`);
+
+        const bookingEndDateTime = new Date(dateTimeString);
+        if (isNaN(bookingEndDateTime.getTime())) {
+          throw new Error(`Invalid date format: ${dateTimeString}`);
+        }
+
         // Subtract 7 hours to convert WIB to UTC
         const bookingEndUTC = new Date(bookingEndDateTime.getTime() - (7 * 60 * 60 * 1000));
         const gracePeriodEnd = new Date(bookingEndUTC.getTime() + (15 * 60 * 1000));
 
-        console.log(`[AUTO-COMPLETION] 🔍 Checking booking ${booking.booking_number}:`);
         console.log(`  End time WIB: ${booking.end_time} (${bookingEndDateTime.toISOString()})`);
         console.log(`  End time UTC: ${bookingEndUTC.toISOString()}`);
         console.log(`  Grace period ends: ${gracePeriodEnd.toISOString()}`);
