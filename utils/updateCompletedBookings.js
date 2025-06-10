@@ -48,14 +48,24 @@ const updateCompletedBookings = async () => {
       try {
         console.log(`[AUTO-COMPLETION] 🔍 Checking booking ${booking.booking_number}:`);
         console.log(`  Raw data - Date: ${booking.date}, End time: ${booking.end_time}`);
+        console.log(`  Date type: ${typeof booking.date}, Time type: ${typeof booking.end_time}`);
 
         // Validate date and time format
         if (!booking.date || !booking.end_time) {
           throw new Error(`Missing date or time data: date=${booking.date}, end_time=${booking.end_time}`);
         }
 
+        // Convert date to ISO string format if it's a Date object
+        let dateString;
+        if (booking.date instanceof Date) {
+          dateString = booking.date.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+        } else {
+          dateString = booking.date.toString();
+        }
+
         // Database stores time in WIB (UTC+7), convert to UTC for comparison
-        const dateTimeString = `${booking.date}T${booking.end_time}`;
+        const dateTimeString = `${dateString}T${booking.end_time}`;
+        console.log(`  Converted date: ${dateString}`);
         console.log(`  DateTime string: ${dateTimeString}`);
 
         const bookingEndDateTime = new Date(dateTimeString);
