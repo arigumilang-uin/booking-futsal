@@ -316,7 +316,15 @@ const confirmPayment = async (req, res) => {
       `;
 
       const confirmationNotes = notes || `Payment confirmed by kasir: ${req.rawUser.name}`;
-      const updateResult = await pool.query(updateQuery, [confirmationNotes, id]);
+      // Convert notes to proper JSON format for gateway_response field
+      const gatewayResponse = JSON.stringify({
+        confirmation_notes: confirmationNotes,
+        confirmed_by: req.rawUser.name,
+        confirmed_at: new Date().toISOString(),
+        method: 'manual_confirmation'
+      });
+
+      const updateResult = await pool.query(updateQuery, [gatewayResponse, id]);
       const updatedPayment = updateResult.rows[0];
 
       if (!updatedPayment) {
