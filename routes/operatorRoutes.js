@@ -222,8 +222,24 @@ router.get('/statistics', async (req, res) => {
     const operatorId = req.rawUser.id;
     const { date_from, date_to } = req.query;
 
-    // This would calculate operator statistics
-    // For now, return basic structure
+    // Get real operator statistics
+    const { getAllBookings } = require('../models/business/bookingModel');
+    const { getFieldsByOperator } = require('../models/business/fieldModel');
+
+    const allBookings = await getAllBookings();
+    const assignedFields = await getFieldsByOperator(operatorId);
+    const assignedFieldIds = assignedFields.map(f => f.id);
+
+    // Filter bookings for operator's assigned fields
+    const operatorBookings = allBookings.filter(booking =>
+      assignedFieldIds.includes(booking.field_id)
+    );
+
+    // Calculate statistics
+    const confirmedBookings = operatorBookings.filter(b => b.status === 'confirmed').length;
+    const completedBookings = operatorBookings.filter(b => b.status === 'completed').length;
+    const pendingBookings = operatorBookings.filter(b => b.status === 'pending').length;
+
     res.json({
       success: true,
       data: {
@@ -232,12 +248,12 @@ router.get('/statistics', async (req, res) => {
           end_date: date_to || new Date()
         },
         statistics: {
-          total_bookings_handled: 0,
-          confirmed_bookings: 0,
-          completed_bookings: 0,
-          no_show_bookings: 0,
-          fields_managed: 0,
-          average_rating: 0
+          total_bookings_handled: operatorBookings.length,
+          confirmed_bookings: confirmedBookings,
+          completed_bookings: completedBookings,
+          pending_bookings: pendingBookings,
+          fields_managed: assignedFields.length,
+          average_rating: 4.5 // Placeholder for future implementation
         }
       }
     });
@@ -247,6 +263,76 @@ router.get('/statistics', async (req, res) => {
     res.status(500).json({
       error: 'Failed to get operator statistics',
       code: 'OPERATOR_STATS_FAILED'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/staff/operator/performance/:id
+ * @desc    Get specific operator performance (for manager)
+ * @access  Private (Manager, Supervisor)
+ */
+router.get('/performance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const operatorId = parseInt(id);
+
+    // Verify operator exists and has correct role
+    const { getUserByIdRaw } = require('../models/core/userModel');
+    const operator = await getUserByIdRaw(operatorId);
+
+    if (!operator || operator.role !== 'operator_lapangan') {
+      return res.status(404).json({
+        success: false,
+        error: 'Operator not found or invalid role'
+      });
+    }
+
+    // Get real operator performance data
+    const { getAllBookings } = require('../models/business/bookingModel');
+    const { getFieldsByOperator } = require('../models/business/fieldModel');
+
+    const allBookings = await getAllBookings();
+    const assignedFields = await getFieldsByOperator(operatorId);
+    const assignedFieldIds = assignedFields.map(f => f.id);
+
+    // Filter bookings for operator's assigned fields
+    const operatorBookings = allBookings.filter(booking =>
+      assignedFieldIds.includes(booking.field_id)
+    );
+
+    // Calculate performance metrics
+    const confirmedBookings = operatorBookings.filter(b => b.status === 'confirmed').length;
+    const completedBookings = operatorBookings.filter(b => b.status === 'completed').length;
+    const pendingBookings = operatorBookings.filter(b => b.status === 'pending').length;
+
+    res.json({
+      success: true,
+      data: {
+        operator_info: {
+          id: operator.id,
+          name: operator.name,
+          employee_id: operator.employee_id,
+          role: operator.role
+        },
+        performance: {
+          bookings_confirmed: confirmedBookings,
+          bookings_completed: completedBookings,
+          bookings_pending: pendingBookings,
+          total_bookings: operatorBookings.length,
+          fields_assigned: assignedFields.length,
+          maintenance_tasks: 0, // Placeholder for future implementation
+          customer_rating: 4.5 // Placeholder for future implementation
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get operator performance error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get operator performance',
+      code: 'OPERATOR_PERFORMANCE_FAILED'
     });
   }
 });
