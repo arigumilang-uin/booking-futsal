@@ -1006,7 +1006,9 @@ router.get('/operators', requireManagement, async (req, res) => {
           id: operator.id,
           name: operator.name,
           email: operator.email,
+          role: operator.role, // Include role field
           employee_id: operator.employee_id,
+          is_active: operator.is_active,
           assigned_fields: assignedFields.map(field => ({
             field_id: field.id,
             field_name: field.name
