@@ -46,7 +46,7 @@ console.log('🌍 Environment:', process.env.NODE_ENV);
 console.log('🚀 Server starting with enhanced CORS support...');
 
 // Simple and robust CORS configuration
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     console.log('🔍 CORS Check - Origin:', origin);
 
@@ -69,7 +69,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'Accept', 'Origin', 'X-Requested-With']
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Explicit preflight handling for all routes
 app.options('*', cors(corsOptions));
