@@ -20,11 +20,29 @@ const getOperatorDashboard = async (req, res) => {
     const operatorId = req.rawUser.id;
     console.log(`🔍 OPERATOR DASHBOARD - Loading for operator ID: ${operatorId}`);
 
+    // Debug: Get all bookings first
+    const { getAllBookings } = require('../../../models/business/bookingModel');
+    try {
+      const allBookings = await getAllBookings();
+      console.log(`🔍 OPERATOR DASHBOARD - Total bookings in database: ${allBookings.length}`);
+      console.log(`🔍 OPERATOR DASHBOARD - All bookings:`, allBookings.map(b => ({
+        id: b.id,
+        field_id: b.field_id,
+        field_name: b.field_name,
+        status: b.status,
+        payment_status: b.payment_status,
+        date: b.date
+      })));
+    } catch (error) {
+      console.error('❌ Error getting all bookings for debug:', error);
+    }
+
     // Step 1: Get assigned fields
     let assignedFields = [];
     try {
       assignedFields = await getFieldsByOperator(operatorId);
       console.log(`📍 OPERATOR DASHBOARD - Assigned fields: ${assignedFields.length}`);
+      console.log(`📍 OPERATOR DASHBOARD - Field IDs:`, assignedFields.map(f => ({ id: f.id, name: f.name })));
     } catch (error) {
       console.error('❌ Error getting assigned fields:', error);
       assignedFields = [];
@@ -35,10 +53,13 @@ const getOperatorDashboard = async (req, res) => {
     let operatorTodayBookings = [];
     try {
       todayBookings = await getTodayBookings();
+      console.log(`📅 OPERATOR DASHBOARD - All today bookings:`, todayBookings.map(b => ({ id: b.id, field_id: b.field_id, field_name: b.field_name })));
+
       operatorTodayBookings = todayBookings.filter(booking =>
         assignedFields.some(field => field.id === booking.field_id)
       );
       console.log(`📅 OPERATOR DASHBOARD - Today bookings: ${operatorTodayBookings.length}/${todayBookings.length}`);
+      console.log(`📅 OPERATOR DASHBOARD - Operator today bookings:`, operatorTodayBookings.map(b => ({ id: b.id, field_id: b.field_id, field_name: b.field_name })));
     } catch (error) {
       console.error('❌ Error getting today bookings:', error);
       todayBookings = [];
@@ -65,10 +86,13 @@ const getOperatorDashboard = async (req, res) => {
     let operatorPendingBookings = [];
     try {
       pendingBookings = await getBookingsByStatus('pending');
+      console.log(`⏳ OPERATOR DASHBOARD - All pending bookings:`, pendingBookings.map(b => ({ id: b.id, field_id: b.field_id, field_name: b.field_name, status: b.status, payment_status: b.payment_status })));
+
       operatorPendingBookings = pendingBookings.filter(booking =>
         assignedFields.some(field => field.id === booking.field_id)
       );
       console.log(`⏳ OPERATOR DASHBOARD - Pending bookings: ${operatorPendingBookings.length}/${pendingBookings.length}`);
+      console.log(`⏳ OPERATOR DASHBOARD - Operator pending bookings:`, operatorPendingBookings.map(b => ({ id: b.id, field_id: b.field_id, field_name: b.field_name, status: b.status, payment_status: b.payment_status })));
     } catch (error) {
       console.error('❌ Error getting pending bookings:', error);
       pendingBookings = [];
