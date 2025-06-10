@@ -16,6 +16,9 @@ const adminAuditPaths = require('./paths/admin-audit');
 const adminNotificationPaths = require('./paths/admin-notifications');
 const staffPaths = require('./paths/staff');
 const publicPaths = require('./paths/public');
+const paymentPaths = require('./paths/payment');
+const analyticsPaths = require('./paths/analytics');
+const auditPaths = require('./paths/audit');
 
 /**
  * Konfigurasi lengkap Swagger untuk Panam Soccer Field
@@ -62,6 +65,15 @@ const swaggerDefinition = {
       description: 'Development Server - Local Environment'
     }
   ],
+  // Frontend URL for CORS reference
+  'x-frontend-url': 'https://booking-futsal-frontend.vercel.app',
+  // CORS Configuration
+  'x-cors-config': {
+    origin: 'https://booking-futsal-frontend.vercel.app',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  },
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -89,7 +101,10 @@ const swaggerDefinition = {
     ...adminAuditPaths,
     ...adminNotificationPaths,
     ...staffPaths,
-    ...publicPaths
+    ...publicPaths,
+    ...paymentPaths,
+    ...analyticsPaths,
+    ...auditPaths
   },
   tags: [
     {
@@ -135,6 +150,18 @@ const swaggerDefinition = {
     {
       name: 'Admin - Notification Management',
       description: 'Endpoint untuk manajemen notifikasi sistem - Management Level'
+    },
+    {
+      name: 'Customer - Payment',
+      description: 'Endpoint untuk manajemen pembayaran customer - Level 2'
+    },
+    {
+      name: 'Analytics',
+      description: 'Endpoint untuk analytics dan reporting - Management Level+'
+    },
+    {
+      name: 'Audit & System',
+      description: 'Endpoint untuk audit logs dan system monitoring - Supervisor Only'
     },
     {
       name: 'Enhanced Features',
