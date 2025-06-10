@@ -40,31 +40,85 @@ const allowedOrigins = [
   'https://booking-futsal-production.up.railway.app'
 ];
 
-app.use(cors({
+console.log('🔧 CORS Configuration:');
+console.log('📋 Allowed Origins:', allowedOrigins);
+console.log('🌍 Environment:', process.env.NODE_ENV);
+console.log('🚀 Server starting with enhanced CORS support...');
+
+// Enhanced CORS configuration with explicit preflight handling
+const corsOptions = {
   origin: function (origin, callback) {
+    console.log('🔍 CORS Check - Origin:', origin);
+
     // Allow requests with no origin (like mobile apps, Postman, Swagger UI)
     if (!origin) {
+      console.log('✅ CORS: No origin - allowing');
       callback(null, true);
       return;
     }
 
     // Allow same-origin requests (Swagger UI)
     if (origin === 'https://booking-futsal-production.up.railway.app') {
+      console.log('✅ CORS: Same origin - allowing');
       callback(null, true);
       return;
     }
 
     // Check allowed origins
     if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS: Origin allowed -', origin);
       callback(null, true);
     } else {
+      console.log('❌ CORS: Origin blocked -', origin);
       callback(new Error('Not allowed by CORS: ' + origin));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'Accept', 'Origin', 'X-Requested-With']
-}));
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-API-Key',
+    'Accept',
+    'Origin',
+    'X-Requested-With',
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Methods'
+  ],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 200, // Support legacy browsers
+  preflightContinue: false // Pass control to next handler
+};
+
+app.use(cors(corsOptions));
+
+// Explicit preflight handling for all routes
+app.options('*', (req, res) => {
+  console.log('🔄 Preflight request for:', req.path, 'from origin:', req.get('Origin'));
+
+  res.header('Access-Control-Allow-Origin', req.get('Origin'));
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, Accept, Origin, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+
+  res.sendStatus(200);
+});
+
+// Additional CORS middleware to ensure headers are always set
+app.use((req, res, next) => {
+  const origin = req.get('Origin');
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, Accept, Origin, X-Requested-With');
+  }
+
+  next();
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
