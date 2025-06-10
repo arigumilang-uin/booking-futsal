@@ -47,8 +47,8 @@ const server = app.listen(PORT, () => {
   startMetricsCollection(60000); // Collect metrics every minute
 });
 
-// Auto-completion cron job - runs every 30 minutes
-const cronSchedule = process.env.AUTO_COMPLETION_SCHEDULE || '*/30 * * * *';
+// Auto-completion cron job - runs every 5 minutes for better responsiveness
+const cronSchedule = process.env.AUTO_COMPLETION_SCHEDULE || '*/5 * * * *';
 const enableAutoCron = process.env.ENABLE_AUTO_COMPLETION !== 'false';
 
 // Get safe timezone configuration using utility

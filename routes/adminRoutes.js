@@ -1281,4 +1281,33 @@ router.delete('/cache/:type', requireAdmin, clearCache);
  */
 router.post('/cache/warmup', requireAdmin, warmUpCache);
 
+// =====================================================
+// TESTING & DEBUGGING ROUTES - ADMIN ONLY
+// =====================================================
+
+/**
+ * @route   POST /api/admin/trigger/auto-completion
+ * @desc    Manual trigger auto-completion (for testing)
+ * @access  Admin (supervisor_sistem only)
+ */
+router.post('/trigger/auto-completion', requireAdmin, async (req, res) => {
+  try {
+    const { updateCompletedBookings } = require('../utils/autoCompletion');
+    const result = await updateCompletedBookings();
+
+    res.json({
+      success: true,
+      message: 'Auto-completion triggered successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Manual auto-completion error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trigger auto-completion',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router;
