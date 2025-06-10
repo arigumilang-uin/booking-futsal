@@ -3,9 +3,9 @@ const { getAvailableFields, getFieldById, getFieldAvailability } = require('../.
 const getPublicFields = async (req, res) => {
   try {
     const { page = 1, limit = 10, search, type, location } = req.query;
-    
+
     let fields = await getAvailableFields();
-    
+
     if (search) {
       fields = fields.filter(field =>
         field.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -48,7 +48,7 @@ const getPublicFields = async (req, res) => {
       rating: field.rating,
       total_reviews: field.total_reviews
     }));
-    
+
     res.json({
       success: true,
       data: publicFields,
@@ -71,7 +71,7 @@ const getPublicFields = async (req, res) => {
 const getPublicFieldDetail = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const field = await getFieldById(id);
     if (!field) {
       return res.status(404).json({
@@ -106,7 +106,7 @@ const getPublicFieldDetail = async (req, res) => {
       rating: field.rating,
       total_reviews: field.total_reviews
     };
-    
+
     res.json({
       success: true,
       data: publicField
@@ -124,7 +124,7 @@ const getPublicFieldAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const { date } = req.query;
-    
+
     if (!date) {
       return res.status(400).json({
         error: 'Date parameter is required'
@@ -137,9 +137,9 @@ const getPublicFieldAvailability = async (req, res) => {
         error: 'Field not found or not available'
       });
     }
-    
+
     const availability = await getFieldAvailability(id, date);
-    
+
     res.json({
       success: true,
       data: {
@@ -147,7 +147,9 @@ const getPublicFieldAvailability = async (req, res) => {
         field_name: field.name,
         date: date,
         operating_hours: field.operating_hours,
-        availability: availability
+        availability: availability.available_slots || [],
+        total_available: availability.total_available || 0,
+        booked_slots: availability.booked_slots || 0
       }
     });
 
@@ -163,7 +165,7 @@ const getFieldTypes = async (req, res) => {
   try {
     const fields = await getAvailableFields();
     const types = [...new Set(fields.map(field => field.type))];
-    
+
     res.json({
       success: true,
       data: types
@@ -181,7 +183,7 @@ const getFieldLocations = async (req, res) => {
   try {
     const fields = await getAvailableFields();
     const locations = [...new Set(fields.map(field => field.location))];
-    
+
     res.json({
       success: true,
       data: locations
@@ -206,7 +208,7 @@ const getSystemInfo = async (req, res) => {
         enhanced_role_system: true,
         supported_roles: [
           'pengunjung',
-          'penyewa', 
+          'penyewa',
           'staff_kasir',
           'operator_lapangan',
           'manajer_futsal',
