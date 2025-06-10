@@ -40,41 +40,31 @@ const allowedOrigins = [
   'https://booking-futsal-production.up.railway.app'
 ];
 
-console.log('🔧 CORS Configuration:');
-console.log('📋 Allowed Origins:', allowedOrigins);
-console.log('🌍 Environment:', process.env.NODE_ENV);
-console.log('🚀 Server starting with enhanced CORS support...');
-
-// Simple and robust CORS configuration
-const corsOptions = {
+app.use(cors({
   origin: function (origin, callback) {
-    console.log('🔍 CORS Check - Origin:', origin);
-
     // Allow requests with no origin (like mobile apps, Postman, Swagger UI)
     if (!origin) {
-      console.log('✅ CORS: No origin - allowing');
+      callback(null, true);
+      return;
+    }
+
+    // Allow same-origin requests (Swagger UI)
+    if (origin === 'https://booking-futsal-production.up.railway.app') {
       callback(null, true);
       return;
     }
 
     // Check allowed origins
     if (allowedOrigins.includes(origin)) {
-      console.log('✅ CORS: Origin allowed -', origin);
       callback(null, true);
     } else {
-      console.log('❌ CORS: Origin blocked -', origin);
       callback(new Error('Not allowed by CORS: ' + origin));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'Accept', 'Origin', 'X-Requested-With']
-};
-
-app.use(cors(corsOptions));
-
-// Explicit preflight handling for all routes
-app.options('*', cors(corsOptions));
+}));
 
 
 
