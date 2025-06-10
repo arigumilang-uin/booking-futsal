@@ -303,17 +303,28 @@ const confirmPayment = async (req, res) => {
         });
       }
 
-      // Update payment status
-      const updatedPayment = await updatePaymentStatusInPayments(
-        id,
-        'paid',
-        {
-          notes: notes || `Payment confirmed by kasir: ${req.rawUser.name}`,
-          confirmed_by: req.rawUser.name,
-          employee_id: req.rawUser.employee_id,
-          confirmed_at: new Date().toISOString()
-        }
-      );
+      // Use direct SQL update to bypass updatePaymentStatus issues
+      const pool = require('../../../config/db');
+      const updateQuery = `
+        UPDATE payments
+        SET status = 'paid',
+            paid_at = NOW(),
+            updated_at = NOW(),
+            gateway_response = $1
+        WHERE id = $2
+        RETURNING id, uuid, payment_number, status, paid_at, updated_at
+      `;
+
+      const confirmationNotes = notes || `Payment confirmed by kasir: ${req.rawUser.name}`;
+      const updateResult = await pool.query(updateQuery, [confirmationNotes, id]);
+      const updatedPayment = updateResult.rows[0];
+
+      if (!updatedPayment) {
+        return res.status(500).json({
+          error: 'Failed to update payment status',
+          code: 'PAYMENT_UPDATE_FAILED'
+        });
+      }
 
       // Update booking payment status
       await updateBookingPaymentStatus(payment.booking_id, 'paid');
@@ -328,7 +339,12 @@ const confirmPayment = async (req, res) => {
       res.json({
         success: true,
         message: 'Payment confirmed successfully',
-        data: updatedPayment
+        data: {
+          ...updatedPayment,
+          booking_id: payment.booking_id,
+          method: payment.method,
+          amount: payment.amount
+        }
       });
     }
 
