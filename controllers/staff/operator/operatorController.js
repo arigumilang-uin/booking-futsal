@@ -18,48 +18,91 @@ const {
 const getOperatorDashboard = async (req, res) => {
   try {
     const operatorId = req.rawUser.id;
+    console.log(`🔍 OPERATOR DASHBOARD - Loading for operator ID: ${operatorId}`);
 
-    const assignedFields = await getFieldsByOperator(operatorId);
+    // Step 1: Get assigned fields
+    let assignedFields = [];
+    try {
+      assignedFields = await getFieldsByOperator(operatorId);
+      console.log(`📍 OPERATOR DASHBOARD - Assigned fields: ${assignedFields.length}`);
+    } catch (error) {
+      console.error('❌ Error getting assigned fields:', error);
+      assignedFields = [];
+    }
 
-    const todayBookings = await getTodayBookings();
-    const operatorTodayBookings = todayBookings.filter(booking =>
-      assignedFields.some(field => field.id === booking.field_id)
-    );
+    // Step 2: Get today's bookings
+    let todayBookings = [];
+    let operatorTodayBookings = [];
+    try {
+      todayBookings = await getTodayBookings();
+      operatorTodayBookings = todayBookings.filter(booking =>
+        assignedFields.some(field => field.id === booking.field_id)
+      );
+      console.log(`📅 OPERATOR DASHBOARD - Today bookings: ${operatorTodayBookings.length}/${todayBookings.length}`);
+    } catch (error) {
+      console.error('❌ Error getting today bookings:', error);
+      todayBookings = [];
+      operatorTodayBookings = [];
+    }
 
-    const upcomingBookings = await getUpcomingBookings(7);
-    const operatorUpcomingBookings = upcomingBookings.filter(booking =>
-      assignedFields.some(field => field.id === booking.field_id)
-    );
+    // Step 3: Get upcoming bookings
+    let upcomingBookings = [];
+    let operatorUpcomingBookings = [];
+    try {
+      upcomingBookings = await getUpcomingBookings(7);
+      operatorUpcomingBookings = upcomingBookings.filter(booking =>
+        assignedFields.some(field => field.id === booking.field_id)
+      );
+      console.log(`📈 OPERATOR DASHBOARD - Upcoming bookings: ${operatorUpcomingBookings.length}/${upcomingBookings.length}`);
+    } catch (error) {
+      console.error('❌ Error getting upcoming bookings:', error);
+      upcomingBookings = [];
+      operatorUpcomingBookings = [];
+    }
 
-    const pendingBookings = await getBookingsByStatus('pending');
-    const operatorPendingBookings = pendingBookings.filter(booking =>
-      assignedFields.some(field => field.id === booking.field_id)
-    );
+    // Step 4: Get pending bookings
+    let pendingBookings = [];
+    let operatorPendingBookings = [];
+    try {
+      pendingBookings = await getBookingsByStatus('pending');
+      operatorPendingBookings = pendingBookings.filter(booking =>
+        assignedFields.some(field => field.id === booking.field_id)
+      );
+      console.log(`⏳ OPERATOR DASHBOARD - Pending bookings: ${operatorPendingBookings.length}/${pendingBookings.length}`);
+    } catch (error) {
+      console.error('❌ Error getting pending bookings:', error);
+      pendingBookings = [];
+      operatorPendingBookings = [];
+    }
 
+    const dashboardData = {
+      operator_info: {
+        name: req.rawUser.name,
+        employee_id: req.rawUser.employee_id,
+        assigned_fields_count: assignedFields.length
+      },
+      assigned_fields: assignedFields,
+      today_bookings: operatorTodayBookings,
+      upcoming_bookings: operatorUpcomingBookings.slice(0, 10),
+      pending_bookings: operatorPendingBookings,
+      statistics: {
+        today_bookings_count: operatorTodayBookings.length,
+        upcoming_bookings_count: operatorUpcomingBookings.length,
+        pending_bookings_count: operatorPendingBookings.length
+      }
+    };
+
+    console.log(`✅ OPERATOR DASHBOARD - Success for ${req.rawUser.name}`);
     res.json({
       success: true,
-      data: {
-        operator_info: {
-          name: req.rawUser.name,
-          employee_id: req.rawUser.employee_id,
-          assigned_fields_count: assignedFields.length
-        },
-        assigned_fields: assignedFields,
-        today_bookings: operatorTodayBookings,
-        upcoming_bookings: operatorUpcomingBookings.slice(0, 10),
-        pending_bookings: operatorPendingBookings,
-        statistics: {
-          today_bookings_count: operatorTodayBookings.length,
-          upcoming_bookings_count: operatorUpcomingBookings.length,
-          pending_bookings_count: operatorPendingBookings.length
-        }
-      }
+      data: dashboardData
     });
 
   } catch (error) {
-    console.error('Get operator dashboard error:', error);
+    console.error('❌ Get operator dashboard error:', error);
     res.status(500).json({
-      error: 'Failed to get operator dashboard'
+      error: 'Failed to get operator dashboard',
+      details: error.message
     });
   }
 };
