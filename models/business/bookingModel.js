@@ -297,7 +297,7 @@ const getTodayBookings = async (limit = 50) => {
 };
 
 const getUpcomingBookings = async (days = 7, limit = 100) => {
-  // Optimized: Added LIMIT and parameterized days interval
+  // Fixed: Use proper parameterized query for interval
   const query = `
     SELECT b.id, b.uuid, b.booking_number, b.user_id, b.field_id, b.date,
            b.start_time, b.end_time, b.duration_hours, b.name, b.phone, b.email,
@@ -308,7 +308,7 @@ const getUpcomingBookings = async (days = 7, limit = 100) => {
     FROM bookings b
     LEFT JOIN users u ON b.user_id = u.id
     LEFT JOIN fields f ON b.field_id = f.id
-    WHERE b.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '$1 days'
+    WHERE b.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '1 day' * $1
       AND b.status IN ('pending', 'confirmed')
     ORDER BY b.date ASC, b.start_time ASC
     LIMIT $2
