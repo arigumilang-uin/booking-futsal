@@ -4,7 +4,7 @@ const { updateBookingStatus } = require('../models/business/bookingModel');
 const updateCompletedBookings = async () => {
   try {
     console.log('[AUTO-COMPLETION] Starting booking completion check...');
-    
+
     const now = new Date();
     const currentTime = now.toTimeString().slice(0, 8);
     const currentDate = now.toISOString().split('T')[0];
@@ -32,22 +32,29 @@ const updateCompletedBookings = async () => {
         AND b.completed_at IS NULL
       ORDER BY b.date ASC, b.end_time ASC
     `;
-    
+
     const expiredBookings = await pool.query(expiredBookingsQuery, [currentDate, currentTime]);
-    
+
     if (expiredBookings.rows.length === 0) {
       console.log('[AUTO-COMPLETION] No bookings to complete');
       return [];
     }
-    
+
     console.log(`[AUTO-COMPLETION] Found ${expiredBookings.rows.length} bookings to complete`);
-    
+
     const completedBookings = [];
-    
+
     for (const booking of expiredBookings.rows) {
       try {
-        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}`);
+        // Create booking end time in UTC (database stores in UTC)
+        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}Z`);
         const gracePeriodEnd = new Date(bookingEndDateTime.getTime() + (15 * 60 * 1000));
+
+        console.log(`[AUTO-COMPLETION] 🔍 Checking booking ${booking.booking_number}:`);
+        console.log(`  End time: ${booking.end_time} (${bookingEndDateTime.toISOString()})`);
+        console.log(`  Grace period ends: ${gracePeriodEnd.toISOString()}`);
+        console.log(`  Current time: ${now.toISOString()}`);
+        console.log(`  Should complete: ${now >= gracePeriodEnd}`);
 
         if (now >= gracePeriodEnd) {
           const updatedBooking = await updateBookingStatus(
@@ -56,7 +63,7 @@ const updateCompletedBookings = async () => {
             null,
             `Auto-completed by system at ${now.toISOString()}`
           );
-          
+
           completedBookings.push({
             id: booking.id,
             booking_number: booking.booking_number,
@@ -66,25 +73,25 @@ const updateCompletedBookings = async () => {
             end_time: booking.end_time,
             completed_at: updatedBooking.completed_at
           });
-          
+
           console.log(`[AUTO-COMPLETION] ✅ Completed booking ${booking.booking_number} (${booking.field_name})`);
         } else {
           console.log(`[AUTO-COMPLETION] ⏳ Booking ${booking.booking_number} still in grace period`);
         }
-        
+
       } catch (error) {
         console.error(`[AUTO-COMPLETION] ❌ Failed to complete booking ${booking.booking_number}:`, error.message);
         await logAutoCompletionError(booking.id, error.message);
       }
     }
-    
+
     if (completedBookings.length > 0) {
       console.log(`[AUTO-COMPLETION] ✅ Successfully completed ${completedBookings.length} bookings`);
       await logAutoCompletionSuccess(completedBookings.length);
     }
-    
+
     return completedBookings;
-    
+
   } catch (error) {
     console.error('[AUTO-COMPLETION] ❌ System error during auto-completion:', error);
     throw error;
@@ -94,26 +101,26 @@ const updateCompletedBookings = async () => {
 const triggerManualCompletion = async (bookingId, adminUserId, reason = 'Manual completion by admin') => {
   try {
     const booking = await pool.query('SELECT * FROM bookings WHERE id = $1', [bookingId]);
-    
+
     if (booking.rows.length === 0) {
       throw new Error('Booking not found');
     }
-    
+
     if (booking.rows[0].status !== 'confirmed') {
       throw new Error('Booking is not in confirmed status');
     }
-    
+
     const updatedBooking = await updateBookingStatus(
       bookingId,
       'completed',
       adminUserId,
       reason
     );
-    
+
     console.log(`[MANUAL-COMPLETION] ✅ Manually completed booking ${booking.rows[0].booking_number}`);
-    
+
     return updatedBooking;
-    
+
   } catch (error) {
     console.error('[MANUAL-COMPLETION] ❌ Error in manual completion:', error);
     throw error;
