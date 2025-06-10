@@ -46,12 +46,15 @@ const updateCompletedBookings = async () => {
 
     for (const booking of expiredBookings.rows) {
       try {
-        // Create booking end time in UTC (database stores in UTC)
-        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}Z`);
-        const gracePeriodEnd = new Date(bookingEndDateTime.getTime() + (15 * 60 * 1000));
+        // Database stores time in WIB (UTC+7), convert to UTC for comparison
+        const bookingEndDateTime = new Date(`${booking.date}T${booking.end_time}`);
+        // Subtract 7 hours to convert WIB to UTC
+        const bookingEndUTC = new Date(bookingEndDateTime.getTime() - (7 * 60 * 60 * 1000));
+        const gracePeriodEnd = new Date(bookingEndUTC.getTime() + (15 * 60 * 1000));
 
         console.log(`[AUTO-COMPLETION] 🔍 Checking booking ${booking.booking_number}:`);
-        console.log(`  End time: ${booking.end_time} (${bookingEndDateTime.toISOString()})`);
+        console.log(`  End time WIB: ${booking.end_time} (${bookingEndDateTime.toISOString()})`);
+        console.log(`  End time UTC: ${bookingEndUTC.toISOString()}`);
         console.log(`  Grace period ends: ${gracePeriodEnd.toISOString()}`);
         console.log(`  Current time: ${now.toISOString()}`);
         console.log(`  Should complete: ${now >= gracePeriodEnd}`);
